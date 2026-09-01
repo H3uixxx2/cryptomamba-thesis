@@ -44,7 +44,7 @@ python scripts/run_backtest.py   --config cmamba_v --ckpt_path checkpoints/cmamb
 ```
 
 Outputs land in `output/`. Expected numbers (test split): RMSE ≈ 1612.35, MAPE ≈ 2.05%,
-directional accuracy ≈ 56.86%. See the thesis PDF (`../../thesis/final/draft_offical.pdf`) and
+directional accuracy ≈ 56.86%. See
 the evidence submodule (`../../evidence/`) for the checked-in reference values + SHA-256 sums.
 
 Upstream research README: `README.upstream.md`.
