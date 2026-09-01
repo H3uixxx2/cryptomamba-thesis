@@ -22,37 +22,44 @@ class TestReproduceApi(unittest.TestCase):
         r = client.get("/api/reproduce")
         self.assertEqual(r.status_code, 200)
         d = r.json()
-        # Status flags always present regardless of READY/NOT_READY.
-        for key in ("status", "forecast_status", "replay_status", "baseline_status",
-                    "baseline_models_present", "errors", "final_evidence_status",
-                    "paper_reported", "controlled_local", "paired_tests"):
+        for key in ("status", "errors", "final_evidence_status", "final_evidence_error",
+                    "paper_reported", "controlled_local", "paired_tests",
+                    "reproduction_350d", "forecast_robustness"):
             self.assertIn(key, d)
-        self.assertEqual(d["final_evidence_status"], "READY")
+        # With the committed evidence bundle present this must be READY, not skipped:
+        # a silent skip here previously hid a broken artifact contract.
+        self.assertEqual(d["final_evidence_status"], "READY", d["errors"])
+        self.assertEqual(d["status"], "READY", d["errors"])
+        self.assertEqual(d["errors"], [])
+
+        # Thesis scope: the paper's other baselines are published aggregates only,
+        # and exactly three models have local, date-aligned results.
         self.assertTrue(d["paper_reported"])
-        self.assertEqual(len(d["controlled_local"]), 6)
-        self.assertTrue(d["paired_tests"])
+        self.assertTrue(
+            all(row["source_label"] == "Paper-reported" for row in d["paper_reported"])
+        )
+        self.assertEqual(len(d["controlled_local"]), 6)  # 3 models x val/test
         self.assertEqual(
             {row["model_id"] for row in d["controlled_local"]},
             {"cmamba_v_reproduced", "s5_full", "naive_persistence"},
         )
-        if d["status"] != "READY":
-            self.skipTest(f"artifacts not READY in this env: {d['errors']}")
-        for key in ("forecast_metrics", "trading_replay_test", "baseline_comparison",
-                    "significance", "model_metrics", "evidence", "charts"):
-            self.assertIn(key, d)
-        # Forecast comparison has the gap/verdict columns straight from the CSV.
-        self.assertTrue(d["forecast_metrics"])
-        self.assertIn("RMSE", d["forecast_metrics"][0])
-        self.assertIn("status", d["forecast_metrics"][0])
-        # Exactly one CryptoMamba-v entry in the cross-model frame (no duplicates).
-        cm = [m for m in d["model_metrics"] if "cryptomamba" in m["model"].lower()]
-        self.assertEqual(len(cm), 1, d["model_metrics"])
-        self.assertTrue(all("dir_coverage_pct" in m for m in d["model_metrics"]))
-        naive = next(m for m in d["model_metrics"] if m["model"] == "naive_persistence")
-        self.assertEqual(naive["dir_coverage_pct"], 0.0)
-        self.assertEqual(cm[0]["dir_coverage_pct"], 100.0)
-        # Evidence carries the frozen checkpoint provenance.
-        self.assertTrue(d["evidence"]["checkpoint_sha256"])
+        self.assertTrue(d["paired_tests"])
+        # No local multi-baseline comparison is served any more.
+        for legacy in ("baseline_comparison", "model_metrics", "significance", "charts"):
+            self.assertNotIn(legacy, d)
+
+        # Persistence carries the current close forward, so it has no directional call.
+        naive = next(
+            row for row in d["controlled_local"] if row["model_id"] == "naive_persistence"
+        )
+        self.assertEqual(naive["directional_coverage_pct"], 0)
+        cm = next(
+            row for row in d["controlled_local"] if row["model_id"] == "cmamba_v_reproduced"
+        )
+        self.assertEqual(cm["directional_coverage_pct"], 100)
+        self.assertTrue(cm["checkpoint_sha256"])
+        self.assertEqual(d["reproduction_350d"]["status"], "READY")
+        self.assertEqual(d["forecast_robustness"]["status"], "READY")
 
     def test_350_day_reproduction_is_recomputed_from_pinned_predictions(self):
         response = client.get("/api/reproduce")

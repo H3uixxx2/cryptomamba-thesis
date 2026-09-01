@@ -13,15 +13,15 @@ console/
 │   ├── pyproject.toml  requirements.txt
 │   └── src/console_api/
 │       ├── main.py              # FastAPI app factory + router mounts
-│       ├── core/config.py       # path resolution + settings (env-overridable)
-│       ├── routers/             # HTTP endpoints, one module per screen
-│       ├── services/            # (reserved) screen business logic
+│       ├── core/                # config.py (paths, env-overridable) + errors.py (domain errors)
+│       ├── routers/             # HTTP only: parse -> call service -> map errors
+│       ├── services/            # business logic, one module per screen (no FastAPI import)
 │       ├── loaders/             # data access — evidence bundle, artifacts, checkpoint worker
 │       │   ├── final_evidence.py         # verify-once SHA256SUMS reader for evidence/
 │       │   ├── reproduction_evidence.py  # 350-day reproduction recompute
 │       │   ├── forecast_robustness.py    # bootstrap interval reader
 │       │   └── checkpoint_inference.py   # bounded subprocess adapter -> model-backend worker
-│       ├── schemas/             # (reserved) pydantic response models
+│       ├── schemas/             # pydantic request models
 │       ├── logic.py             # facade over the vendored cryptomamba_ui package
 │       └── vendor/cryptomamba_ui/   # 7 modules vendored from the Streamlit repo (frozen copy)
 ├── frontend/                    # Vite + React 19 + TS + Tailwind + shadcn/ui + Plotly.js
@@ -63,7 +63,7 @@ cd frontend && pnpm install && pnpm dev     # proxies /api -> :8600
 cd backend && PYTHONPATH=src ./.venv/bin/python -m unittest discover -s tests -v
 ```
 
-83 contract tests: API response shapes, honest `NOT_READY` handling, evidence-integrity
+81 contract tests: API response shapes, honest `NOT_READY` handling, evidence-integrity
 fail-closed behavior, and static guards on thesis-critical frontend labels/diagrams.
 
 ## Notes

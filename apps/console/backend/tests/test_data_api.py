@@ -143,7 +143,7 @@ class TestDataApi(unittest.TestCase):
             rows.append(f"2020-01-{day:02d},100,102,98,101,1000")
         no_raise_client = TestClient(app, raise_server_exceptions=False)
 
-        with patch("console_api.routers.data._build_response", side_effect=RuntimeError("defect")):
+        with patch("console_api.services.data_service.build_dataset_response", side_effect=RuntimeError("defect")):
             r = no_raise_client.post(
                 "/api/data/upload",
                 files={"file": ("valid.csv", io.BytesIO("\n".join(rows).encode()), "text/csv")},

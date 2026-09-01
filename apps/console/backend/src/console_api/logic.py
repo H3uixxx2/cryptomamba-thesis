@@ -19,10 +19,6 @@ try:  # reused, unchanged logic
         DatasetBundle,
         DatasetService,
     )
-    from console_api.vendor.cryptomamba_ui.reproduce_artifacts import (  # noqa: F401
-        ReproduceArtifacts,
-        load_reproduce_artifacts,
-    )
     from console_api.vendor.cryptomamba_ui.api_client import (  # noqa: F401
         ApiClientError,
         CryptoMambaApiClient,

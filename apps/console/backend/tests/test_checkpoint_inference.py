@@ -172,7 +172,7 @@ class TestCheckpointApi(unittest.TestCase):
         )
         self.assertNotIn("s5-150", json.dumps(body).lower())
 
-    @patch("console_api.routers.predict.run_checkpoint_inference")
+    @patch("console_api.services.predict_service.run_checkpoint_inference")
     def test_checkpoint_endpoint_returns_real_worker_provenance(self, run) -> None:
         run.return_value = _worker_result()
         request = GOLDEN["cmamba_v_reproduced"]["request"]
@@ -189,7 +189,7 @@ class TestCheckpointApi(unittest.TestCase):
         self.assertNotIn("mock", json.dumps(body).lower())
         run.assert_called_once_with(request)
 
-    @patch("console_api.routers.predict.run_checkpoint_inference")
+    @patch("console_api.services.predict_service.run_checkpoint_inference")
     def test_checkpoint_rejects_target_not_day_after_selected_window(self, run) -> None:
         request = deepcopy(GOLDEN["cmamba_v_reproduced"]["request"])
         request["prediction_date"] = "2022-12-01"
@@ -203,7 +203,7 @@ class TestCheckpointApi(unittest.TestCase):
         self.assertIn("one calendar day", response.json()["detail"])
         run.assert_not_called()
 
-    @patch("console_api.routers.predict.run_checkpoint_inference")
+    @patch("console_api.services.predict_service.run_checkpoint_inference")
     def test_checkpoint_rejects_gap_in_selected_daily_window(self, run) -> None:
         request = deepcopy(GOLDEN["cmamba_v_reproduced"]["request"])
         request["candles"][0]["date"] = "2022-11-01"
@@ -217,7 +217,7 @@ class TestCheckpointApi(unittest.TestCase):
         self.assertIn("contiguous daily", response.json()["detail"])
         run.assert_not_called()
 
-    @patch("console_api.routers.predict.run_checkpoint_inference")
+    @patch("console_api.services.predict_service.run_checkpoint_inference")
     def test_checkpoint_fails_closed_on_evidence_provenance_mismatch(self, run) -> None:
         request = GOLDEN["cmamba_v_reproduced"]["request"]
         mismatches = {
@@ -241,7 +241,7 @@ class TestCheckpointApi(unittest.TestCase):
                 self.assertIn("provenance", response.json()["detail"].lower())
                 run.reset_mock()
 
-    @patch("console_api.routers.predict.run_checkpoint_inference")
+    @patch("console_api.services.predict_service.run_checkpoint_inference")
     def test_checkpoint_worker_errors_keep_http_status(self, run) -> None:
         run.side_effect = CheckpointInferenceError(400, "requires 60 history candles")
 

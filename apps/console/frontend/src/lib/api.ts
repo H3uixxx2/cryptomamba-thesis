@@ -109,47 +109,9 @@ export function previewDataWindow(candles: DataCandle[], predictionDate: string)
 
 /* ----------------------------- Reproduce -------------------------------- */
 
-export interface ForecastRow {
-  result_type: string;
-  RMSE: number;
-  MAE?: number;
-  MAPE_pct: number;
-  paper_RMSE?: number;
-  paper_MAE?: number;
-  paper_MAPE_pct?: number;
-  RMSE_gap_pct?: number;
-  MAE_gap_pct?: number;
-  MAPE_gap_pct?: number;
-  tolerance_pct?: number;
-  status: string;
-}
 
-export interface SignificanceRow {
-  comparison: string;
-  cm_directional_acc_pct: number;
-  baseline_directional_acc_pct: number;
-  dm_p_value: number;
-  wilcoxon_p_value: number;
-  conclusion: string;
-}
 
-export interface ModelMetricRow {
-  model: string;
-  RMSE: number | null;
-  MAPE_pct: number | null;
-  dir_acc_pct: number | null;
-  dir_coverage_pct?: number | null;
-}
 
-export interface ReplayRow {
-  trade_mode: string;
-  result_type: string;
-  split?: string;
-  final_balance?: number;
-  paper_final_balance?: number;
-  max_drawdown_pct?: number;
-  [k: string]: unknown;
-}
 
 export interface Reproduction350dMetricRow {
   result_type: "official_checkpoint" | "retrained_checkpoint";
@@ -297,30 +259,7 @@ export interface ReproduceResponse {
     wilcoxon: string;
     scope: string;
   };
-  forecast_status?: string;
-  replay_status?: string;
-  baseline_status?: string;
-  baseline_models_present: string[];
-  baseline_models_missing: string[];
   errors: string[];
-  forecast_metrics?: ForecastRow[];
-  trading_replay_test?: ReplayRow[];
-  baseline_comparison?: Record<string, unknown>[];
-  significance?: SignificanceRow[];
-  model_metrics?: ModelMetricRow[];
-  evidence?: {
-    checkpoint_sha256?: string;
-    source_commit?: string;
-    selection_reason?: string;
-    expected_tensor_shape?: number[];
-    expected_predicted_close?: number;
-    validation_status?: string;
-    forecast_rows?: number;
-    prediction_rows?: number;
-    replay_rows?: number;
-    baseline_rows?: number;
-  };
-  charts?: Record<string, PlotlyFigure | undefined>;
 }
 
 export interface PaperReportedMetricRow {

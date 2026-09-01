@@ -18,7 +18,7 @@ Two apps, one shared evidence bundle. Dependencies point one way: `console → m
                                    │ (real Predict     ┌───────────────────────────┐
                                    │  inference)       │  apps/console/backend      │
                                    └─────────────────▶ │  console_api/              │
-                                                       │   routers  → services?    │
+                                                       │   routers → services      │
    ┌──────────────────┐   verify-once SHA256SUMS       │   loaders  → files/worker │
    │  evidence/           │◀────────────────────────────│   vendor/cryptomamba_ui   │
    │  SHA256SUMS + files │                             └──────────┬────────────────┘
@@ -35,11 +35,12 @@ Two apps, one shared evidence bundle. Dependencies point one way: `console → m
 
 | Layer | Responsibility | Modules |
 |---|---|---|
-| `routers/` | HTTP: parse request, call logic, shape response, map errors | `data`, `reproduce`, `predict`, `trading`, `architecture` |
+| `routers/` | HTTP only: parse the request, call one service, translate domain errors. No pandas/plotly. | `data`, `reproduce`, `predict`, `trading`, `architecture`, `_http` |
 | `loaders/` | data access — read frozen artifacts, verify the evidence bundle, drive the checkpoint worker | `final_evidence`, `reproduction_evidence`, `forecast_robustness`, `checkpoint_inference` |
 | `vendor/cryptomamba_ui/` | frozen copy of the validated data/chart/trading/artifact logic reused from the Streamlit repo | 7 modules |
-| `core/` | path resolution + settings | `config` |
-| `services/`, `schemas/` | reserved for further extraction (routers currently hold their own screen helpers) | — |
+| `core/` | path resolution, settings, domain error types | `config`, `errors` |
+| `services/` | business logic, one module per screen. Never imports FastAPI; raises `core.errors.ConsoleError`. | `data_service`, `reproduce_service`, `predict_service`, `trading_service`, `architecture_service` |
+| `schemas/` | pydantic request models | `data`, `predict`, `trading` |
 
 ## Evidence integrity
 
