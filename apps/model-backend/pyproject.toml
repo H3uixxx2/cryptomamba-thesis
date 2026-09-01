@@ -10,6 +10,10 @@ readme = "README.md"
 requires-python = ">=3.9"
 dynamic = ["dependencies"]
 
+[project.optional-dependencies]
+# tests/test_thesis_*.py are written against pytest; the runtime deps do not include it.
+dev = ["pytest"]
+
 [tool.setuptools]
 packages = ["models", "models.layers", "pl_modules", "data_utils", "utils", "thesis_pipeline"]
 
