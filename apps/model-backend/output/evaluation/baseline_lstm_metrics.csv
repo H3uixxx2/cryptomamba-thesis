@@ -1,2 +1,0 @@
-model,split,samples,RMSE,MAE,MAPE_pct,directional_accuracy_strict_pct,directional_coverage_pct,checkpoint,protocol
-lstm,test,350,2204.760558,1671.793424,2.902949,47.714286,100.0,lstm_v_best.ckpt,lstm_v; seed=23; evaluation.py-equivalent inference; normalize=True; window=14; released sample count

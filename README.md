@@ -1,8 +1,10 @@
 # CryptoMamba — thesis source code
 
 Reproduction and controlled evaluation of **CryptoMamba** (arXiv:2501.01010) for next-day
-BTC-USD Close forecasting: the model, the offline evaluation and chronological trading backtest,
-the baseline comparison, and a five-screen demo console.
+BTC-USD Close forecasting: the model, a controlled comparison of CryptoMamba-v, CMamba-T
+("S5-Full"), and naive persistence on common dates, a corrected chronological trading backtest,
+and a five-screen demo console. The paper's other baselines are reported only as published
+aggregates — they are not re-run here.
 
 This repository is **code + the evidence it produces** — not the thesis document. See
 [*What's not here*](#whats-not-here).
@@ -55,7 +57,7 @@ git clone --recurse-submodules https://github.com/H3uixxx2/cryptomamba-thesis.gi
 
 | | `apps/model-backend` | `apps/console` |
 |---|---|---|
-| **What** | CryptoMamba-v + CMamba-T ("S5-Full") + LSTM/GRU/iTransformer baselines; Lightning training; offline evaluation & trading engine (`thesis_pipeline/`) | 5-screen demo: FastAPI (`backend/`) + React (`frontend/`) |
+| **What** | CryptoMamba-v + CMamba-T ("S5-Full"); Lightning training; offline evaluation, paired tests, and trading engine (`thesis_pipeline/`) | 5-screen demo: FastAPI (`backend/`) + React (`frontend/`) |
 | **Stack** | Python, PyTorch, Lightning, Mamba SSM | FastAPI, React 19, Tailwind, Plotly |
 | **Runs on** | Linux + CUDA (Colab) for the model; plain CPU for the offline backtest/eval | any machine (Python 3.9+); the demo bundle needs no Node |
 | **Depends on** | nothing else in this repo | reads `model-backend/output/**` + `evidence/final/**`; shells to `model-backend/.venv` for real Predict-screen inference |

@@ -264,37 +264,5 @@ class TestTradingBacktestApi(unittest.TestCase):
         )
 
 
-class TestPlanApi(unittest.TestCase):
-    def test_plan_shape(self):
-        d = client.get("/api/plan").json()
-        self.assertEqual(len(d["page_status"]), 5)
-        self.assertTrue(d["artifact_slots"])
-        for key in ("validated", "pending", "demo_story"):
-            self.assertTrue(d[key])
-        # Each artifact slot reports a real present/missing badge.
-        for slot in d["artifact_slots"]:
-            self.assertIn(slot["badge_text"], ("PRESENT", "MISSING"))
-        # Usability study is always disclosed as pending (deliberate deviation).
-        self.assertIn("Usability study", {p["name"] for p in d["pending"]})
-
-    def test_plan_state_driven_no_stale_pending(self):
-        """A completed item must sit in validated, never in pending — and the
-        Trading row must reflect the real backtest artifact state."""
-        d = client.get("/api/plan").json()
-        slots = {s["name"]: s["present"] for s in d["artifact_slots"]}
-        validated = {v["name"] for v in d["validated"]}
-        pending = {p["name"] for p in d["pending"]}
-        trading = next(p for p in d["page_status"] if p["page"].startswith("04"))
-
-        if slots.get("trading_metrics.csv"):
-            # backtest built -> Trading READY, listed validated, not pending
-            self.assertEqual(trading["status"], "READY")
-            self.assertIn("Full trading backtest", validated)
-            self.assertNotIn("Full trading backtest", pending)
-        else:
-            self.assertEqual(trading["status"], "DEMO")
-            self.assertIn("Full trading backtest", pending)
-
-
 if __name__ == "__main__":
     unittest.main()

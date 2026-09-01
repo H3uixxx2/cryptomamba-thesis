@@ -12,7 +12,6 @@ from fastapi.staticfiles import StaticFiles
 from .core import config
 from .routers import architecture as architecture_router
 from .routers import data as data_router
-from .routers import plan as plan_router
 from .routers import predict as predict_router
 from .routers import reproduce as reproduce_router
 from .routers import trading as trading_router
@@ -35,7 +34,6 @@ app.include_router(reproduce_router.router)
 app.include_router(predict_router.router)
 app.include_router(trading_router.router)
 app.include_router(architecture_router.router)
-app.include_router(plan_router.router)
 
 
 @app.get("/api/health")

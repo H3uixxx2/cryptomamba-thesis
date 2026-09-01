@@ -1,4 +1,0 @@
-model,split,samples,RMSE,MAE,MAPE_pct,protocol
-naive_persistence,train,1446,1108.686730936892,621.5940733056709,2.5678534491051406,released sample count; y_hat[t+1]=close[t]; 14-day window
-naive_persistence,val,350,568.3493221637551,372.8586857142856,1.5694858834486094,released sample count; y_hat[t+1]=close[t]; 14-day window
-naive_persistence,test,350,1568.4998900554635,1091.8994285714286,1.9732268677678733,released sample count; y_hat[t+1]=close[t]; 14-day window

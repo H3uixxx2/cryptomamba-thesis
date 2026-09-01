@@ -1,2 +1,0 @@
-model,split,samples,RMSE,MAE,MAPE_pct,directional_accuracy_strict_pct,directional_coverage_pct,checkpoint,protocol
-gru,test,350,2324.598944,1794.416305,3.102375,47.714286,100.0,gru_v_best.ckpt,gru_v; seed=23; evaluation.py-equivalent inference; normalize=True; window=14; released sample count

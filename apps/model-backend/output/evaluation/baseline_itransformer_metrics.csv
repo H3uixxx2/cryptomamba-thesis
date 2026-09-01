@@ -1,2 +1,0 @@
-model,split,samples,RMSE,MAE,MAPE_pct,directional_accuracy_strict_pct,directional_coverage_pct,checkpoint,protocol
-itransformer,test,350,2172.890398,1588.353583,2.922699,51.142857,100.0,itransformer_v_best.ckpt,itransformer_v; seed=23; evaluation.py-equivalent inference; normalize=False; window=14; released sample count

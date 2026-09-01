@@ -30,16 +30,19 @@ Expected on the paper test split (2023-10-01 … 2024-09-14):
 | MAPE | ≈ 2.049 % | 2.034 % | 0.72 % |
 | directional accuracy | ≈ 56.86 % | — | — |
 
-## 2. Baselines + significance
+## 2. Controlled comparison + paired tests (304 common dates)
 
 ```bash
-python scripts/evaluate_baselines.py            # naive / LSTM / GRU / iTransformer (neural: Colab)
-python scripts/merge_baselines.py               # -> output/evaluation/baseline_metrics_comparison.csv
-python scripts/significance_tests.py            # Diebold-Mariano + Wilcoxon vs CryptoMamba-v
+python -m thesis_pipeline.evaluation     # CM-v / S5-Full / naive persistence on the 304 aligned dates
+                                         # -> output/thesis_final/{controlled_forecast_metrics,paired_significance_tests}.csv
 ```
 
-CryptoMamba-v has significantly lower squared error than every neural baseline and the highest
-directional accuracy of the set.
+Diebold–Mariano (squared error, HAC lag 1) and Wilcoxon (absolute error), plus a
+moving-block bootstrap at block lengths L = 5, 7, 14 and an exact McNemar test on direction.
+On the 304 common dates, neither paired interval nor DM confirms an RMSE advantage for S5-Full
+over CM-v; persistence has the lowest RMSE on both splits; CM-v has the highest test directional
+accuracy (57.57 %). The paper's LSTM / GRU / iTransformer / S-Mamba baselines are used only as
+published aggregates (`docs/` Table 4.1) and are not recomputed here.
 
 ## 3. Chronological trading backtest (CPU-only)
 
