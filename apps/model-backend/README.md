@@ -53,6 +53,6 @@ python -m thesis_pipeline.backtest       # paper replay + corrected self-financi
 
 Outputs land in `output/`. Expected (350-day paper protocol, test): RMSE ≈ 1612.35,
 MAPE ≈ 2.05 %, directional accuracy ≈ 56.86 %. Checked-in reference values + SHA-256 sums are in
-the evidence submodule (`../../evidence/`).
+the `../../evidence/` bundle (self-verifying via its `SHA256SUMS`).
 
 Upstream research README: `README.upstream.md`.

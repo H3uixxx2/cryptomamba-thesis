@@ -21,7 +21,7 @@ cites. Nothing is included "just in case".
 | `apps/model-backend/data/` | The frozen paper OHLCV cache + reference splits. The evaluation and backtest read these directly. |
 | `apps/model-backend/output/` | Frozen result artifacts (`evaluation/`, `thesis_final/`, `reproduce_colab_train/`) — the exact numbers the thesis reports, and what the console renders. |
 | `apps/console/` | The demo: FastAPI backend (`backend/`) + React frontend (`frontend/`) + a prebuilt bundle (`web-dist/`) so it runs with no Node toolchain. |
-| `evidence/` (git submodule) | The checksum-verified bundle: `SHA256SUMS`, both checkpoints, every evaluation CSV, and the `final/` thesis-completion artifacts. This is the canonical, hash-pinned copy of the results. |
+| `evidence/` | The checksum-verified thesis-final bundle: `SHA256SUMS` + `ARTIFACT_MAP.json`, the 304-date controlled `forecast/`, `trading/` replay + corrected self-financing, `model/` (S5-Full summary + checkpoint provenance), and `provenance/`. Contains **only** what draft_2's result tables cite — reproduced CM-v, S5-Full, naive persistence. |
 | `docs/` | `architecture.md` (how the two apps wire together) and `reproduce.md` (step-by-step). |
 
 ## What's not here
@@ -42,15 +42,12 @@ cryptomamba-thesis/
 ├── apps/
 │   ├── model-backend/   research core — model, training, evaluation, trading backtest
 │   └── console/          demo — FastAPI backend + React frontend (Data/Evaluation/Predict/Trading/Architecture)
-├── evidence/             git submodule: checksum-verified frozen evidence bundle
+├── evidence/             checksum-verified thesis-final bundle (SHA256SUMS)
 └── docs/                 architecture.md, reproduce.md
 ```
 
-Clone with the evidence submodule:
-
 ```bash
-git clone --recurse-submodules https://github.com/H3uixxx2/cryptomamba-thesis.git
-# after a plain clone:  git submodule update --init
+git clone https://github.com/H3uixxx2/cryptomamba-thesis.git
 ```
 
 ## The two apps
@@ -60,7 +57,7 @@ git clone --recurse-submodules https://github.com/H3uixxx2/cryptomamba-thesis.gi
 | **What** | CryptoMamba-v + CMamba-T ("S5-Full"); Lightning training; offline evaluation, paired tests, and trading engine (`thesis_pipeline/`) | 5-screen demo: FastAPI (`backend/`) + React (`frontend/`) |
 | **Stack** | Python, PyTorch, Lightning, Mamba SSM | FastAPI, React 19, Tailwind, Plotly |
 | **Runs on** | Linux + CUDA (Colab) for the model; plain CPU for the offline backtest/eval | any machine (Python 3.9+); the demo bundle needs no Node |
-| **Depends on** | nothing else in this repo | reads `model-backend/output/**` + `evidence/final/**`; shells to `model-backend/.venv` for real Predict-screen inference |
+| **Depends on** | nothing else in this repo | reads `model-backend/output/**` + `evidence/**`; shells to `model-backend/.venv` for real Predict-screen inference |
 
 The console never trains; it reads what `model-backend` produced. `model-backend` never imports
 the console.
@@ -89,11 +86,11 @@ python scripts/run_backtest.py --config cmamba_v --ckpt_path checkpoints/cmamba_
 ```
 
 Expected (test split): RMSE ≈ 1612.35, MAPE ≈ 2.05 %, directional accuracy ≈ 56.86 %.
-Reference values + SHA-256 sums are in the [`evidence/`](evidence) submodule.
+Reference values + SHA-256 sums are in the [`evidence/`](evidence) bundle (verify with `cd evidence && shasum -c SHA256SUMS`).
 
 ## Provenance
 
 - `apps/model-backend` ← `Crypto-Mamba-BE` @ branch `thesis/pre-monorepo-snapshot` (thesis-core subset)
 - `apps/console` ← `Crypto-Mamba-Console` @ branch `thesis/final-console-snapshot`
 - `apps/console/backend/src/console_api/vendor/cryptomamba_ui` ← `Crypto-Mamba-FE` (7 modules, frozen copy)
-- `evidence/` submodule → `cryptomamba-thesis-evidence`
+- `evidence/` ← the `final/` bundle of `cryptomamba-thesis-evidence` (thesis-final scope only; flattened in, no longer a submodule)

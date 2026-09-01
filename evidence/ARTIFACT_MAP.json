@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "source_labels": {
+    "local": "Locally recomputed from aligned frozen predictions",
+    "paper": "Paper-reported aggregate; no per-date paired test"
+  },
+  "surfaces": {
+    "console.architecture": "model/checkpoint_provenance.json",
+    "console.evaluation": "forecast/controlled_forecast_metrics.csv",
+    "console.trading": "trading/corrected_trading_metrics.csv",
+    "figures.controlled_forecast": "forecast/controlled_forecast_metrics.csv",
+    "figures.corrected_trading": "trading/corrected_trading_metrics.csv",
+    "figures.parameter_error": "forecast/controlled_forecast_metrics.csv",
+    "thesis.controlled_val_test_tables": "forecast/controlled_forecast_metrics.csv",
+    "thesis.corrected_trading": "trading/corrected_trading_metrics.csv",
+    "thesis.paper_reference_table": "forecast/paper_reported_metrics.csv",
+    "thesis.paper_trading_replay": "trading/paper_replay_metrics.csv",
+    "thesis.statistical_tests": "forecast/paired_significance_tests.csv"
+  }
+}

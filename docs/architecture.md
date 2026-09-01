@@ -20,8 +20,8 @@ Two apps, one shared evidence bundle. Dependencies point one way: `console → m
                                    └─────────────────▶ │  console_api/              │
                                                        │   routers  → services?    │
    ┌──────────────────┐   verify-once SHA256SUMS       │   loaders  → files/worker │
-   │  evidence/  (submod)│◀────────────────────────────│   vendor/cryptomamba_ui   │
-   │  final/  evaluation/│                             └──────────┬────────────────┘
+   │  evidence/           │◀────────────────────────────│   vendor/cryptomamba_ui   │
+   │  SHA256SUMS + files │                             └──────────┬────────────────┘
    └──────────────────┘                                          │ JSON /api/*
                                                                  ▼
                                                        ┌───────────────────────────┐
@@ -35,7 +35,7 @@ Two apps, one shared evidence bundle. Dependencies point one way: `console → m
 
 | Layer | Responsibility | Modules |
 |---|---|---|
-| `routers/` | HTTP: parse request, call logic, shape response, map errors | `data`, `reproduce`, `predict`, `trading`, `architecture`, `plan` |
+| `routers/` | HTTP: parse request, call logic, shape response, map errors | `data`, `reproduce`, `predict`, `trading`, `architecture` |
 | `loaders/` | data access — read frozen artifacts, verify the evidence bundle, drive the checkpoint worker | `final_evidence`, `reproduction_evidence`, `forecast_robustness`, `checkpoint_inference` |
 | `vendor/cryptomamba_ui/` | frozen copy of the validated data/chart/trading/artifact logic reused from the Streamlit repo | 7 modules |
 | `core/` | path resolution + settings | `config` |
@@ -43,7 +43,7 @@ Two apps, one shared evidence bundle. Dependencies point one way: `console → m
 
 ## Evidence integrity
 
-`loaders/final_evidence.py` reads `evidence/final/SHA256SUMS` once, verifies every listed file's
+`loaders/final_evidence.py` reads `evidence/SHA256SUMS` once, verifies every listed file's
 hash, and thereafter serves only manifest-covered paths. A missing manifest, a hash mismatch, an
 extra unlisted file, or a symlink makes the dependent screen report `NOT_READY` with an explicit
 reason — it never falls back to unverified data.

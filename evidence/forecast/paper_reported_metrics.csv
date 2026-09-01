@@ -1,0 +1,7 @@
+model_id,display_name,RMSE,MAPE_pct,MAE,parameter_count,source_label,source_table,source_url
+lstm_v,LSTM-v,2202.1,2.896,1668.9,204000,Paper-reported,Table 3,https://arxiv.org/abs/2501.01010
+bilstm_v,Bi-LSTM-v,2080.2,2.738,1562.5,569000,Paper-reported,Table 3,https://arxiv.org/abs/2501.01010
+gru_v,GRU-v,1978.0,2.526,1454.3,153000,Paper-reported,Table 3,https://arxiv.org/abs/2501.01010
+itransformer_v,iTransformer-v,1905.9,2.540,1387.47,201000,Paper-reported,Table 3,https://arxiv.org/abs/2501.01010
+s_mamba_v,S-Mamba-v,1651.6,2.215,1209.7,330000,Paper-reported,Table 3,https://arxiv.org/abs/2501.01010
+cmamba_v,CryptoMamba-v,1598.1,2.034,1120.7,136000,Paper-reported,Table 3,https://arxiv.org/abs/2501.01010

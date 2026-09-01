@@ -36,7 +36,7 @@ MAX_WORKER_STDOUT_CHARS = 65_536
 
 # --- evidence submodule: checksum-verified thesis-final bundle ---
 FINAL_EVIDENCE_DIR = Path(
-    os.getenv("CRYPTO_MAMBA_FINAL_EVIDENCE", MONOREPO_ROOT / "evidence" / "final")
+    os.getenv("CRYPTO_MAMBA_FINAL_EVIDENCE", MONOREPO_ROOT / "evidence")
 ).expanduser().resolve()
 
 EVALUATION_DIR = CORE_ROOT / "output" / "evaluation"

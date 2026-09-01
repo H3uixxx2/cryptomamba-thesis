@@ -17,7 +17,7 @@ console/
 │       ├── routers/             # HTTP endpoints, one module per screen
 │       ├── services/            # (reserved) screen business logic
 │       ├── loaders/             # data access — evidence bundle, artifacts, checkpoint worker
-│       │   ├── final_evidence.py         # verify-once SHA256SUMS reader for evidence/final
+│       │   ├── final_evidence.py         # verify-once SHA256SUMS reader for evidence/
 │       │   ├── reproduction_evidence.py  # 350-day reproduction recompute
 │       │   ├── forecast_robustness.py    # bootstrap interval reader
 │       │   └── checkpoint_inference.py   # bounded subprocess adapter -> model-backend worker
@@ -37,7 +37,7 @@ console/
 |---|---|---|
 | `CRYPTO_MAMBA_CORE_ROOT` | `../model-backend` | frozen `output/evaluation` + `output/reproduce_colab_train` artifacts |
 | `CRYPTO_MAMBA_CORE_PYTHON` | `../model-backend/.venv/bin/python` | real checkpoint inference (Predict screen) |
-| `CRYPTO_MAMBA_FINAL_EVIDENCE` | `../../evidence/final` | checksum-verified thesis-final bundle |
+| `CRYPTO_MAMBA_FINAL_EVIDENCE` | `../../evidence` | checksum-verified thesis-final bundle |
 | `CRYPTO_MAMBA_API_URL` | — | optional live Colab/ngrok model API (pasted in the UI) |
 
 ## Run

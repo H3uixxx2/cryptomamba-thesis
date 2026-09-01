@@ -61,12 +61,15 @@ python -m thesis_pipeline.backtest        # corrected self-financing replay
 python -m thesis_pipeline.package         # assemble the final evidence bundle
 ```
 
-## Checking against the evidence submodule
+## Checking against the evidence bundle
 
-`evidence/final/SHA256SUMS` lists every frozen artifact with its hash. Regenerated outputs should
+`evidence/SHA256SUMS` lists every frozen artifact with its hash. Regenerated outputs should
 match those hashes bit-for-bit for the deterministic steps (2, 3, 4); step 1 depends on the CUDA
 math library version and matches to the reported gaps above.
 
 ```bash
-cd ../../evidence/final && shasum -c SHA256SUMS
+cd ../../evidence && shasum -c SHA256SUMS
 ```
+
+`evidence/README.md` states the bundle's scope; `evidence/ARTIFACT_MAP.json` maps each thesis
+table to its file.
