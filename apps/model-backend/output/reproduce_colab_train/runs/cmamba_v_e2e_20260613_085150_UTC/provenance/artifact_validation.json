@@ -1,0 +1,18 @@
+{
+  "baseline_rows": 3,
+  "forecast_rows": 2,
+  "prediction_rows": 4292,
+  "replay_rows": 12,
+  "required_artifacts": [
+    "forecast_metrics.csv",
+    "forecast_predictions.csv",
+    "trading_replay_metrics.csv",
+    "baseline_metrics.csv",
+    "model_selection.json",
+    "inference_fixture.json"
+  ],
+  "selected_checkpoint_sha256": "ad5ec21bb2582e1f935837f620ed8d1ecb280e5568571783bd8c89ab717cc510",
+  "selected_checkpoint_type": "retrained_checkpoint",
+  "status": "PASS",
+  "validated_at_utc": "2026-06-13T10:11:28.114148+00:00"
+}

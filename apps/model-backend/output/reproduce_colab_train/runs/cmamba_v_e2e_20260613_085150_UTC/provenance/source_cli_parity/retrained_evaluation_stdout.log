@@ -1,0 +1,11 @@
+Seed set to 23
+['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume']
+['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume']
+['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume']
+1446 data points loaded as train split.
+350 data points loaded as val split.
+350 data points loaded as test split.
+ Split        MSE          RMSE     MAPE      MAE    
+ Train    1383155.75     1176.076  0.02878  674.992  
+  Val     352746.625     593.925   0.01649  390.567  
+ Test      2599681.0     1612.353  0.02049  1132.54  

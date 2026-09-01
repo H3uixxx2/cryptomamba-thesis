@@ -1,0 +1,126 @@
+{
+  "protocol": "alpha/bias selected on official validation predictions only; unchanged scripts.run_backtest engine; risk=2.0; cost=0%",
+  "paper_test_bar": 262.78,
+  "test_status": "exploratory: test split was already spent before this calibration round",
+  "splits": {
+    "val": {
+      "rows": 350,
+      "first_date": "2022-10-01",
+      "last_date": "2023-09-15",
+      "base": {
+        "buy_hold": {
+          "final_balance": 136.93381174291966,
+          "number_of_trades": 1,
+          "max_drawdown_pct": 25.82102789119348,
+          "win_rate_pct": 0.0
+        },
+        "vanilla": {
+          "final_balance": 124.90359583768965,
+          "number_of_trades": 43,
+          "max_drawdown_pct": 25.381703715525116,
+          "win_rate_pct": 46.51162790697674
+        },
+        "smart": {
+          "final_balance": 127.11975764084897,
+          "number_of_trades": 347,
+          "max_drawdown_pct": 23.400444366181596,
+          "win_rate_pct": 46.97406340057637
+        },
+        "smart_w_short": {
+          "final_balance": 127.46629276697853,
+          "number_of_trades": 346,
+          "max_drawdown_pct": 23.400444366181596,
+          "win_rate_pct": 46.82080924855491
+        }
+      },
+      "calibrated": {
+        "buy_hold": {
+          "final_balance": 136.93381174291966,
+          "number_of_trades": 1,
+          "max_drawdown_pct": 25.82102789119348,
+          "win_rate_pct": 0.0
+        },
+        "vanilla": {
+          "final_balance": 135.21667702778478,
+          "number_of_trades": 11,
+          "max_drawdown_pct": 25.381703715525123,
+          "win_rate_pct": 45.45454545454545
+        },
+        "smart": {
+          "final_balance": 139.11697832288024,
+          "number_of_trades": 338,
+          "max_drawdown_pct": 25.209658306150967,
+          "win_rate_pct": 48.5207100591716
+        },
+        "smart_w_short": {
+          "final_balance": 141.87554649138337,
+          "number_of_trades": 338,
+          "max_drawdown_pct": 25.209658306150967,
+          "win_rate_pct": 48.5207100591716
+        }
+      }
+    },
+    "test": {
+      "rows": 350,
+      "first_date": "2023-10-01",
+      "last_date": "2024-09-14",
+      "base": {
+        "buy_hold": {
+          "final_balance": 222.5055594483463,
+          "number_of_trades": 1,
+          "max_drawdown_pct": 26.182038353390304,
+          "win_rate_pct": 100.0
+        },
+        "vanilla": {
+          "final_balance": 246.58462185475383,
+          "number_of_trades": 80,
+          "max_drawdown_pct": 23.481155441354073,
+          "win_rate_pct": 60.0
+        },
+        "smart": {
+          "final_balance": 213.19718148365058,
+          "number_of_trades": 342,
+          "max_drawdown_pct": 13.370957389182006,
+          "win_rate_pct": 55.55555555555556
+        },
+        "smart_w_short": {
+          "final_balance": 262.77827105896057,
+          "number_of_trades": 340,
+          "max_drawdown_pct": 11.091377814942497,
+          "win_rate_pct": 55.88235294117647
+        }
+      },
+      "calibrated": {
+        "buy_hold": {
+          "final_balance": 222.5055594483463,
+          "number_of_trades": 1,
+          "max_drawdown_pct": 26.182038353390304,
+          "win_rate_pct": 100.0
+        },
+        "vanilla": {
+          "final_balance": 297.1085751263269,
+          "number_of_trades": 33,
+          "max_drawdown_pct": 21.430932074062817,
+          "win_rate_pct": 60.60606060606061
+        },
+        "smart": {
+          "final_balance": 267.9978628381069,
+          "number_of_trades": 350,
+          "max_drawdown_pct": 22.291118000487938,
+          "win_rate_pct": 56.00000000000001
+        },
+        "smart_w_short": {
+          "final_balance": 275.90864923088145,
+          "number_of_trades": 350,
+          "max_drawdown_pct": 22.291118000487923,
+          "win_rate_pct": 56.00000000000001
+        }
+      }
+    }
+  },
+  "test_gate": {
+    "required": "> 262.78",
+    "observed": 275.90864923088145,
+    "passed": true
+  }
+}

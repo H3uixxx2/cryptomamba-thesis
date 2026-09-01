@@ -1,0 +1,14 @@
+{
+  "model": "lstm",
+  "config": "lstm_v",
+  "selected_checkpoint": "epoch216-val-rmse562.4705.ckpt",
+  "selected_epoch": 216,
+  "val_rmse": 562.4705,
+  "max_epochs": 700,
+  "seed": 23,
+  "batch_size": 32,
+  "train_seconds": 4034.1,
+  "repo_commit": "b8ec568057f6e5b981cdee81a4ea93faa55e9681",
+  "torch": "2.11.0+cu128",
+  "gpu": "NVIDIA L4"
+}

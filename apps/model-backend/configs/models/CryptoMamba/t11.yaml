@@ -1,0 +1,13 @@
+target: pl_modules.cmamba_t_module.CryptoMambaTModule
+params:
+    num_features: 8
+    window_size: 60
+    d_model: 32
+    n_blocks: 4
+    d_state: 16
+    mlp_ratio: 2
+    drop: 0.1
+    mode: 'ret'
+    loss: 'crps'
+    distributional: True
+normalize: False

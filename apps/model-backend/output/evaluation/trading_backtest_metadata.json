@@ -1,0 +1,21 @@
+{
+  "regime_window_days": 30,
+  "regime_up_pct": 10.0,
+  "regime_down_pct": 10.0,
+  "strategies": [
+    "buy_hold",
+    "vanilla",
+    "smart",
+    "smart_w_short"
+  ],
+  "transaction_cost_pct_scenarios": [
+    0.0,
+    0.1,
+    0.2
+  ],
+  "risk_pct": 2.0,
+  "initial_balance": 100.0,
+  "vanilla_threshold": 0.01,
+  "source_commit": "fef42727861a9c3a32241283ab981ef21a49e291",
+  "protocol": "forecast-driven utils.trade strategies; explicit per-transaction cost on traded notional; chronological; decision at t uses current_close+predicted_close only; regime=trailing 30d +/-10%/10%; source_commit=fef42727861a9c3a32241283ab981ef21a49e291"
+}

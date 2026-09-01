@@ -1,0 +1,55 @@
+{
+  "generated_utc": "2026-07-19T13:34:04Z",
+  "decision": "user 2026-07-19 \u2014 S5 full budget + one-shot test (see .ai/decisions.md)",
+  "repo": "https://github.com/H3uixxx2/Crypto-Mamba-BE.git",
+  "branch": "explore/s5-full-train",
+  "commit": "672faa9fb7cb4499da17d6a3afbd65a9301f170f",
+  "gpu": "Tesla T4",
+  "torch": "2.11.0+cu128",
+  "mamba_ssm": "2.3.2.post1",
+  "config": "s5_full",
+  "seeds": [
+    23
+  ],
+  "val": [
+    {
+      "seed": 23,
+      "best_epoch": "321",
+      "n": 304,
+      "rmse": 557.3386170525702,
+      "naive_rmse": 554.9411029218376,
+      "dir_acc": 0.4901315789473684,
+      "bal_acc": 0.4875,
+      "pred_up": 0.4506578947368421,
+      "wilcoxon_p_vs_naive": 0.15392566789470088
+    }
+  ],
+  "selected": {
+    "seed": 23,
+    "best_epoch": "321",
+    "n": 304,
+    "rmse": 557.3386170525702,
+    "naive_rmse": 554.9411029218376,
+    "dir_acc": 0.4901315789473684,
+    "bal_acc": 0.4875,
+    "pred_up": 0.4506578947368421,
+    "wilcoxon_p_vs_naive": 0.15392566789470088
+  },
+  "test_metrics": {
+    "n": 304,
+    "rmse": 1660.8279957505451,
+    "naive_rmse": 1657.5455648651607,
+    "dir_acc": 0.5230263157894737,
+    "bal_acc": 0.5267187161136413,
+    "pred_up": 0.42105263157894735,
+    "wilcoxon_p_vs_naive": 0.7882368122274458
+  },
+  "runs": [
+    {
+      "seed": 23,
+      "ckpt": "logs/s5_full/version_0/checkpoints/epoch321-val-rmse523.4394.ckpt",
+      "best_epoch": "321",
+      "secs": 3509.6
+    }
+  ]
+}

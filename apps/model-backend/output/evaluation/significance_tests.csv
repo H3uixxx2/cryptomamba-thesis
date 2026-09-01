@@ -1,0 +1,5 @@
+comparison,samples,cm_directional_acc_pct,cm_directional_coverage_pct,baseline_directional_acc_pct,baseline_directional_coverage_pct,dm_statistic,dm_p_value,wilcoxon_statistic,wilcoxon_p_value,lower_mse_model,conclusion
+CryptoMamba-v vs naive_persistence,350,56.8571,100.0,0.0,0.0,1.3657,0.172,27371.0,0.0777,naive_persistence,not_significant
+CryptoMamba-v vs lstm,350,56.8571,100.0,47.7143,100.0,-5.879,0.0,14472.0,0.0,CryptoMamba-v,significant
+CryptoMamba-v vs gru,350,56.8571,100.0,47.7143,100.0,-7.4339,0.0,12598.0,0.0,CryptoMamba-v,significant
+CryptoMamba-v vs itransformer,350,56.8571,100.0,51.1429,100.0,-5.3818,0.0,16449.0,0.0,CryptoMamba-v,significant

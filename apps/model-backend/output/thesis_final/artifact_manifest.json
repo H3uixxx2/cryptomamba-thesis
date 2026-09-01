@@ -1,0 +1,222 @@
+{
+  "authority_order": [
+    "original paper and official source",
+    "frozen checkpoints and per-date predictions",
+    "deterministic recomputation",
+    "checksum-verified evidence copy",
+    "thesis and UI presentation"
+  ],
+  "files": {
+    "checkpoint_provenance.json": {
+      "bytes": 1377,
+      "sha256": "3d152b20bb637e73d189f76c8553610a9431faf3283a92d529533d5dee932198"
+    },
+    "controlled_forecast_metrics.csv": {
+      "bytes": 1322,
+      "columns": [
+        "model_id",
+        "display_name",
+        "split",
+        "samples",
+        "date_from",
+        "date_to",
+        "MSE",
+        "RMSE",
+        "MAE",
+        "MAPE_pct",
+        "directional_accuracy_pct",
+        "directional_coverage_pct",
+        "predicted_up_pct",
+        "parameter_count",
+        "checkpoint_sha256"
+      ],
+      "rows": 6,
+      "sha256": "d5cf7be432100cad7ebd6fa38c64583072fea2c93d08f55e7297f05e4fdab80c"
+    },
+    "controlled_predictions.csv": {
+      "bytes": 538093,
+      "columns": [
+        "model_id",
+        "display_name",
+        "split",
+        "signal_date",
+        "prediction_date",
+        "prediction_timestamp",
+        "current_close",
+        "target_close",
+        "predicted_close",
+        "parameter_count",
+        "checkpoint_path",
+        "checkpoint_sha256",
+        "source_commit",
+        "source_artifact"
+      ],
+      "rows": 1824,
+      "sha256": "c947d129db33d592ccb6d26e26104b5aab28022e88fea32029e983a2acb3dcd6"
+    },
+    "corrected_trading_equity.csv": {
+      "bytes": 4367435,
+      "columns": [
+        "model_id",
+        "split",
+        "strategy",
+        "transaction_cost_pct",
+        "signal_date",
+        "prediction_date",
+        "execution_price",
+        "valuation_price",
+        "predicted_close",
+        "forecast_return_pct",
+        "target_weight",
+        "cash_before",
+        "position_before_btc",
+        "cash",
+        "position_btc",
+        "short_collateral",
+        "gross_exposure_at_execution",
+        "gross_exposure_marked",
+        "portfolio_value",
+        "drawdown_pct",
+        "action",
+        "trade_value",
+        "transaction_cost",
+        "borrow_cost",
+        "self_financing_error"
+      ],
+      "rows": 21888,
+      "sha256": "25a084ee20596d30c468025451048fd13cec019d59d2a4b779af762da19409f7"
+    },
+    "corrected_trading_metadata.json": {
+      "bytes": 935,
+      "sha256": "36caaea855fb8dc7011cbe994f577f16a0358ad32f640ba440ac31409f201a59"
+    },
+    "corrected_trading_metrics.csv": {
+      "bytes": 7667,
+      "columns": [
+        "model_id",
+        "split",
+        "strategy",
+        "transaction_cost_pct",
+        "borrow_cost_bps_per_day",
+        "initial_equity",
+        "final_equity",
+        "ROI_pct",
+        "max_drawdown_pct",
+        "Sharpe",
+        "turnover_notional",
+        "number_of_trades",
+        "total_fees",
+        "total_borrow_cost",
+        "reconciliation_error"
+      ],
+      "rows": 72,
+      "sha256": "8b87159ebde4809598621daf491731891bb372e4cf95b8c51c7d2580046e11cd"
+    },
+    "paired_significance_tests.csv": {
+      "bytes": 1790,
+      "columns": [
+        "split",
+        "model_a",
+        "model_b",
+        "comparison",
+        "samples",
+        "date_from",
+        "date_to",
+        "dm_loss",
+        "dm_hac_lag",
+        "dm_statistic",
+        "dm_p_value",
+        "mean_squared_loss_differential_a_minus_b",
+        "wilcoxon_loss",
+        "wilcoxon_statistic",
+        "wilcoxon_p_value",
+        "mean_absolute_loss_differential_a_minus_b",
+        "lower_mse_model",
+        "lower_mae_model",
+        "dm_significant_5pct",
+        "wilcoxon_significant_5pct"
+      ],
+      "rows": 6,
+      "sha256": "c6f2899e899d839232441292702057b1e36ce638229d1938f558760434333a99"
+    },
+    "paper_replay_metrics.csv": {
+      "bytes": 3845,
+      "columns": [
+        "result_type",
+        "model",
+        "checkpoint",
+        "source_commit",
+        "split",
+        "trade_mode",
+        "initial_balance",
+        "risk_pct",
+        "final_balance",
+        "max_drawdown_pct",
+        "paper_final_balance",
+        "paper_max_drawdown_pct",
+        "balance_gap_pct",
+        "mdd_gap_pp",
+        "protocol",
+        "status"
+      ],
+      "rows": 12,
+      "sha256": "3e11f04b74a39e3e62f7257ab30452f0662d984b1933a79aac9f743d971bafdc"
+    },
+    "paper_reported_metrics.csv": {
+      "bytes": 710,
+      "columns": [
+        "model_id",
+        "display_name",
+        "RMSE",
+        "MAPE_pct",
+        "MAE",
+        "parameter_count",
+        "source_label",
+        "source_table",
+        "source_url"
+      ],
+      "rows": 6,
+      "sha256": "77565763db0cf17da2782ab6ecf8e532d9dc56da2226e09bf117afe86eefe399"
+    },
+    "s5_full_summary.json": {
+      "bytes": 1451,
+      "sha256": "b60709195815d5f8dcca1b9783f354705fd456453a5153bd8d12d748bea02609"
+    }
+  },
+  "invariants": {
+    "approved_model_ids": [
+      "cmamba_v_reproduced",
+      "s5_full",
+      "naive_persistence"
+    ],
+    "controlled_rows_per_model_split": 304,
+    "corrected_engine": "self_financing_same_close_v1",
+    "dm_hac_lag": 1,
+    "dm_loss": "squared_error",
+    "paper_replay_preserved": true,
+    "wilcoxon_loss": "absolute_error"
+  },
+  "schema_version": 1,
+  "source_artifacts": {
+    "output/evaluation/forecast_predictions.csv": {
+      "bytes": 1422457,
+      "sha256": "223e33da6c9eed7e2b39c67d646c97f24ba1372465ec7dc82e8f36932691ae72"
+    },
+    "output/evaluation/trading_replay_metrics.csv": {
+      "bytes": 3845,
+      "sha256": "3e11f04b74a39e3e62f7257ab30452f0662d984b1933a79aac9f743d971bafdc"
+    },
+    "output/improve_track_evidence/s5_full/preds/s5_full__seed23__test.csv": {
+      "bytes": 16110,
+      "sha256": "7f5630015ecc89e9453e40ab927549300d374a97799df4d51330411105837da2"
+    },
+    "output/improve_track_evidence/s5_full/preds/s5_full__seed23__val.csv": {
+      "bytes": 17294,
+      "sha256": "f52771cef22188c1665f5ea39c39fb6462e540d8e495fed25dd7130ac8aab298"
+    },
+    "output/improve_track_evidence/s5_full/s5_full_summary.json": {
+      "bytes": 1451,
+      "sha256": "b60709195815d5f8dcca1b9783f354705fd456453a5153bd8d12d748bea02609"
+    }
+  }
+}

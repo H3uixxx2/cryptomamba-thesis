@@ -1,0 +1,86 @@
+% Primary prediction path with separate analysis and presentation outputs.
+\begingroup
+\definecolor{flowBlue}{HTML}{E8F0FB}
+\definecolor{flowBlueEdge}{HTML}{5A7FBE}
+\definecolor{flowGreen}{HTML}{E4F3EC}
+\definecolor{flowGreenEdge}{HTML}{418B72}
+\definecolor{flowGold}{HTML}{FFF1CF}
+\definecolor{flowGoldEdge}{HTML}{B4882C}
+\definecolor{flowViolet}{HTML}{F0EAF8}
+\definecolor{flowVioletEdge}{HTML}{8068A6}
+\definecolor{flowGrey}{HTML}{F5F7F9}
+\definecolor{flowGreyEdge}{HTML}{AAB4BD}
+\definecolor{flowInk}{HTML}{263238}
+
+\tikzset{
+  input/.style={draw=flowBlueEdge, fill=flowBlue, rounded corners=3pt,
+    minimum width=1.9cm, minimum height=1.05cm, align=center, inner sep=4pt,
+    font=\sffamily\small\bfseries, text=flowInk},
+  process/.style={draw=flowGreenEdge, fill=flowGreen, rounded corners=3pt,
+    minimum width=2.25cm, minimum height=1.05cm, align=center, inner sep=4pt,
+    font=\sffamily\small\bfseries, text=flowInk},
+  repeat/.style={draw=flowVioletEdge, fill=flowViolet, rounded corners=3pt,
+    minimum width=2.25cm, minimum height=1.05cm, align=center, inner sep=4pt,
+    font=\sffamily\small\bfseries, text=flowInk},
+  head/.style={draw=flowGoldEdge, fill=flowGold, rounded corners=3pt,
+    minimum width=2.25cm, minimum height=1.05cm, align=center, inner sep=4pt,
+    font=\sffamily\small\bfseries, text=flowInk},
+  output/.style={draw=flowBlueEdge, fill=flowBlue, rounded corners=3pt,
+    minimum width=2.1cm, minimum height=1.05cm, align=center, inner sep=4pt,
+    font=\sffamily\small\bfseries, text=flowInk},
+  group/.style={draw=flowGreyEdge, fill=flowGrey, dashed, rounded corners=6pt,
+    line width=0.75pt, inner xsep=7pt, inner ysep=8pt},
+  note/.style={font=\sffamily\small\bfseries, text=flowInk, align=left},
+  flow/.style={-{Stealth[scale=1.2]}, draw=flowInk, line width=0.85pt},
+  junction/.style={circle, draw=flowInk, fill=flowInk, minimum size=3.2pt,
+    inner sep=0pt}
+}
+
+\begin{tikzpicture}[font=\sffamily\small, node distance=0.6cm and 0.8cm]
+  \node[input] (data)
+    {OHLCV\\data\\{\scriptsize\mdseries CSV / paper split}};
+  \node[process, right=of data] (validate)
+    {Validate and\\preprocess\\{\scriptsize\mdseries schema + causal order}};
+  \node[process, right=of validate] (select)
+    {Select model/\\window\\{\scriptsize\mdseries CM-v: 14; S5-Full: 60}};
+  \node[head, right=of select] (inference)
+    {Local checkpoint\\inference};
+  \node[output, right=of inference] (forecast)
+    {Next-day\\forecast};
+
+  \node[note, above=0.34cm of data.north west, anchor=south west] (predictionTitle)
+    {Prediction workflow};
+
+  \draw[flow] (data) -- (validate);
+  \draw[flow] (validate) -- (select);
+  \draw[flow] (select) -- (inference);
+  \draw[flow] (inference) -- (forecast);
+
+  \node[junction, below=1.70cm of inference] (analysisHub) {};
+  \node[repeat, below=0.65cm of analysisHub] (replay)
+    {Historical\\replay\\{\scriptsize\mdseries paper protocol}};
+  \node[repeat, left=of replay] (evaluation)
+    {Forecast\\evaluation\\{\scriptsize\mdseries common dates + paired tests}};
+  \node[repeat, right=of replay] (trading)
+    {Corrected\\trading\\{\scriptsize\mdseries self-financing + costs}};
+  \node[output, below=of replay] (console)
+    {Five-screen\\Console};
+
+  \node[note, above=0.24cm of analysisHub] (analysisTitle)
+    {Analysis and presentation};
+
+  \draw[flow] (forecast.south) |- (analysisHub.east);
+  \draw[flow] (analysisHub) -- (evaluation.north);
+  \draw[flow] (analysisHub) -- (replay.north);
+  \draw[flow] (analysisHub) -- (trading.north);
+  \draw[flow] (evaluation.south) |- (console.west);
+  \draw[flow] (replay) -- (console);
+  \draw[flow] (trading.south) |- (console.east);
+
+  \begin{scope}[on background layer]
+    \node[group, fit=(predictionTitle)(data)(validate)(select)(inference)(forecast)] {};
+    \node[group,
+      fit=(analysisTitle)(analysisHub)(evaluation)(replay)(trading)(console)] {};
+  \end{scope}
+\end{tikzpicture}
+\endgroup

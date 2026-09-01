@@ -1,0 +1,9 @@
+# per-app virtualenvs / build caches
+**/.venv/
+**/__pycache__/
+*.pyc
+**/.pytest_cache/
+apps/console/frontend/node_modules/
+apps/console/frontend/.vite/
+.DS_Store
+# built frontend bundle is committed (apps/console/web-dist) so the demo runs without pnpm

@@ -1,0 +1,19 @@
+{
+  "all_epoch_checkpoints": [
+    {
+      "epoch": 984,
+      "path": "/content/drive/MyDrive/cryptomamba_reproduce_runs/cmamba_v_e2e_20260613_085150_UTC/logs/CMamba/version_0/checkpoints/epoch984-val-rmse573.2971.ckpt",
+      "val_rmse": 573.2971
+    }
+  ],
+  "last_sha256": "ad5ec21bb2582e1f935837f620ed8d1ecb280e5568571783bd8c89ab717cc510",
+  "last_stable": "/content/drive/MyDrive/cryptomamba_reproduce_runs/cmamba_v_e2e_20260613_085150_UTC/checkpoints/cmamba_v_retrained_last.ckpt",
+  "official_sha256": "f6aa2b2de0fe7d05d25c78ede368a4d5199e6bd477aa85e75bed6b9c5712d15b",
+  "official_source": "/content/CryptoMamba/checkpoints/cmamba_v.ckpt",
+  "retrained_sha256": "ad5ec21bb2582e1f935837f620ed8d1ecb280e5568571783bd8c89ab717cc510",
+  "retrained_stable": "/content/drive/MyDrive/cryptomamba_reproduce_runs/cmamba_v_e2e_20260613_085150_UTC/checkpoints/cmamba_v_retrained_best.ckpt",
+  "selected_epoch": 984,
+  "selected_original": "/content/drive/MyDrive/cryptomamba_reproduce_runs/cmamba_v_e2e_20260613_085150_UTC/logs/CMamba/version_0/checkpoints/epoch984-val-rmse573.2971.ckpt",
+  "selected_val_rmse": 573.2971,
+  "selection_rule": "minimum parsed val/rmse"
+}

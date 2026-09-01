@@ -1,0 +1,43 @@
+{
+  "annualization_days": 365,
+  "borrow_cost_bps_per_day": 0.0,
+  "borrow_cost_note": "Parameterised; the frozen thesis matrix uses zero daily borrow cost.",
+  "controlled_rows_per_model_split": 304,
+  "engine": "self_financing_same_close_v1",
+  "execution_basis": "signal_day_close",
+  "gross_exposure_cap_default": 1.0,
+  "initial_equity": 100.0,
+  "mark_basis": "target_close",
+  "model_ids": [
+    "cmamba_v_reproduced",
+    "s5_full",
+    "naive_persistence"
+  ],
+  "risk_pct": 2.0,
+  "same_close_execution": true,
+  "schema_version": 1,
+  "signal_information": [
+    "current_close",
+    "predicted_close"
+  ],
+  "splits": [
+    "val",
+    "test"
+  ],
+  "strategies": [
+    "buy_hold",
+    "vanilla",
+    "smart",
+    "smart_w_short"
+  ],
+  "target_close_used_only_for": [
+    "mark_to_market",
+    "outcome_metrics"
+  ],
+  "thesis_reference_cost_pct": 0.2,
+  "transaction_cost_pct_scenarios": [
+    0.0,
+    0.1,
+    0.2
+  ]
+}

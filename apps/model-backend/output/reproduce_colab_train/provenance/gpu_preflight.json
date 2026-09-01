@@ -1,0 +1,6 @@
+{
+  "cuda_available": true,
+  "cuda_version": "12.8",
+  "gpu": "NVIDIA L4",
+  "torch_version_before_install": "2.11.0+cu128"
+}

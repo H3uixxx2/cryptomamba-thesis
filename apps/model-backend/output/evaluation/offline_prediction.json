@@ -1,0 +1,139 @@
+{
+  "artifact_type": "offline_prediction",
+  "warning": "Frozen offline prediction. NOT a live API call. Do not present as real-time inference.",
+  "generated_at_utc": "2026-06-24T14:51:11.662451+00:00",
+  "checkpoint_sha256": "ad5ec21bb2582e1f935837f620ed8d1ecb280e5568571783bd8c89ab717cc510",
+  "source_commit": "fef42727861a9c3a32241283ab981ef21a49e291",
+  "payload": {
+    "prediction_date": "2023-10-01",
+    "risk": 2.0,
+    "candles": [
+      {
+        "close": 26534.19,
+        "date": "2023-09-17",
+        "high": 26618.0,
+        "low": 26445.07,
+        "open": 26567.93,
+        "volume": 6774210670.0
+      },
+      {
+        "close": 26754.28,
+        "date": "2023-09-18",
+        "high": 27414.73,
+        "low": 26415.52,
+        "open": 26532.99,
+        "volume": 15615339655.0
+      },
+      {
+        "close": 27211.12,
+        "date": "2023-09-19",
+        "high": 27488.76,
+        "low": 26681.61,
+        "open": 26760.85,
+        "volume": 13807690550.0
+      },
+      {
+        "close": 27132.01,
+        "date": "2023-09-20",
+        "high": 27379.51,
+        "low": 26864.08,
+        "open": 27210.23,
+        "volume": 13281116604.0
+      },
+      {
+        "close": 26567.63,
+        "date": "2023-09-21",
+        "high": 27152.94,
+        "low": 26389.3,
+        "open": 27129.84,
+        "volume": 13371443708.0
+      },
+      {
+        "close": 26579.57,
+        "date": "2023-09-22",
+        "high": 26726.08,
+        "low": 26495.53,
+        "open": 26564.06,
+        "volume": 10578746709.0
+      },
+      {
+        "close": 26579.39,
+        "date": "2023-09-23",
+        "high": 26634.19,
+        "low": 26520.52,
+        "open": 26578.56,
+        "volume": 7404700301.0
+      },
+      {
+        "close": 26256.83,
+        "date": "2023-09-24",
+        "high": 26716.06,
+        "low": 26221.05,
+        "open": 26579.37,
+        "volume": 8192867686.0
+      },
+      {
+        "close": 26298.48,
+        "date": "2023-09-25",
+        "high": 26421.51,
+        "low": 26011.47,
+        "open": 26253.78,
+        "volume": 11997833257.0
+      },
+      {
+        "close": 26217.25,
+        "date": "2023-09-26",
+        "high": 26389.88,
+        "low": 26090.71,
+        "open": 26294.76,
+        "volume": 9985498161.0
+      },
+      {
+        "close": 26352.72,
+        "date": "2023-09-27",
+        "high": 26817.84,
+        "low": 26111.46,
+        "open": 26209.5,
+        "volume": 11718380997.0
+      },
+      {
+        "close": 27021.55,
+        "date": "2023-09-28",
+        "high": 27259.5,
+        "low": 26327.32,
+        "open": 26355.81,
+        "volume": 14079002707.0
+      },
+      {
+        "close": 26911.72,
+        "date": "2023-09-29",
+        "high": 27225.94,
+        "low": 26721.76,
+        "open": 27024.84,
+        "volume": 10396435377.0
+      },
+      {
+        "close": 26967.92,
+        "date": "2023-09-30",
+        "high": 27091.79,
+        "low": 26888.97,
+        "open": 26911.69,
+        "volume": 5331172801.0
+      }
+    ]
+  },
+  "response": {
+    "model_id": "cmamba_v",
+    "checkpoint_id": "retrained",
+    "inference_type": "live",
+    "checkpoint_sha256": "ad5ec21bb2582e1f935837f620ed8d1ecb280e5568571783bd8c89ab717cc510",
+    "source_commit": "fef42727861a9c3a32241283ab981ef21a49e291",
+    "prediction_date": "2023-10-01",
+    "last_close": 26967.92,
+    "predicted_close": 26967.714844,
+    "predicted_change_pct": -0.0008,
+    "vanilla_action": "hold",
+    "smart_action": "sell",
+    "smart_pct": 0.04
+  }
+}
