@@ -33,6 +33,26 @@ The two checkpoints the thesis pipeline and the console load are pinned by SHA-2
 (`output/reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt`) and S5-Full
 (`output/improve_track_evidence/s5_full/checkpoints/s5_full__seed23__epoch321-*.ckpt`).
 
+## What is in `output/`
+
+Three separate things, none of them scratch space:
+
+| Path | What it is | Who reads it |
+|---|---|---|
+| `evaluation/forecast_predictions.csv` · `forecast_metrics.csv` · `forecast_metrics_all_splits.csv` | Per-date CM-v predictions and their metrics on train/val/test, for the official and the reproduced checkpoint. **This is the RQ1 evidence.** | `thesis_pipeline`, the console Evaluation screen |
+| `evaluation/trading_metrics.csv` · `trading_equity_curve.csv` · `regime_metrics.csv` · `trading_backtest_metadata.json` · `trading_replay_metrics.csv` | The chronological backtest and the paper replay. **RQ3 evidence.** | `scripts/run_backtest.py`, the console Trading screen |
+| `evaluation/offline_prediction.json` | One frozen prediction used as the Predict screen's offline backup | console Predict |
+| `evaluation/data_quality.csv` | Row counts, date ranges, duplicate/null/monotonicity checks per split — the record behind the data-scope table | provenance only |
+| `evaluation/model_selection.json` · `inference_fixture.json` | Which checkpoint was selected (epoch, SHA-256, PASS status) and the golden 14-candle inference fixture with its tolerance | provenance only |
+| `thesis_final/*` | The RQ2/RQ3 bundle: 304-date controlled metrics, paired tests, corrected trading, checkpoint provenance. This is what `../../evidence/` is built from. | `thesis_pipeline/package.py`, the console |
+| `reproduce_colab_train/*` | The 2026-06-13 from-scratch training run and its checkpoint — see the section below | `thesis_pipeline`, the console |
+| `improve_track_evidence/s5_full/checkpoints/*` | The S5-Full seed-23 checkpoint (RQ4) | `thesis_pipeline`, the console |
+
+Everything else that used to live under `output/` — the ModernTCN / TiDE / TSMixer rounds, the
+affine-calibration experiment, the selective-prediction and exogenous tracks — was removed: the
+thesis does not report any of it. It is preserved on the `thesis/pre-monorepo-snapshot` branch of
+the original backend repo.
+
 ## What was stripped out of the model code
 
 The exploration rounds that ran after the thesis was frozen left machinery behind in

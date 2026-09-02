@@ -417,7 +417,7 @@ export interface PredictCandle {
 }
 
 export interface ForecastVariant {
-  id: "raw" | "affine";
+  id: "raw";
   label: string;
   source: string;
   prediction_date: string;

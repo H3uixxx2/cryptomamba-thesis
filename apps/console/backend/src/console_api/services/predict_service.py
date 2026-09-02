@@ -74,7 +74,8 @@ def _forecast_variant(*, variant_id: str, label: str, source: str, row) -> dict:
 
 
 def _offline_variants(raw_row) -> list[dict]:
-    variants = [
+    """The frozen offline forecast, as the single artifact-backed variant."""
+    return [
         _forecast_variant(
             variant_id="raw",
             label="Raw CryptoMamba-v",
@@ -82,30 +83,6 @@ def _offline_variants(raw_row) -> list[dict]:
             row=raw_row,
         )
     ]
-    calibrated = _prediction_rows(
-        config.AFFINE_PREDICTIONS_PATH,
-        "official_checkpoint_affine_calibrated",
-    )
-    if calibrated is None:
-        return variants
-    match = calibrated[calibrated["prediction_date"].eq(str(raw_row["prediction_date"]))]
-    if match.empty:
-        return variants
-    calibrated_row = match.iloc[0]
-    if not (
-        float(calibrated_row["current_close"]) == float(raw_row["current_close"])
-        and float(calibrated_row["target_close"]) == float(raw_row["target_close"])
-    ):
-        return variants
-    variants.append(
-        _forecast_variant(
-            variant_id="affine",
-            label="CryptoMamba-v + affine return calibration",
-            source="official_checkpoint_affine_calibrated",
-            row=calibrated_row,
-        )
-    )
-    return variants
 
 
 

@@ -32,8 +32,10 @@ cites. Nothing is included "just in case".
 | **Post-thesis exploration** — ModernTCN / TiDE / TSMixer challengers, affine-calibration and selective-prediction research, checkpoint-compression work, the exogenous track-3 experiment, all Colab search runners, `output/improve_track_evidence/` (132 MB) | Branch `thesis/pre-monorepo-snapshot` of the original backend repo | Not part of the submitted thesis. Kept for audit, out of the delivered scope. |
 | Per-app virtualenvs, `node_modules`, build caches | rebuilt locally (`pyproject.toml` / `pnpm-lock.yaml`) | Not source. |
 
-The one exception: `output/evaluation/affine_calibration/predictions.csv` **is** kept — the Predict
-screen displays it as a labelled thesis extension — but the calibration *code* is not.
+No exceptions: if the thesis does not report it, it is not here. `affine_calibration/` was
+carried over by mistake in an earlier pass and has been removed — the string "affine" appears
+zero times in the submitted PDF, and the artifact's own metadata called it
+`"exploratory: test split was already spent before this calibration round"`.
 
 ## Layout
 

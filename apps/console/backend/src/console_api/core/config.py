@@ -44,7 +44,6 @@ REPRODUCE_DIR = CORE_ROOT / "output" / "reproduce_colab_train"
 REPRODUCE_PROVENANCE_DIR = REPRODUCE_DIR / "provenance"
 SELECTED_CHECKPOINT_PATH = REPRODUCE_DIR / "checkpoints" / "cmamba_v_best_colab_train.ckpt"
 OFFLINE_PREDICTION_PATH = EVALUATION_DIR / "offline_prediction.json"
-AFFINE_PREDICTIONS_PATH = EVALUATION_DIR / "affine_calibration" / "predictions.csv"
 
 # Optional default live API URL (Colab/ngrok). Usually pasted in the UI at demo time.
 API_URL_ENV = os.getenv("CRYPTO_MAMBA_API_URL", "").strip()

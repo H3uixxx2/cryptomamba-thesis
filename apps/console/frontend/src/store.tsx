@@ -79,7 +79,6 @@ function useConsoleStore() {
   const [offlineDate, setOfflineDate] = useState("");
   const [predictDate, setPredictDate] = useState("");
   const [apiUrl, setApiUrl] = useState("");
-  const [predictVariant, setPredictVariant] = useState<"raw" | "affine">("raw");
   const [risk, setRisk] = useState(2);
   const predictRequestId = useRef(0);
   const predictModeRef = useRef<api.PredictMode>("checkpoint");
@@ -227,9 +226,6 @@ function useConsoleStore() {
       if (requestId !== predictRequestId.current || predictModeRef.current !== "historical") return;
       if (res && res.available) {
         setPrediction(res);
-        setPredictVariant((current) =>
-          res.forecast_variants?.some((variant) => variant.id === current) ? current : "raw",
-        );
         setOfflineUnavailable(false);
         if (res.prediction_date) setOfflineDate(res.prediction_date);
       } else {
@@ -308,7 +304,6 @@ function useConsoleStore() {
       });
       if (requestId === predictRequestId.current && predictModeRef.current === "checkpoint") {
         setPrediction(result);
-        setPredictVariant("raw");
       }
     } catch (e) {
       if (requestId === predictRequestId.current && predictModeRef.current === "checkpoint") {
@@ -334,7 +329,6 @@ function useConsoleStore() {
       const res = await api.runLivePrediction({ api_url: apiUrl, prediction_date: predictDate, risk });
       if (requestId === predictRequestId.current && predictModeRef.current === "live") {
         setPrediction(res);
-        setPredictVariant("raw");
       }
     } catch (e) {
       if (requestId === predictRequestId.current && predictModeRef.current === "live") {
@@ -398,7 +392,8 @@ function useConsoleStore() {
         }
         res = off;
       }
-      const selectedVariant = res.forecast_variants?.find((variant) => variant.id === predictVariant);
+      // The backup serves exactly one artifact-backed forecast.
+      const selectedVariant = res.forecast_variants?.[0];
       const nextBasis: TradingBasis = {
         current: res.last_close,
         predicted: selectedVariant?.predicted_close ?? res.predicted_close,
@@ -413,7 +408,7 @@ function useConsoleStore() {
     } finally {
       setTradingLoading(false);
     }
-  }, [prediction, predictVariant, runSimulate]);
+  }, [prediction, runSimulate]);
 
   const loadBacktest = useCallback(
     async (override?: Partial<{ result_type: string; split: string; ref_cost: number }>) => {
@@ -540,7 +535,6 @@ function useConsoleStore() {
         offlineDate,
         predictDate,
         apiUrl,
-        variant: predictVariant,
         risk,
         setMode: (m: api.PredictMode) => {
           predictModeRef.current = m;
@@ -550,7 +544,6 @@ function useConsoleStore() {
           setPredictError("");
           setPrediction(null);
           setOfflineUnavailable(false);
-          setPredictVariant("raw");
           if (m === "historical") void loadOffline(offlineDate || undefined);
         },
         setCheckpointModel: (model: api.CheckpointModelId) => {
@@ -578,7 +571,6 @@ function useConsoleStore() {
           if (predictModeRef.current === "checkpoint") setPrediction(null);
         },
         setApiUrl,
-        setVariant: setPredictVariant,
         setRisk,
         runCheckpoint,
         runLive,
@@ -648,7 +640,7 @@ function useConsoleStore() {
       repro, reproLoading, reproError, loadReproduce,
       arch, archLoading, archError, loadArchitecture,
       setup, prediction, predictMode, checkpointModel, predictLoading, predictError, offlineUnavailable, offlineDate,
-      predictDate, apiUrl, predictVariant, risk, loadOffline, runCheckpoint, runLive,
+      predictDate, apiUrl, risk, loadOffline, runCheckpoint, runLive,
       basis, sim, tradingLoading, tradingError, capital, btc, move, runSimulate, loadTrading,
       backtest, backtestLoading, backtestError, btResultType, btSplit, btCost, loadBacktest,
       replay, replayLoading, replayError, replayStrategy, loadReplay,

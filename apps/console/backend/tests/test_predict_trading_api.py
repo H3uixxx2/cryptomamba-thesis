@@ -52,7 +52,12 @@ class TestPredictApi(unittest.TestCase):
         if setup.get("offline_default_date"):
             self.assertEqual(d["prediction_date"], setup["offline_default_date"])
 
-    def test_offline_exposes_artifact_backed_raw_and_affine_outputs(self):
+    def test_offline_exposes_only_the_artifact_backed_raw_forecast(self):
+        """The offline backup serves the frozen CM-v forecast and nothing else.
+
+        Any post-thesis post-processing variant would be a number the thesis does not
+        report, so exactly one variant must come back.
+        """
         setup = client.get("/api/predict").json()
         target = setup.get("offline_default_date")
         if not target:
@@ -60,18 +65,9 @@ class TestPredictApi(unittest.TestCase):
 
         d = client.get("/api/predict/offline", params={"date": target}).json()
         variants = {row["id"]: row for row in d.get("forecast_variants", [])}
-        self.assertEqual(set(variants), {"raw", "affine"})
+        self.assertEqual(set(variants), {"raw"})
         self.assertEqual(variants["raw"]["source"], "official_checkpoint")
-        self.assertEqual(
-            variants["affine"]["source"],
-            "official_checkpoint_affine_calibrated",
-        )
         self.assertEqual(variants["raw"]["prediction_date"], target)
-        self.assertEqual(variants["affine"]["prediction_date"], target)
-        self.assertNotEqual(
-            variants["raw"]["predicted_close"],
-            variants["affine"]["predicted_close"],
-        )
         self.assertEqual(d["predicted_close"], variants["raw"]["predicted_close"])
         self.assertEqual(d["window"]["size"], 14)
         self.assertEqual(len(d["window"]["rows"]), 14)
