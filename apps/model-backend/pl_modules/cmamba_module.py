@@ -28,9 +28,7 @@ class CryptoMambaModule(BaseModule):
         optimizer='adam',
         mode='default',
         loss='rmse',
-        return_center=0.0,
-        return_scale=1.0,
-        return_clip=0.5,
+        madl_temp=0.005,
         **kwargs
     ): 
         super().__init__(lr=lr,
@@ -43,9 +41,7 @@ class CryptoMambaModule(BaseModule):
                          mode=mode,
                          window_size=window_size,
                          loss=loss,
-                         return_center=return_center,
-                         return_scale=return_scale,
-                         return_clip=return_clip,
+                         madl_temp=madl_temp,
                          )
         assert window_size == hidden_dims[0]
 

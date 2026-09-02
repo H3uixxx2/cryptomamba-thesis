@@ -24,18 +24,7 @@ class CryptoMambaTModule(BaseModule):
         optimizer='adam',
         mode='ret',
         loss='rmse',
-        dir_loss_lambda=0.0,
-        dir_loss_scale=100.0,
-        distributional=False,
-        madl_lambda=0.0,
         madl_temp=0.005,
-        heavy_tail=False,
-        nu_init=2.0,
-        selective_lambda=0.0,
-        selective_kappa=1.0,
-        mixture=False,
-        mixture_max_tail=0.25,
-        mixture_tail_ratio_init=4.0,
         **kwargs
     ):
         super().__init__(lr=lr,
@@ -48,18 +37,7 @@ class CryptoMambaTModule(BaseModule):
                          mode=mode,
                          window_size=window_size,
                          loss=loss,
-                         dir_loss_lambda=dir_loss_lambda,
-                         dir_loss_scale=dir_loss_scale,
-                         distributional=distributional,
-                         madl_lambda=madl_lambda,
                          madl_temp=madl_temp,
-                         heavy_tail=heavy_tail,
-                         nu_init=nu_init,
-                         selective_lambda=selective_lambda,
-                         selective_kappa=selective_kappa,
-                         mixture=mixture,
-                         mixture_max_tail=mixture_max_tail,
-                         mixture_tail_ratio_init=mixture_tail_ratio_init,
                          )
 
         self.model = CMambaT(
@@ -72,8 +50,5 @@ class CryptoMambaTModule(BaseModule):
             expand=expand,
             mlp_ratio=mlp_ratio,
             drop=drop,
-            distributional=distributional,
-            # The mixture needs a third output channel for the per-day tail logit.
-            head_outputs=3 if mixture else (2 if distributional else 1),
             **kwargs
         )

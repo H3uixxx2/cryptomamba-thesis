@@ -299,10 +299,9 @@ if __name__ == "__main__":
     # so baselines can train locally. The CUDA/Colab path is unchanged.
     use_ddp = (args.accelerator == 'gpu') and torch.cuda.is_available()
     feature_flags = config.get('feature_flags', {}) or {}
-    exogenous_features = config.get('exogenous_features', []) or []
-    train_transform = DataTransform(is_train=True, use_volume=use_volume, additional_features=config.get('additional_features', []), exogenous_features=exogenous_features, **feature_flags)
-    val_transform = DataTransform(is_train=False, use_volume=use_volume, additional_features=config.get('additional_features', []), exogenous_features=exogenous_features, **feature_flags)
-    test_transform = DataTransform(is_train=False, use_volume=use_volume, additional_features=config.get('additional_features', []), exogenous_features=exogenous_features, **feature_flags)
+    train_transform = DataTransform(is_train=True, use_volume=use_volume, additional_features=config.get('additional_features', []), **feature_flags)
+    val_transform = DataTransform(is_train=False, use_volume=use_volume, additional_features=config.get('additional_features', []), **feature_flags)
+    test_transform = DataTransform(is_train=False, use_volume=use_volume, additional_features=config.get('additional_features', []), **feature_flags)
 
     model, normalize = load_model(config, args.logger_type)
     shared_init_config = config.get('shared_init_config')
@@ -362,7 +361,6 @@ if __name__ == "__main__":
                                    num_workers=args.num_workers,
                                    normalize=normalize,
                                    window_size=model.window_size,
-                                   exogenous_features=exogenous_features,
                                    cross_boundary_validation=config.get(
                                        'cross_boundary_validation', False),
                                    validation_selection_rows=config.get(

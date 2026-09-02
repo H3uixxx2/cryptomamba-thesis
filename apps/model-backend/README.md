@@ -17,9 +17,9 @@ preserved on the branch `thesis/pre-monorepo-snapshot` of the original BE repo.
 
 | Path | What |
 |---|---|
-| `models/` | `cmamba` (CryptoMamba-v) and `cmamba_t` (CMamba-T / "S5-Full"); `blueprint_blocks` + `revin` are dependencies of `cmamba_t` |
+| `models/` | `cmamba` (CryptoMamba-v) and `cmamba_t` (CMamba-T / "S5-Full") |
 | `pl_modules/` | Lightning wrappers — `base_module` (shared train/val/predict), `cmamba_module`, `cmamba_t_module`, `data_module` |
-| `data_utils/` | `data_transforms`, `dataset`; `exogenous` is imported by the data pipeline (feature builder, inert unless an exogenous config is used) |
+| `data_utils/` | `data_transforms` (feature tensor + the paper's hygiene flags), `dataset` |
 | `utils/` | `trade` (paper strategy logic), `io_tools` |
 | `thesis_pipeline/` | corrected offline engine: `inference`, `evaluation`, `backtest`, `package` — loads frozen checkpoints, does **not** retrain. Produces the RQ2/RQ3 tables. |
 | `configs/` | `data_configs/mode_1.yaml` (paper chronological split); `models/CryptoMamba/{v1,v2,t1,t2}.yaml` (CM-v + CMamba-T w14/w60); `training/cmamba_{v,nv}.yaml` |
@@ -32,6 +32,32 @@ The two checkpoints the thesis pipeline and the console load are pinned by SHA-2
 `output/thesis_final/checkpoint_provenance.json`: the reproduced CM-v
 (`output/reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt`) and S5-Full
 (`output/improve_track_evidence/s5_full/checkpoints/s5_full__seed23__epoch321-*.ckpt`).
+
+## What was stripped out of the model code
+
+The exploration rounds that ran after the thesis was frozen left machinery behind in
+`base_module.py` and `cmamba_t.py` — a distributional/Student-t/mixture head, a selective
+prediction term, a direction auxiliary loss, a `scaled_log_return` target mode, RevIN,
+bidirectional scan, recency pooling, and exogenous track-3 feature merging. Every one of
+them defaulted to off and **no config, script or pipeline in this repo switched any of them
+on**, so they were removed rather than shipped as unreachable branches.
+
+`base_module.py` went from 694 to 209 lines and from 27 to 11 constructor arguments;
+`cmamba_t.py` from 70 to 40 lines; `models/revin.py`, `models/blueprint_blocks.py` and
+`data_utils/exogenous.py` are gone (the last one also pointed at a `data/exogenous/`
+snapshot that does not exist here).
+
+`trade_pnl` and its `madl_temp` argument were **kept**: `validation_step` logs `val/neg_pnl`
+for every run, including the thesis path.
+
+How this was checked without a GPU: neither frozen checkpoint stores `hyper_parameters`, so
+the constructor signature is not part of the checkpoint contract; the S5-Full `state_dict`
+holds only `embed / blocks / norm / head[1,32]` (57,249 parameters, no RevIN, pool or
+bi-scan tensors), which is exactly what the trimmed `CMambaT` builds; and a behavioural
+harness that instantiates `BaseModule` on both thesis modes (`default` and `ret`) and runs
+forward / training_step / validation_step / test_step / denormalize / configure_optimizers
+against fixed seeded tensors returns **bit-identical** values before and after the edit.
+Full training still runs only on Colab and was not re-executed.
 
 ## `output/reproduce_colab_train/` — why it looks duplicated
 

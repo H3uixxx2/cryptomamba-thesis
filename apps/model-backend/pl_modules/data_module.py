@@ -68,19 +68,12 @@ class CMambaDataModule(pl.LightningDataModule):
         num_workers=4,
         normalize=False,
         window_size=14,
-        exogenous_features=None,
         cross_boundary_validation=False,
         validation_base_window=14,
         validation_selection_rows=None,
     ):
 
         super().__init__()
-
-        if exogenous_features and normalize:
-            raise ValueError(
-                'exogenous_features cannot be combined with normalize=True: the '
-                'legacy normalize() is train-wide min-max (leaky) and would sweep '
-                'the exogenous columns. Track-3 configs must use window_norm only.')
 
         self.data_config = data_config
         self.train_transform = train_transform
@@ -91,7 +84,6 @@ class CMambaDataModule(pl.LightningDataModule):
         self.distributed_sampler = distributed_sampler
         self.window_size = window_size
         self.factors = None
-        self.exogenous_features = list(exogenous_features or [])
 
         self.converter = DataConverter(data_config)
         train, val, test = self.converter.get_data()
@@ -100,16 +92,6 @@ class CMambaDataModule(pl.LightningDataModule):
             'val': val,
             'test': test,
         }
-
-        if self.exogenous_features:
-            # Track 3: join frozen exogenous columns by calendar day (in memory
-            # only — the cached split CSVs on disk stay pristine OHLCV).
-            from data_utils.exogenous import load_exogenous_frame, merge_exogenous
-            exo = load_exogenous_frame(self.exogenous_features)
-            self.data_dict = {
-                split: merge_exogenous(df, exo, self.exogenous_features)
-                for split, df in self.data_dict.items()
-            }
 
         if cross_boundary_validation:
             self.data_dict['val'] = prepend_validation_history(

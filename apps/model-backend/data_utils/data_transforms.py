@@ -1,7 +1,5 @@
 import torch
 
-from data_utils.exogenous import validate_features as validate_exogenous_features
-
 PRICE_KEYS = ('Open', 'High', 'Low', 'Close')
 DERIVED_FEATURES = ('ret1', 'hl_range', 'co_gap')
 
@@ -9,7 +7,7 @@ DERIVED_FEATURES = ('ret1', 'hl_range', 'co_gap')
 class DataTransform:
     def __init__(self, is_train, use_volume=False, additional_features=[],
                  drop_timestamp=False, log_volume=False, window_norm=False,
-                 derived_features=[], exogenous_features=None):
+                 derived_features=[]):
         """Defaults reproduce the paper pipeline exactly.
 
         Hygiene flags (all default False/empty, opt-in via training config `feature_flags`):
@@ -21,10 +19,6 @@ class DataTransform:
           derived_features: extra stationary channels computed INSIDE the window (no new
                           CSV columns, no look-ahead): 'ret1' daily Close return (first
                           day padded 0), 'hl_range' (High-Low)/Close, 'co_gap' Close/Open-1.
-          exogenous_features: Track-3 channels already merged into the split dataframe
-                          (data_utils/exogenous.py; statically transformed + t-1 shifted).
-                          Under window_norm each becomes x - x[last observed day], the
-                          anchored analogue of the price scheme (safe when values near 0).
         """
         self.is_train = is_train
         self.keys = ['Timestamp', 'Open', 'High', 'Low', 'Close']
@@ -38,9 +32,7 @@ class DataTransform:
         if unknown:
             raise ValueError(f'Unknown derived_features: {sorted(unknown)}')
         self.derived_features = list(derived_features)
-        self.exogenous_features = list(exogenous_features or [])
-        validate_exogenous_features(self.exogenous_features)
-        print(self.keys + self.derived_features + self.exogenous_features)
+        print(self.keys + self.derived_features)
 
 
     def __call__(self, window):
@@ -81,12 +73,6 @@ class DataTransform:
             }
             for name in self.derived_features:
                 data_list.append(derived[name].reshape(1, -1))
-        for name in self.exogenous_features:
-            data = torch.tensor(window.get(name).tolist())
-            feat = data[:-1]  # rows 0..w-1; the target day never enters features
-            if self.window_norm:
-                feat = feat - feat[-1]  # anchor = last observed day, like prices
-            data_list.append(feat.reshape(1, -1))
         features = torch.cat(data_list, 0)
         output['features'] = features
         return output
