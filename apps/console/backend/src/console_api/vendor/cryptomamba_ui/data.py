@@ -70,10 +70,6 @@ class CandleDataError(ValueError):
     """Raised when uploaded candle data is invalid."""
 
 
-def load_csv(path_or_buffer: str | Path | Any) -> pd.DataFrame:
-    return normalize_candles(pd.read_csv(path_or_buffer))
-
-
 def normalize_candles(df: pd.DataFrame) -> pd.DataFrame:
     """Normalize uploaded OHLCV rows into sorted daily-compatible candle rows.
 

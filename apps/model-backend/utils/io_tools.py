@@ -1,5 +1,4 @@
 import yaml
-import pickle
 import pathlib
 import importlib
 
@@ -41,14 +40,3 @@ def load_config_from_yaml(path):
 def save_yaml(data, path):
     with open(path, 'w') as file:
         yaml.dump(data, file, default_flow_style=False)
-
-
-def save_pickle(data, path: str) -> None:
-    with open(path, 'wb') as f:
-        pickle.dump(data, f)
-
-
-def load_pickle(path: str):
-    with open(path, 'rb') as f:
-        data = pickle.load(f)
-    return data

@@ -76,6 +76,3 @@ class DataTransform:
         features = torch.cat(data_list, 0)
         output['features'] = features
         return output
-
-    def set_initial_seed(self, seed):
-        self.rng.seed(seed)
