@@ -1,9 +1,9 @@
-"""Import facade for the reused CryptoMamba logic.
+"""Single import point for the vendored ``cryptomamba_ui`` modules.
 
-This is the ONLY place the console reaches into the Streamlit repo's package.
-Everything is re-exported so routers depend on ``server.logic`` rather than on the
-external path, and so a missing/moved source repo fails loudly here with a clear
-message instead of as an obscure ImportError deep in a request handler.
+Services import from here rather than from ``.vendor.cryptomamba_ui`` directly, so
+the vendored package can be re-synced or replaced by touching one file. A broken
+vendor tree raises here at import time with a readable message instead of as an
+ImportError deep inside a request handler.
 """
 from __future__ import annotations
 

@@ -1,0 +1,21 @@
+# CMamba-T / S5-Full: 60-day window, relative-return target, 57,249 params.
+# lr 1e-3, not the paper's 0.01, which diverged on this architecture.
+data_config: 'mode_1'
+model: 'CMambaT_w60'
+
+name: 's5_full'
+max_epochs: 1000
+use_volume: True
+additional_features: []
+
+feature_flags:
+    drop_timestamp: True
+    log_volume: True
+    window_norm: True
+
+hyperparams:
+    optimizer: 'adam'
+    lr: 0.001
+    lr_step_size: 100
+    lr_gamma: 0.5
+    weight_decay: 0.001

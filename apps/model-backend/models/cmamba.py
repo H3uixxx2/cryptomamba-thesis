@@ -168,7 +168,7 @@ class Mamba(nn.Module):
         A = -torch.exp(self.A_log.float())  # (d_inner, d_state)
         # In the backward pass we write dx and dz next to each other to avoid torch.cat
         # kernels are CUDA-only: route by the tensor's device, not by import success,
-        # so CPU inference on a CUDA box (e.g. smoke_report.py) takes the fallback path
+        # so a CPU tensor on a CUDA box still takes the pure-PyTorch fallback
         if self.use_fast_path and causal_conv1d_fn is not None and inference_params is None and hidden_states.is_cuda:  # Doesn't support outputting the states
             out = mamba_inner_fn(
                 xz,

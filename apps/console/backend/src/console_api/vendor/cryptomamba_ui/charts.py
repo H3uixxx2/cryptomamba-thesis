@@ -75,7 +75,7 @@ def roi_chart(sim_df: pd.DataFrame) -> go.Figure:
     return fig
 
 
-# --- Model-comparison charts (demo-friendly benchmark views) ---
+# --- Model-comparison charts ---
 
 _HIGHLIGHT_COLOR = "#1e3a8a"   # CryptoMamba-v (the model under test)
 _NEUTRAL_COLOR = "#cbd5e1"     # reference baselines

@@ -39,7 +39,8 @@ class TestPredictApi(unittest.TestCase):
         d = client.get("/api/predict/offline").json()
         if not d.get("available"):
             self.skipTest(f"offline artifact absent: {d.get('error')}")
-        # Hard rule: a frozen prediction is always labelled offline, never live.
+        # A replayed frozen prediction must report offline, not the live label
+        # stored in the artifact when it was captured.
         self.assertEqual(d["inference_type"], "offline")
         for k in ("predicted_close", "last_close", "move_pct", "vanilla_action",
                   "smart_action", "ood", "window", "charts"):

@@ -166,7 +166,11 @@ def _paper_reference(evidence: FinalEvidence) -> dict[str, Any]:
 
 
 def build_reproduction_350d(evidence: FinalEvidence, core_root: Path) -> dict[str, Any]:
-    """Return checksum-backed RQ1 metrics; never consume the legacy metrics CSV."""
+    """Recompute the 350-day metrics from the pinned per-date predictions.
+
+    Derived from the checksum-verified source, not read from a precomputed metrics
+    CSV, so the reported numbers cannot drift from the predictions behind them.
+    """
     source_data, source_sha256, source_bytes = _pinned_source(evidence, core_root)
     frames = _load_test_predictions(source_data)
     paper = _paper_reference(evidence)

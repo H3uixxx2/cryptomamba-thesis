@@ -1,9 +1,9 @@
 """Corrected same-close self-financing trading evaluation.
 
-The published replay remains in :mod:`utils.trade` and
-``scripts/run_backtest.py``.  This module is deliberately separate: every order
-is fee-aware, each signal uses only the current and predicted close, and one
-ledger carries cash, signed BTC position, costs, and marked equity.
+Kept separate from the published replay in :mod:`utils.trade` /
+``scripts/run_backtest.py`` because the accounting differs: here every order is
+fee-aware, each signal uses only the current and predicted close, and a single
+ledger carries cash, signed BTC position, costs and marked equity.
 """
 from __future__ import annotations
 

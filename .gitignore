@@ -4,9 +4,13 @@
 *.pyc
 **/.pytest_cache/
 **/*.egg-info/
-apps/model-backend/Results/     # scripts/{evaluation,simulate_trade}.py scratch output
-apps/model-backend/logs/
 apps/console/frontend/node_modules/
 apps/console/frontend/.vite/
 .DS_Store
-# built frontend bundle is committed (apps/console/web-dist) so the demo runs without pnpm
+
+# regenerable model-backend output
+apps/model-backend/output/thesis_final/
+apps/model-backend/Results/
+apps/model-backend/logs/
+
+# apps/console/web-dist is committed on purpose: the demo runs without pnpm

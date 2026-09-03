@@ -38,7 +38,8 @@ Expected on the paper test split (2023-10-01 … 2024-09-14):
 
 ```bash
 python -m thesis_pipeline.evaluation     # CM-v / S5-Full / naive persistence on the 304 aligned dates
-                                         # -> output/thesis_final/{controlled_forecast_metrics,paired_significance_tests}.csv
+                                         # -> output/thesis_final/ (regenerated; not committed —
+                                         #    the sealed copy lives in evidence/forecast/)
 ```
 
 Diebold–Mariano (squared error, HAC lag 1) and Wilcoxon (absolute error), plus a
@@ -65,8 +66,28 @@ At 0 % transaction cost the engine reconciles to the paper's replay within < $0.
 ```bash
 python -m thesis_pipeline.evaluation      # 304 common-date controlled comparison: CM-v / S5-Full / naive
 python -m thesis_pipeline.backtest        # corrected self-financing replay
-python -m thesis_pipeline.package         # assemble the final evidence bundle
+python scripts/build_thesis_artifacts.py  # -> output/thesis_final/  (regenerable, gitignored)
+python scripts/package_thesis_evidence.py # seals thesis_final/ -> ../../evidence/ with SHA256SUMS
 ```
+
+`output/thesis_final/` is deliberately not committed: every file in it is byte-identical to its
+counterpart in `evidence/`, and the sealed copy is the one the thesis and the console cite.
+
+## 5. Training from scratch (GPU / Colab only)
+
+The thesis reports two trained models, and each has its recipe here:
+
+```bash
+python scripts/training.py --config cmamba_v    # CryptoMamba-v, 14-day window, 136,952 parameters
+python scripts/training.py --config s5_full     # CMamba-T / S5-Full, 60-day window, 57,249 parameters
+```
+
+Both need `pip install -e ".[gpu]"` at full budget. `configs/models/CryptoMamba/t2.yaml` builds
+exactly the released S5-Full graph — 57,249 parameters, identical tensor names and shapes, and the
+frozen checkpoint loads into it with `load_state_dict` — so the architecture in this repo is the one
+that produced the RQ4 numbers. Reproducing the *weights* additionally requires the original Colab
+CUDA runtime; the frozen checkpoints are provided so every result below can be recomputed without
+training.
 
 ## Checking against the evidence bundle
 

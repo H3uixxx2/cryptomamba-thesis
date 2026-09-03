@@ -1,10 +1,10 @@
 """Predict screen business logic.
 
-Honesty rules preserved: live results are labelled ``live``, the frozen backup is
-forced to ``offline``, and out-of-distribution windows (after the paper horizon)
-are flagged. No model inference is implemented here — the checkpoint path shells
-out to the model-backend worker, live calls the remote API, offline reads the
-frozen artifact.
+``inference_type`` is set by the code path, never by the caller: the remote path
+reports ``live``, the frozen artifact is forced to ``offline``. Windows ending
+after the last trained date are flagged out-of-distribution. No inference runs in
+this module — the checkpoint path shells out to the model-backend worker, the live
+path calls the remote API, the offline path reads the frozen artifact.
 """
 from __future__ import annotations
 
@@ -424,7 +424,7 @@ def run_offline(date: Optional[str] = None) -> dict:
 
     window = logic.data.window_from_candles(bundle["window_candles"])
     prediction = dict(bundle["prediction"])
-    prediction["inference_type"] = "offline"  # hard rule: never present frozen as live
+    prediction["inference_type"] = "offline"  # overrides the "live" recorded at freeze time
     ood = bool(logic.data.is_out_of_distribution(window))
     result = _result_from_prediction(prediction, window, ood=ood, provenance=bundle.get("provenance"))
     result["available"] = True

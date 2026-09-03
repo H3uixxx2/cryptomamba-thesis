@@ -17,7 +17,7 @@ from console_api.vendor.cryptomamba_ui.data import (
 
 @dataclass(frozen=True)
 class DatasetBundle:
-    """Processed dataset state used by the Streamlit pages."""
+    """One loaded dataset: raw rows, daily candles, and the split-tagged frame."""
 
     raw_df: pd.DataFrame
     daily_df: pd.DataFrame
@@ -28,11 +28,10 @@ class DatasetBundle:
 
 
 class DatasetService:
-    """Load and process datasets for the app.
+    """IO orchestration: read raw CSV -> normalise/aggregate daily OHLCV -> split.
 
-    UI code owns file selection/rendering. This service owns IO orchestration:
-    read raw CSV -> normalize/aggregate daily OHLCV -> apply thesis split.
-    Pure validation/transform rules stay in data.py.
+    Callers own file selection and rendering. Validation and transform rules stay
+    in ``data.py``; this class only sequences them.
     """
 
     def __init__(self, sample_path: Path, display_root: Path) -> None:

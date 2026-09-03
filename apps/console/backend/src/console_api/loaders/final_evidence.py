@@ -1,4 +1,4 @@
-"""Checksum-verified, path-safe access to the final thesis evidence package."""
+"""Checksum-verified, path-safe reads from the evidence package."""
 from __future__ import annotations
 
 import hashlib

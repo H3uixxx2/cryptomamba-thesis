@@ -1,8 +1,9 @@
-"""Strict CPU inference for the two frozen thesis checkpoints.
+"""Strict CPU inference for the two frozen checkpoints (CM-v, S5-Full).
 
-The module intentionally bypasses Lightning.  It reconstructs the exact model and
-feature contracts used by the controlled thesis artifacts, verifies checkpoint
-bytes, loads the state dictionary strictly, and never falls back to mock output.
+Bypasses Lightning and rebuilds the model directly from ``contracts.MODEL_SPECS``:
+the checkpoint bytes are hashed against the pinned SHA-256, the state dict is
+loaded with ``strict=True``, and the feature tensor is built to the per-model
+window/normalisation contract. There is no fallback path — any mismatch raises.
 """
 from __future__ import annotations
 
