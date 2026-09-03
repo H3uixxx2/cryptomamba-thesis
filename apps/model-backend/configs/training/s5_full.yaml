@@ -1,9 +1,5 @@
-# S5 full budget: the round-1 winner (CMambaT w60, ret target, hygiene features)
-# trained at the paper's budget (1000 epochs, same step-100 x0.5 scheduler shape).
-# Only name/max_epochs differ from smoke_s5_tmamba60 — recipe is byte-identical
-# (lr 1e-3 is S5's validated lr; the paper's 0.01 was never stable on this arch).
-# Best checkpoint is still selected on val RMSE; the test split is touched once,
-# afterwards, via smoke_report --split test --allow_test (user-authorized one-shot).
+# CMamba-T / S5-Full (RQ4): 60-day window, relative-return target, 57,249 params.
+# lr 1e-3, not the paper's 0.01, which was unstable on this architecture.
 data_config: 'mode_1'
 model: 'CMambaT_w60'
 
