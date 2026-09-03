@@ -1,11 +1,9 @@
-"""Phase 4 — chronological transaction-cost trading backtest.
+"""Chronological transaction-cost trading backtest.
 
-Drives the *paper* trading logic (``utils.trade``) over the frozen Phase 2
-predictions (``output/evaluation/forecast_predictions.csv``) — no model, no GPU,
-no live API. Extends the paper with explicit transaction costs, a buy & hold
-baseline, per-day equity curves and richer metrics.
-
-Built test-first (``tests/test_backtest.py``).
+Drives the paper trading logic (``utils.trade``) over the frozen per-date
+predictions in ``output/evaluation/forecast_predictions.csv`` — no model, no GPU,
+no live API. Adds explicit transaction costs, a buy & hold baseline, per-day
+equity curves and Sharpe/drawdown/trade-count metrics on top.
 
 Decision at day ``t`` uses only ``current_close`` (today's price) and
 ``predicted_close`` (the model's forecast) — never ``target_close`` (the

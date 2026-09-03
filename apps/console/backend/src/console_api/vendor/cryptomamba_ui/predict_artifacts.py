@@ -25,17 +25,17 @@ _REQUIRED_RESPONSE_KEYS = (
 
 
 def load_offline_prediction(path: str | Path) -> dict[str, Any]:
-    """Load the frozen defense-day backup produced by the serve notebook (§8).
+    """Read ``offline_prediction.json`` — one prediction captured at freeze time.
 
-    The artifact nests the captured response under ``response`` with its own
-    ``inference_type == "live"`` (it genuinely WAS a live call at freeze time).
-    Loading it for display is an OFFLINE action, so we FE-override the label:
-      * extract ``response`` as the prediction dict,
-      * force ``inference_type = "offline"`` (honest source label — hard rule #1),
-      * return provenance + the frozen input window separately.
+    The file nests the captured response under ``response`` and records
+    ``inference_type == "live"``, because it was a live call when it was written.
+    Replaying it is not a live call, so the label is overridden here:
+      * ``response`` becomes the prediction dict,
+      * ``inference_type`` is forced to ``"offline"``,
+      * provenance and the frozen input window are returned separately.
 
-    Raises OfflinePredictionError on any problem so the caller renders NOT READY.
-    Never returns a partial or faked prediction.
+    Any problem raises OfflinePredictionError; the function never returns a
+    partial or synthesised prediction.
     """
     path = Path(path)
     if not path.is_file():

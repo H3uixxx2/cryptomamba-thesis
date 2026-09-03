@@ -6,10 +6,10 @@ recomputed from a model and nothing is estimated: a missing, tampered or
 inconsistent artifact yields ``status=NOT_READY`` with the reason, never a 500
 and never a substituted number.
 
-Scope note: there is no local multi-baseline comparison. Per the thesis, the
-paper's LSTM / GRU / iTransformer / S-Mamba rows are published aggregates and are
-served verbatim as ``paper_reported``; only reproduced CM-v, S5-Full and naive
-persistence have local, date-aligned results.
+Only CM-v, S5-Full and naive persistence have per-date local predictions, so only
+those three are paired. LSTM / GRU / iTransformer / S-Mamba exist solely as
+aggregate rows and are served verbatim under ``paper_reported`` — they carry no
+per-date series and therefore cannot enter a paired test.
 """
 from __future__ import annotations
 

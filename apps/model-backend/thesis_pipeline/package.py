@@ -1,4 +1,4 @@
-"""Create and verify the allow-listed final thesis evidence package."""
+"""Create and verify the allow-listed evidence package (SHA256SUMS + manifest)."""
 from __future__ import annotations
 
 from dataclasses import dataclass

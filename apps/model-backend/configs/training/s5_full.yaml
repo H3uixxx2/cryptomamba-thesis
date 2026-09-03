@@ -1,5 +1,5 @@
-# CMamba-T / S5-Full (RQ4): 60-day window, relative-return target, 57,249 params.
-# lr 1e-3, not the paper's 0.01, which was unstable on this architecture.
+# CMamba-T / S5-Full: 60-day window, relative-return target, 57,249 params.
+# lr 1e-3, not the paper's 0.01, which diverged on this architecture.
 data_config: 'mode_1'
 model: 'CMambaT_w60'
 

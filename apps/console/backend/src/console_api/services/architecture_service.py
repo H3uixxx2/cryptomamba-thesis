@@ -1,4 +1,4 @@
-"""Architecture screen business logic — the approved S5-Full experiment.
+"""Architecture screen business logic: S5-Full model card + its metric rows.
 
 Reads only checksum-verified rows from the evidence bundle. A missing or
 inconsistent bundle yields ``status=NOT_READY`` with the reason; nothing is
@@ -17,8 +17,8 @@ def _training_metadata(summary: dict[str, Any]) -> dict[str, Any]:
     run = runs[0] if isinstance(runs, list) and runs and isinstance(runs[0], dict) else {}
     selected = summary.get("selected")
     selected = selected if isinstance(selected, dict) else {}
-    # Metric and p-value fields in the legacy summary are deliberately excluded;
-    # the controlled CSV and paired-test CSV below are the current authorities.
+    # Training metadata only. Metrics/p-values come from the evidence CSVs below,
+    # so the summary JSON cannot contribute a second, divergent set of numbers.
     return {
         "config": summary.get("config"),
         "commit": summary.get("commit"),

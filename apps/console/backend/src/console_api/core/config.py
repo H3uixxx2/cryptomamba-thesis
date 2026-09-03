@@ -3,7 +3,7 @@
 The console holds no model/data logic. It:
   - imports the vendored ``cryptomamba_ui`` package (``console_api.vendor.cryptomamba_ui``),
   - reads frozen artifacts from the model-backend app (``apps/model-backend/output``),
-  - reads the checksum-verified evidence bundle from the ``evidence/`` submodule,
+  - reads the checksum-verified evidence bundle from ``<repo>/evidence``,
   - shells out to the model-backend venv for real frozen-checkpoint inference.
 
 All external locations are overridable via environment variables.
@@ -34,7 +34,7 @@ CHECKPOINT_TIMEOUT_SECONDS = 120
 MAX_WORKER_ERROR_CHARS = 2_048
 MAX_WORKER_STDOUT_CHARS = 65_536
 
-# --- evidence submodule: checksum-verified thesis-final bundle ---
+# --- evidence bundle: SHA256SUMS-verified CSV/JSON, read-only ---
 FINAL_EVIDENCE_DIR = Path(
     os.getenv("CRYPTO_MAMBA_FINAL_EVIDENCE", MONOREPO_ROOT / "evidence")
 ).expanduser().resolve()

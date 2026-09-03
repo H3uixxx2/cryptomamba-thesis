@@ -1,8 +1,8 @@
-"""Controlled aligned forecast evaluation for the final thesis.
+"""Date-aligned forecast evaluation over the common target dates.
 
-Only models with per-date local predictions enter this module.  Aggregate
-numbers transcribed from the paper are intentionally handled by the artifact
-builder and never enter paired tests.
+Only models with per-date local predictions enter this module. Aggregate numbers
+transcribed from the paper have no per-date series, so they are handled by the
+artifact builder and can never reach a paired test.
 """
 from __future__ import annotations
 

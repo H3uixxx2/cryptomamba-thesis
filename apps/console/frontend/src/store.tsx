@@ -11,10 +11,10 @@ import {
 
 import * as api from "@/lib/api";
 
-/* Single console store. Mirrors the previous Alpine store: screens read state
- * and call actions, they never fetch on their own. Payloads are cached so
- * moving between screens does not re-hit the backend (an uploaded CSV stays
- * loaded, the offline prediction stays on screen, etc.). */
+/* Single store for all five screens. Screens read state and call actions; they
+ * never fetch on their own. Each payload is cached after its first load, so
+ * navigating between screens does not re-hit the backend and per-screen state
+ * survives (an uploaded CSV stays loaded, a prediction stays on screen). */
 
 export type ScreenId = "data" | "reproduce" | "predict" | "trading" | "architecture";
 
@@ -62,7 +62,7 @@ function useConsoleStore() {
   const [reproLoading, setReproLoading] = useState(false);
   const [reproError, setReproError] = useState("");
 
-  // ---- Architecture study (thesis Chapter 5) ----
+  // ---- Architecture screen: S5-Full model card + metric rows ----
   const [arch, setArch] = useState<api.ArchitectureResponse | null>(null);
   const [archLoading, setArchLoading] = useState(false);
   const [archError, setArchError] = useState("");
@@ -460,8 +460,8 @@ function useConsoleStore() {
     [btResultType, btSplit, replayStrategy, btCost],
   );
 
-  // Lazy-load each screen the first time it is opened; reproduce is preloaded
-  // so the sidebar shows the real project status from the start.
+  // Lazy-load each screen on first open. Reproduce is the exception: the sidebar
+  // renders its readiness badge on every screen, so it is fetched at startup.
   const booted = useRef(false);
   useEffect(() => {
     if (booted.current) return;

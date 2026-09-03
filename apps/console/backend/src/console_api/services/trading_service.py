@@ -1,11 +1,12 @@
 """Trading screen business logic.
 
-Two clearly separated capabilities (Phase 4 spec):
-  * :func:`simulate_one_day` — the one-day decision demo (reuses trading_logic.simulate_trade).
-  * :func:`build_backtest` / :func:`build_replay` — the thesis-grade historical
-    chronological backtest, read from artifacts produced offline by
-    ``scripts/run_backtest.py``. No model and no recompute here: pure artifact
-    presentation. A missing artifact yields NOT_READY, never a fabricated number.
+Two separate capabilities, deliberately not merged:
+  * :func:`simulate_one_day` — single-day decision from one (current, predicted)
+    pair; recomputed live via ``trading_logic.simulate_trade``.
+  * :func:`build_backtest` / :func:`build_replay` — the multi-year chronological
+    backtest, read from CSVs produced offline by ``scripts/run_backtest.py``.
+    No model and no recompute: pure artifact presentation. A missing artifact
+    yields NOT_READY, never a fabricated number.
 """
 from __future__ import annotations
 
