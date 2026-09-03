@@ -7,7 +7,6 @@ All commands run from `apps/model-backend/`.
 ```bash
 python -m venv .venv
 ./.venv/bin/pip install -e .          # torch, lightning, pandas, scipy — CPU, any OS
-./.venv/bin/pip install -e ".[dev]"   # + pytest, to run the test suite
 ./.venv/bin/pip install -e ".[gpu]"   # + mamba-ssm / causal-conv1d — Linux + CUDA, needed to TRAIN
 ```
 
@@ -20,10 +19,6 @@ dependency. Without them the model still runs: `models/cmamba.py` imports the ke
 |---|---|
 | 1 – 4 | plain CPU, any OS |
 | 5 (training) | Linux + CUDA (Colab T4/L4) |
-
-```bash
-./.venv/bin/python -m pytest tests -q     # 75 tests, all offline
-```
 
 ## 1. Forecast reproduction
 

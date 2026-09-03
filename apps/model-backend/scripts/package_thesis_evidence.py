@@ -24,7 +24,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--destination",
         type=Path,
-        default=CORE_ROOT.parent / "cryptomamba-thesis-evidence/final",
+        default=CORE_ROOT.parents[1] / "evidence",
         help="Allow-listed evidence package root.",
     )
     parser.add_argument(

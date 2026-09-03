@@ -33,7 +33,6 @@ than the six feature tokens, which decouples window length from model width.
 | `checkpoints/cmamba_v.ckpt` | the official released checkpoint |
 | `data/2018-09-17_2024-09-16_86400/` | the frozen OHLCV split cache: 1461 / 365 / 365 rows |
 | `output/` | frozen results — see below |
-| `tests/` | 75 offline tests; `pytest tests` |
 
 ### Data
 
@@ -72,7 +71,6 @@ The sealed copy is the committed one.
 ```bash
 python -m venv .venv && ./.venv/bin/pip install -e .        # CPU — any OS, macOS included
 ./.venv/bin/pip install -e ".[gpu]"                          # + native Mamba kernels (Linux + CUDA)
-./.venv/bin/pip install -e ".[dev]"                          # + pytest
 ```
 
 `mamba_ssm` and `causal_conv1d` need nvcc, so they are the optional `gpu` extra rather than a base
@@ -81,7 +79,7 @@ a CPU tensor takes the pure-PyTorch `selective_scan_ref` path whether or not the
 
 | Task | Needs |
 |---|---|
-| Evaluation, trading backtest, thesis pipeline, tests | base install, CPU |
+| Evaluation, trading backtest, thesis pipeline | base install, CPU |
 | Frozen-checkpoint inference (console Predict) | base install, CPU |
 | Training from scratch | `.[gpu]`, Linux + CUDA |
 

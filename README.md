@@ -24,7 +24,7 @@ cryptomamba-thesis/
 
 | | `apps/model-backend` | `apps/console` |
 |---|---|---|
-| **Contains** | `models/` `pl_modules/` `data_utils/` `utils/` `thesis_pipeline/` `configs/` `scripts/` `tests/`, the two frozen checkpoints, the frozen OHLCV split cache, and the result CSVs | `backend/` (FastAPI) + `frontend/` (React) + `web-dist/` (prebuilt bundle) |
+| **Contains** | `models/` `pl_modules/` `data_utils/` `utils/` `thesis_pipeline/` `configs/` `scripts/`, the two frozen checkpoints, the frozen OHLCV split cache, and the result CSVs | `backend/` (FastAPI) + `frontend/` (React) + `web-dist/` (prebuilt bundle) |
 | **Stack** | Python 3.9+, PyTorch, Lightning, Mamba SSM | FastAPI, React 19, TypeScript, Tailwind, Plotly |
 | **Needs a GPU?** | Only to train. Evaluation, the backtest and frozen-checkpoint inference run on plain CPU, any OS | No |
 | **Depends on** | nothing else in this repo | reads `model-backend/output/**` and `evidence/**`; spawns `model-backend/.venv` for Predict-screen inference |

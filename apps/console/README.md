@@ -78,15 +78,6 @@ changing `frontend/src`:
 cd frontend && pnpm install && pnpm dev    # hot reload on :5273, proxies /api -> :8600
 ```
 
-## Test
-
-```bash
-cd backend && PYTHONPATH=src ./.venv/bin/python -m unittest discover -s tests -v
-```
-
-81 contract tests: response shapes, `NOT_READY` handling, fail-closed behaviour on a tampered or
-missing evidence bundle, and static guards on frontend labels and diagrams.
-
 ## Predict screen
 
 Three paths, and `inference_type` is set by the path rather than by the caller:
