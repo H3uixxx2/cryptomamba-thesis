@@ -14,8 +14,6 @@ import os
 from pathlib import Path
 
 _HERE = Path(__file__).resolve()
-PKG_ROOT = _HERE.parents[1]        # .../backend/src/console_api
-BACKEND_ROOT = _HERE.parents[3]    # .../console/backend
 CONSOLE_ROOT = _HERE.parents[4]    # .../apps/console
 MONOREPO_ROOT = _HERE.parents[6]   # repo root
 
@@ -40,9 +38,6 @@ FINAL_EVIDENCE_DIR = Path(
 ).expanduser().resolve()
 
 EVALUATION_DIR = CORE_ROOT / "output" / "evaluation"
-REPRODUCE_DIR = CORE_ROOT / "output" / "reproduce_colab_train"
-REPRODUCE_PROVENANCE_DIR = REPRODUCE_DIR / "provenance"
-SELECTED_CHECKPOINT_PATH = REPRODUCE_DIR / "checkpoints" / "cmamba_v_best_colab_train.ckpt"
 OFFLINE_PREDICTION_PATH = EVALUATION_DIR / "offline_prediction.json"
 
 # Optional default live API URL (Colab/ngrok). Usually pasted in the UI at demo time.

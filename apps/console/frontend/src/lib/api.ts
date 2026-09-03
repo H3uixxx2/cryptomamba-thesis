@@ -676,12 +676,3 @@ export const fetchTradingReplay = (params: {
 
 /* -------------------------------- Health -------------------------------- */
 
-export interface HealthResponse {
-  status: string;
-  core_root: string;
-  evaluation_dir_exists: boolean;
-  ui_repo_exists: boolean;
-  sample_data_exists: boolean;
-}
-
-export const fetchHealth = () => getJSON<HealthResponse>("/api/health");

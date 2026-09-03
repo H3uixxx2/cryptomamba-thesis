@@ -50,6 +50,7 @@ exception propagates as a 500 rather than being mislabelled as a client error.
 | `POST /api/trading/simulate` | one-day decision from one (current, predicted) pair |
 | `GET /api/trading/backtest` · `GET /api/trading/replay` | multi-year chronological backtest, read from CSVs |
 | `GET /api/architecture` | S5-Full model card + its metric rows |
+| `GET /api/health` | liveness probe: resolved paths and whether each artifact root exists |
 
 ## Wiring
 

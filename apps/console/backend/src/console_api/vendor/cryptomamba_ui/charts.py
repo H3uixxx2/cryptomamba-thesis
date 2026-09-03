@@ -3,15 +3,6 @@ from __future__ import annotations
 import pandas as pd
 import plotly.graph_objects as go
 
-CHART_CONFIG = {
-    "scrollZoom": False,
-    "displayModeBar": False,
-    "displaylogo": False,
-    "responsive": True,
-    "doubleClick": False,
-    "showTips": False,
-}
-
 
 
 
@@ -78,7 +69,6 @@ def roi_chart(sim_df: pd.DataFrame) -> go.Figure:
 # --- Model-comparison charts ---
 
 _HIGHLIGHT_COLOR = "#1e3a8a"   # CryptoMamba-v (the model under test)
-_NEUTRAL_COLOR = "#cbd5e1"     # reference baselines
 
 
 
