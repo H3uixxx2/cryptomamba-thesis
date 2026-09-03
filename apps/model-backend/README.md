@@ -24,7 +24,7 @@ preserved on the branch `thesis/pre-monorepo-snapshot` of the original BE repo.
 | `thesis_pipeline/` | corrected offline engine: `inference`, `evaluation`, `backtest`, `package` — loads frozen checkpoints, does **not** retrain. Produces the RQ2/RQ3 tables. |
 | `configs/` | `data_configs/mode_1.yaml` (paper chronological split); `models/CryptoMamba/{v1,v2,t1,t2}.yaml` (CM-v + CMamba-T w14/w60); `training/cmamba_{v,nv}.yaml` |
 | `checkpoints/cmamba_v.ckpt` | official CryptoMamba-v checkpoint |
-| `output/` | frozen result artifacts — `evaluation/` (forecast/trading CSVs the thesis cites), `thesis_final/` (RQ2/RQ3 corrected bundle), `reproduce_colab_train/` (the from-scratch RQ1 retrain run, see below), `improve_track_evidence/s5_full/` (the S5-Full seed-23 checkpoint) |
+| `output/` | frozen result artifacts — `evaluation/` (forecast/trading CSVs the thesis cites), `thesis_final/` (RQ2/RQ3 corrected bundle), `reproduce_colab_train/` (the from-scratch RQ1 retrain run, see below), `improve_track_evidence/s5_full/` (the S5-Full seed-23 checkpoint + predictions + summary) |
 | `data/` | frozen paper OHLCV cache (`2018-09-17_2024-09-16_86400/`) + `one_day_pred.csv` (the one-day CLI fixture) |
 | `tests/` | offline tests — backtest, thesis pipeline (`test_thesis_*`), artifact builder |
 
@@ -46,7 +46,7 @@ Three separate things, none of them scratch space:
 | `evaluation/model_selection.json` · `inference_fixture.json` | Which checkpoint was selected (epoch, SHA-256, PASS status) and the golden 14-candle inference fixture with its tolerance | provenance only |
 | `thesis_final/*` | The RQ2/RQ3 bundle: 304-date controlled metrics, paired tests, corrected trading, checkpoint provenance. This is what `../../evidence/` is built from. | `thesis_pipeline/package.py`, the console |
 | `reproduce_colab_train/*` | The 2026-06-13 from-scratch training run and its checkpoint — see the section below | `thesis_pipeline`, the console |
-| `improve_track_evidence/s5_full/checkpoints/*` | The S5-Full seed-23 checkpoint (RQ4) | `thesis_pipeline`, the console |
+| `improve_track_evidence/s5_full/` | The S5-Full seed-23 run (RQ4): the checkpoint, its `preds/s5_full__seed23__{val,test}.csv`, and `s5_full_summary.json`. `thesis_pipeline/evaluation.py` reads the two prediction files to build the 304-date alignment; `scripts/build_thesis_artifacts.py` copies the summary into `thesis_final/`. | `thesis_pipeline`, `build_thesis_artifacts`, the console |
 
 Everything else that used to live under `output/` — the ModernTCN / TiDE / TSMixer rounds, the
 affine-calibration experiment, the selective-prediction and exogenous tracks — was removed: the
@@ -103,18 +103,26 @@ python -c "import json,hashlib,pathlib as P;m=json.loads(P.Path('provenance/chec
 
 ## Environment
 
-`models/cmamba*.py` need native `mamba_ssm` + `causal_conv1d`, which build only on Linux + CUDA
-(Google Colab T4/L4). The offline parts (`thesis_pipeline/backtest`, `run_backtest`) run on plain CPU.
-
 ```bash
-python -m venv .venv && ./.venv/bin/pip install -e .
+python -m venv .venv && ./.venv/bin/pip install -e .        # CPU: any OS, incl. macOS
+./.venv/bin/pip install -e ".[gpu]"                          # + native Mamba kernels (Colab only)
 ```
+
+The base install carries torch/lightning/pandas/scipy and works everywhere. The native
+`mamba_ssm` + `causal_conv1d` kernels build only on Linux + CUDA, so they sit in the optional
+`gpu` extra — installing them is required to **train**, not to read the results.
+
+| Task | Needs |
+|---|---|
+| Offline backtest, thesis pipeline, significance tests | base install, plain CPU |
+| Frozen-checkpoint inference (the console Predict screen) | base install, plain CPU — `models/cmamba.py` falls back to the pure-PyTorch `selective_scan_ref` when the kernels are absent |
+| Training from scratch | `.[gpu]` on Colab T4/L4 |
 
 ## Reproduce (frozen-checkpoint path — no training)
 
 ```bash
-python scripts/evaluation.py   --config cmamba_v --ckpt_path checkpoints/cmamba_v.ckpt
-python scripts/run_backtest.py --config cmamba_v --ckpt_path checkpoints/cmamba_v.ckpt --split test
+python scripts/evaluation.py --config cmamba_v --ckpt_path checkpoints/cmamba_v.ckpt --accelerator cpu
+python scripts/run_backtest.py     # reads output/evaluation/forecast_predictions.csv, writes the trading CSVs
 python -m thesis_pipeline.evaluation     # 304-date controlled comparison: CM-v / S5-Full / naive
 python -m thesis_pipeline.backtest       # paper replay + corrected self-financing
 ```

@@ -128,7 +128,8 @@ def load_model(config, ckpt_path):
     normalize = model_config.get('normalize', False)
     model_class = io_tools.get_obj_from_str(model_config.get('target'))
     model = model_class.load_from_checkpoint(ckpt_path, **model_config.get('params'))
-    model.cuda()
+    if torch.cuda.is_available():   # CPU hosts fall back to models/cmamba.py::selective_scan_ref
+        model.cuda()
     model.eval()
     return model, normalize
 

@@ -1,12 +1,14 @@
 # Runtime dependencies for the research core.
 #
-# torch + mamba-ssm/causal-conv1d are needed only for the model itself and build on
-# Linux + CUDA (Colab). The offline parts — thesis_pipeline/backtest, scripts/run_backtest —
-# need only pandas/numpy/scipy and run on plain CPU.
+# The native Mamba kernels (mamba-ssm / causal-conv1d) build only on Linux + CUDA, so
+# they are NOT listed here — they live in the optional `gpu` extra (pyproject.toml).
+# models/cmamba.py imports them in a try/except and falls back to a pure-PyTorch
+# `selective_scan_ref` on CPU, so everything below installs and runs on macOS too:
+# the offline backtest, the thesis pipeline, and frozen-checkpoint CPU inference.
+#   GPU training on Colab:  pip install -e ".[gpu]"
 torch
 lightning            # provides the `pytorch_lightning` namespace the code imports
 tensorboard          # backend for pytorch_lightning.loggers.TensorBoardLogger
-mamba-ssm[causal-conv1d]
 einops
 pyaml                # upstream pin; the code does `import yaml`, satisfied via its PyYAML dependency
 pandas

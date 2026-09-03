@@ -74,17 +74,19 @@ python3 -m venv backend/.venv && ./backend/.venv/bin/pip install -e backend
 
 Data / Evaluation / Trading / Architecture work from the committed artifacts + evidence bundle.
 The Predict screen's *real* frozen-checkpoint inference additionally needs the `model-backend`
-environment (below); without it that screen reports `NOT_READY` rather than fabricating a result.
+environment (below) — CPU is enough, no GPU. Without it that screen reports an explicit error
+rather than fabricating a result.
 
 ## Reproduce the numbers
 
 See [`docs/reproduce.md`](docs/reproduce.md). Short version, from `apps/model-backend`
-(the Mamba model needs the Colab/CUDA env; the backtest step is CPU-only):
+(this install and both commands below are CPU-only and work on macOS; training the model from
+scratch additionally needs `pip install -e ".[gpu]"` on Colab):
 
 ```bash
 python -m venv .venv && ./.venv/bin/pip install -e .
-python scripts/evaluation.py   --config cmamba_v --ckpt_path checkpoints/cmamba_v.ckpt
-python scripts/run_backtest.py --config cmamba_v --ckpt_path checkpoints/cmamba_v.ckpt --split test
+python scripts/evaluation.py --config cmamba_v --ckpt_path checkpoints/cmamba_v.ckpt --accelerator cpu
+python scripts/run_backtest.py     # reads output/evaluation/forecast_predictions.csv, writes the trading CSVs
 ```
 
 Expected (test split): RMSE ≈ 1612.35, MAPE ≈ 2.05 %, directional accuracy ≈ 56.86 %.

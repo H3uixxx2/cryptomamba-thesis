@@ -378,7 +378,7 @@ def _get_args():
     parser = ArgumentParser(description="Phase 4 chronological transaction-cost trading backtest.")
     parser.add_argument("--evaluation_dir", type=str, default=None,
                         help="Dir holding forecast_predictions.csv and where artifacts are written.")
-    parser.add_argument("--risk", type=float, default=2.0, help="Smart-strategy risk band (%).")
+    parser.add_argument("--risk", type=float, default=2.0, help="Smart-strategy risk band, in percent.")
     parser.add_argument("--balance", type=float, default=100.0, help="Initial balance.")
     return parser.parse_args()
 

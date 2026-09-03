@@ -105,7 +105,8 @@ def load_model(config, ckpt_path):
     normalize = model_config.get('normalize', False)
     model_class = io_tools.get_obj_from_str(model_config.get('target'))
     model = model_class.load_from_checkpoint(ckpt_path, **model_config.get('params'))
-    model.cuda()
+    if torch.cuda.is_available():   # CPU hosts fall back to models/cmamba.py::selective_scan_ref
+        model.cuda()
     return model, normalize
 
 @torch.no_grad()
@@ -205,7 +206,10 @@ if __name__ == "__main__":
     today = float(x[close_idx, -1])
 
     with torch.no_grad():
-        pred = float(model(x[None, ...].cuda()).cpu()) * scale_pred + shift_pred
+        model_input = x[None, ...]
+        if torch.cuda.is_available():
+            model_input = model_input.cuda()
+        pred = float(model(model_input).cpu()) * scale_pred + shift_pred
 
     print('')
     print_and_write(txt_file, f'Prediction date: {pred_date}\nPrediction: {round(pred, 2)}\nToday value: {round(today, 2)}')
