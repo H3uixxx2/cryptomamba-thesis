@@ -32,11 +32,6 @@ export function usd(value: unknown, digits = 2): string {
   return `$${fmt(n, digits)}`;
 }
 
-export function shortHash(value: string | undefined, size = 16): string {
-  if (!value) return EM_DASH;
-  return value.length > size ? `${value.slice(0, size)}…` : value;
-}
-
 /** Human label for a model/strategy key coming from the artifacts. */
 export function prettyModel(key: string): string {
   const map: Record<string, string> = {

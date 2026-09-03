@@ -44,19 +44,6 @@ export function Pill({
 }
 
 /** Pulsing status dot — used for "this reflects live state" indicators. */
-export function LiveDot({ tone = "green" }: { tone?: Tone }) {
-  const t = TONE[tone];
-  return (
-    <span className="relative inline-flex h-2 w-2 shrink-0">
-      <span
-        className={cn("absolute -inset-1 rounded-full opacity-30", t.dot)}
-        style={{ animation: "cm-pulse 2s cubic-bezier(0.16,1,0.3,1) infinite" }}
-      />
-      <span className={cn("h-2 w-2 rounded-full", t.dot)} />
-    </span>
-  );
-}
-
 export function Panel({
   eyebrow,
   hint,

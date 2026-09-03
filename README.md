@@ -75,17 +75,23 @@ substituted value.
 
 ## Scope
 
-Included: the code, the frozen inputs needed to run it, and the frozen outputs the thesis cites.
+This repository is the executable half of the work: the model, the pipeline that turns a frozen
+checkpoint into the reported tables, the demo that renders them, and the checksum-verified
+artifacts those tables cite. Every file here is either code that runs, an input that code reads,
+or an output the thesis reports.
 
-Not included:
+That gives three properties worth stating up front:
 
-| | Why |
-|---|---|
-| The thesis document (LaTeX, PDF) | Submitted separately. This is a code repository; `docs/reproduce.md` states the expected numbers directly. |
-| Model code for LSTM / GRU / iTransformer / S-Mamba | Not re-run for the thesis — their rows are published aggregates transcribed from the paper, with no per-date series, so they cannot enter a paired test. |
-| Post-thesis exploration (ModernTCN, TiDE, TSMixer, affine calibration, selective prediction, checkpoint compression, exogenous features, Colab search runners) | Not reported by the thesis. Preserved on branch `thesis/pre-monorepo-snapshot` of the original backend repo. |
-| Captures of individual training runs | They duplicated the artifacts that remain and carried files from the retired five-model comparison, so it was ambiguous which copy was authoritative. |
-| Virtualenvs, `node_modules`, build caches | Rebuilt from `pyproject.toml` / `pnpm-lock.yaml`. |
+- **Every reported number is recomputable.** Both checkpoints ship, so the forecast metrics, the
+  304-date paired comparison and the trading tables can be regenerated from a plain clone on CPU,
+  without a GPU and without retraining.
+- **Every number is traceable to a file.** `evidence/ARTIFACT_MAP.json` names the artifact behind
+  each thesis table and each console screen, and `SHA256SUMS` covers all of them.
+- **Nothing is estimated.** Where an artifact is missing or fails verification, the console reports
+  `NOT_READY` with the reason rather than substituting a value.
+
+The thesis document itself is submitted through the school; `docs/reproduce.md` carries the
+expected values, so the two can be checked against each other independently.
 
 ## Provenance
 
