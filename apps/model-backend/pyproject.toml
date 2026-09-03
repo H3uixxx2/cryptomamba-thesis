@@ -11,8 +11,6 @@ requires-python = ">=3.9"
 dynamic = ["dependencies"]
 
 [project.optional-dependencies]
-# tests/test_thesis_*.py are written against pytest; the runtime deps do not include it.
-dev = ["pytest"]
 # Native Mamba kernels: Linux + CUDA only (Colab). Needed to TRAIN and to run the
 # fused-kernel path; CPU inference falls back to models/cmamba.py::selective_scan_ref.
 gpu = ["mamba-ssm[causal-conv1d]"]

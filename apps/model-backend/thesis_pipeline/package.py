@@ -52,34 +52,48 @@ def _write_json(path: Path, payload: object) -> None:
 
 def _write_readme(root: Path) -> None:
     (root / "README.md").write_text(
-        """# CryptoMamba-v Final Thesis Evidence
+        """# Evidence bundle
 
-This directory is the checksum-verified evidence surface used by the final
-thesis and Console. It contains only the approved local comparison:
-reproduced CM-v, CMamba-T/S5-Full, and naive persistence.
+The checksum-verified result surface the thesis tables and the console read from. It holds only
+the three models with per-date local results: reproduced CryptoMamba-v, CMamba-T / S5-Full, and
+naive persistence.
 
-## Evidence boundaries
+```bash
+shasum -c SHA256SUMS      # 13 files
+```
 
-- `forecast/paper_reported_metrics.csv`: aggregate values transcribed from
-  CryptoMamba v2, Table 3. These rows are labelled `Paper-reported` and are
-  not used in paired tests.
-- `forecast/controlled_predictions.csv`: locally aligned per-date predictions
-  on 304 validation and 304 test dates per model.
-- `forecast/controlled_forecast_metrics.csv`: RMSE, MAE, MAPE, direction,
-  coverage, parameters, dates, and checkpoint hashes.
-- `forecast/paired_significance_tests.csv`: Diebold-Mariano on squared error
-  with HAC lag 1 and Wilcoxon signed-rank on absolute error.
-- `trading/paper_replay_metrics.csv`: unchanged reproduction of the published
-  strategy replay.
-- `trading/corrected_trading_*`: separate same-close self-financing evaluation
-  with fee-aware sizing and reconciled equity.
-- `model/*`: S5-Full result summary and verified checkpoint provenance.
-- `provenance/source_artifact_manifest.json`: source-to-output hashes from the
-  deterministic core build.
+Verify before consuming any value. The console verifies on startup and reports `NOT_READY` on any
+mismatch rather than serving unverified data.
 
-`SHA256SUMS` covers the 13 regular evidence files. Verify it before consuming
-any result. Checkpoint binaries are not duplicated here; their paths, sizes,
-and SHA-256 values are recorded in `model/checkpoint_provenance.json`.
+## Contents
+
+| File | What it is |
+|---|---|
+| `forecast/controlled_predictions.csv` | Per-date predictions on the 304 validation and 304 test dates the three models share |
+| `forecast/controlled_forecast_metrics.csv` | RMSE, MAE, MAPE, directional accuracy, coverage, parameter count, date range, checkpoint hash |
+| `forecast/paired_significance_tests.csv` | Diebold–Mariano on squared error (HAC lag 1) and Wilcoxon signed-rank on absolute error |
+| `forecast/paper_reported_metrics.csv` | Aggregate values transcribed from CryptoMamba, Table 3. Labelled `Paper-reported`. |
+| `trading/paper_replay_metrics.csv` | Unchanged reproduction of the published strategy replay |
+| `trading/corrected_trading_metrics.csv` · `corrected_trading_equity.csv` · `corrected_trading_metadata.json` | Separate same-close self-financing evaluation: fee-aware sizing, reconciled equity |
+| `model/s5_full_summary.json` | S5-Full run summary |
+| `model/checkpoint_provenance.json` | Both checkpoints by path, byte count and SHA-256 |
+| `provenance/source_artifact_manifest.json` | Source-to-output hashes from the deterministic build |
+| `ARTIFACT_MAP.json` | Which file backs which thesis table and which console screen |
+
+## Boundaries
+
+- The `paper_reported` rows have no per-date series and therefore never enter a paired test. They
+  are a published reference, not a locally reproduced result.
+- The 304-date sets differ from the 350-date reproduction protocol in step 1 of
+  `docs/reproduce.md`. They are not interchangeable and are never pooled.
+- `trading/paper_replay_metrics.csv` and `trading/corrected_trading_*` use different accounting
+  rules — zero-fee published replay versus fee-aware self-financing — so their balances are not
+  directly comparable.
+- Checkpoint binaries are not duplicated here. `model/checkpoint_provenance.json` records their
+  paths, sizes and SHA-256 values under `apps/model-backend/output/`.
+
+Regenerate with `scripts/build_thesis_artifacts.py` followed by
+`scripts/package_thesis_evidence.py` from `apps/model-backend/`.
 """,
         encoding="utf-8",
     )
