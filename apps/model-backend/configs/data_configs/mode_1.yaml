@@ -3,7 +3,12 @@ start_date: "2018-09-17"
 end_date: "2024-09-16"
 root: "./data"
 date_format: "%Y-%m-%d"
-data_path: "./data/one_day_pred.csv"
+# No raw source file ships with this repo: the frozen split cache under
+# data/2018-09-17_2024-09-16_86400/ IS the data authority and is read directly
+# (data_utils/dataset.py::get_data returns it without ever touching data_path).
+# Point data_path at a raw OHLCV csv only if you deliberately want to rebuild
+# the cache from scratch — that would no longer be the thesis dataset.
+data_path: null
 train_interval: ["2018-09-17", "2022-09-17"]
 val_interval: ["2022-09-17", "2023-09-17"]
 test_interval: ["2023-09-17", "2024-09-17"]

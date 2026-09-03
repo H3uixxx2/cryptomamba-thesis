@@ -61,7 +61,7 @@ def get_args():
     parser.add_argument(
         "--config",
         type=str,
-        default='cmamba_nv',
+        default='cmamba_v',
         help="Path to config file.",
     )
     parser.add_argument(

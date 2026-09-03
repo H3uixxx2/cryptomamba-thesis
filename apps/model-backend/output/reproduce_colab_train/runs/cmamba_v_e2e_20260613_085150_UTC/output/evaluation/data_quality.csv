@@ -1,4 +1,0 @@
-split,rows,samples,start_date,end_date,duplicate_timestamps,null_cells,monotonic_timestamp,step_violations
-train,1461,1446,2018-09-17,2022-09-16,0,0,True,0
-val,365,350,2022-09-17,2023-09-16,0,0,True,0
-test,365,350,2023-09-17,2024-09-15,0,0,True,0

@@ -19,7 +19,7 @@ cites. Nothing is included "just in case".
 | `apps/model-backend/` **code** — `models/ pl_modules/ data_utils/ utils/ thesis_pipeline/ configs/ scripts/` | The model, Lightning training, and the offline evaluation + trading engine. This is the research core. |
 | `apps/model-backend/checkpoints/cmamba_v.ckpt` | The official checkpoint. Needed to reproduce every forecast/trading number **without** a GPU training run. |
 | `apps/model-backend/data/` | The frozen paper OHLCV cache + reference splits. The evaluation and backtest read these directly. |
-| `apps/model-backend/output/` | Frozen result artifacts (`evaluation/`, `thesis_final/`, `reproduce_colab_train/`) — the exact numbers the thesis reports, and what the console renders. |
+| `apps/model-backend/output/` | Frozen result artifacts only — `evaluation/` (RQ1 forecasts + RQ3 trading), the reproduced CM-v checkpoint, and the S5-Full run. The exact numbers the thesis reports, and what the console renders. |
 | `apps/console/` | The demo: FastAPI backend (`backend/`) + React frontend (`frontend/`) + a prebuilt bundle (`web-dist/`) so it runs with no Node toolchain. |
 | `evidence/` | The checksum-verified thesis-final bundle: `SHA256SUMS` + `ARTIFACT_MAP.json`, the 304-date controlled `forecast/`, `trading/` replay + corrected self-financing, `model/` (S5-Full summary + checkpoint provenance), and `provenance/`. Contains **only** what draft_2's result tables cite — reproduced CM-v, S5-Full, naive persistence. |
 | `docs/` | `architecture.md` (how the two apps wire together) and `reproduce.md` (step-by-step). |

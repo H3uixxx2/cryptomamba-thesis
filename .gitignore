@@ -4,7 +4,8 @@
 *.pyc
 **/.pytest_cache/
 **/*.egg-info/
-apps/model-backend/Results/     # scripts/{evaluation,simulate_trade}.py scratch output
+apps/model-backend/output/thesis_final/   # regenerable: build_thesis_artifacts.py -> package_thesis_evidence.py -> evidence/
+apps/model-backend/Results/     # scripts/evaluation.py scratch output
 apps/model-backend/logs/
 apps/console/frontend/node_modules/
 apps/console/frontend/.vite/

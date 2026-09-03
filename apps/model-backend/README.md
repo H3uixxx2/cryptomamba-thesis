@@ -22,31 +22,39 @@ preserved on the branch `thesis/pre-monorepo-snapshot` of the original BE repo.
 | `data_utils/` | `data_transforms` (feature tensor + the paper's hygiene flags), `dataset` |
 | `utils/` | `trade` (paper strategy logic), `io_tools` |
 | `thesis_pipeline/` | corrected offline engine: `inference`, `evaluation`, `backtest`, `package` — loads frozen checkpoints, does **not** retrain. Produces the RQ2/RQ3 tables. |
-| `configs/` | `data_configs/mode_1.yaml` (paper chronological split); `models/CryptoMamba/{v1,v2,t1,t2}.yaml` (CM-v + CMamba-T w14/w60); `training/cmamba_{v,nv}.yaml` |
+| `configs/` | `data_configs/mode_1.yaml` (paper chronological split); `models/CryptoMamba/v2.yaml` (CM-v) and `t2.yaml` (CMamba-T / S5-Full, 60-day); `training/cmamba_v.yaml` and `training/s5_full.yaml` — the two recipes the thesis reports |
 | `checkpoints/cmamba_v.ckpt` | official CryptoMamba-v checkpoint |
-| `output/` | frozen result artifacts — `evaluation/` (forecast/trading CSVs the thesis cites), `thesis_final/` (RQ2/RQ3 corrected bundle), `reproduce_colab_train/` (the from-scratch RQ1 retrain run, see below), `improve_track_evidence/s5_full/` (the S5-Full seed-23 checkpoint + predictions + summary) |
-| `data/` | frozen paper OHLCV cache (`2018-09-17_2024-09-16_86400/`) + `one_day_pred.csv` (the one-day CLI fixture) |
+| `output/` | frozen result artifacts — `evaluation/` (forecast/trading CSVs the thesis cites), `reproduce_colab_train/checkpoints/` (the reproduced CM-v checkpoint), `improve_track_evidence/s5_full/` (the S5-Full checkpoint + predictions + summary) |
+| `data/` | the frozen paper OHLCV split cache `2018-09-17_2024-09-16_86400/` (1461 / 365 / 365 rows). No raw source file ships here: this cache **is** the data authority and `data_utils/dataset.py` reads it directly. |
 | `tests/` | offline tests — backtest, thesis pipeline (`test_thesis_*`), artifact builder |
 
 The two checkpoints the thesis pipeline and the console load are pinned by SHA-256 in
-`output/thesis_final/checkpoint_provenance.json`: the reproduced CM-v
+`../../evidence/model/checkpoint_provenance.json` (itself covered by the bundle's `SHA256SUMS`):
+the reproduced CM-v
 (`output/reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt`) and S5-Full
 (`output/improve_track_evidence/s5_full/checkpoints/s5_full__seed23__epoch321-*.ckpt`).
 
 ## What is in `output/`
 
-Three separate things, none of them scratch space:
+Only frozen results the thesis cites, plus the two checkpoints. No scratch space, and no capture of
+any training run — those were removed on purpose: they duplicated these files and still carried
+artifacts from the five-model baseline comparison the thesis no longer reports, which made it
+ambiguous which copy was authoritative.
 
 | Path | What it is | Who reads it |
 |---|---|---|
-| `evaluation/forecast_predictions.csv` · `forecast_metrics.csv` · `forecast_metrics_all_splits.csv` | Per-date CM-v predictions and their metrics on train/val/test, for the official and the reproduced checkpoint. **This is the RQ1 evidence.** | `thesis_pipeline`, the console Evaluation screen |
+| `evaluation/forecast_predictions.csv` · `forecast_metrics.csv` | Per-date CM-v predictions and their metrics, official and reproduced checkpoint. **RQ1 evidence.** | `thesis_pipeline`, the console Evaluation screen |
 | `evaluation/trading_metrics.csv` · `trading_equity_curve.csv` · `regime_metrics.csv` · `trading_backtest_metadata.json` · `trading_replay_metrics.csv` | The chronological backtest and the paper replay. **RQ3 evidence.** | `scripts/run_backtest.py`, the console Trading screen |
 | `evaluation/offline_prediction.json` | One frozen prediction used as the Predict screen's offline backup | console Predict |
-| `evaluation/data_quality.csv` | Row counts, date ranges, duplicate/null/monotonicity checks per split — the record behind the data-scope table | provenance only |
-| `evaluation/model_selection.json` · `inference_fixture.json` | Which checkpoint was selected (epoch, SHA-256, PASS status) and the golden 14-candle inference fixture with its tolerance | provenance only |
-| `thesis_final/*` | The RQ2/RQ3 bundle: 304-date controlled metrics, paired tests, corrected trading, checkpoint provenance. This is what `../../evidence/` is built from. | `thesis_pipeline/package.py`, the console |
-| `reproduce_colab_train/*` | The 2026-06-13 from-scratch training run and its checkpoint — see the section below | `thesis_pipeline`, the console |
-| `improve_track_evidence/s5_full/` | The S5-Full seed-23 run (RQ4): the checkpoint, its `preds/s5_full__seed23__{val,test}.csv`, and `s5_full_summary.json`. `thesis_pipeline/evaluation.py` reads the two prediction files to build the 304-date alignment; `scripts/build_thesis_artifacts.py` copies the summary into `thesis_final/`. | `thesis_pipeline`, `build_thesis_artifacts`, the console |
+| `evaluation/data_quality.csv` | Row counts, date ranges, duplicate/null/monotonicity per split — the record behind the data-scope table | provenance |
+| `evaluation/model_selection.json` | Which checkpoint was selected: epoch, SHA-256, PASS. This is what shows the checkpoint was **not** picked after looking at the test split. | provenance |
+| `reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt` | The reproduced CM-v checkpoint (RQ1). Its path and SHA-256 are pinned in the evidence bundle, so it cannot be moved or renamed. | `thesis_pipeline`, the console |
+| `improve_track_evidence/s5_full/` | The S5-Full run (RQ4): checkpoint, `preds/s5_full__seed23__{val,test}.csv`, `s5_full_summary.json`. `thesis_pipeline/evaluation.py` reads the two prediction files for the 304-date alignment. | `thesis_pipeline`, `build_thesis_artifacts`, the console |
+
+`output/thesis_final/` is **not** committed: it is the regenerable intermediate that
+`scripts/build_thesis_artifacts.py` writes and `scripts/package_thesis_evidence.py` then seals into
+`../../evidence/`. Every one of its files is byte-identical to its counterpart there, so the
+committed copy is the sealed one.
 
 Everything else that used to live under `output/` — the ModernTCN / TiDE / TSMixer rounds, the
 affine-calibration experiment, the selective-prediction and exogenous tracks — was removed: the
@@ -79,28 +87,6 @@ forward / training_step / validation_step / test_step / denormalize / configure_
 against fixed seeded tensors returns **bit-identical** values before and after the edit.
 Full training still runs only on Colab and was not re-executed.
 
-## `output/reproduce_colab_train/` — why it looks duplicated
-
-Two views of the same 2026-06-13 Colab training run, both kept deliberately:
-
-- `runs/cmamba_v_e2e_20260613_085150_UTC/` is the **immutable run bundle exactly as produced**,
-  and it is self-verifying: all 30 entries of `provenance/checksums.json` resolve and match
-  inside that directory (against the parent directory only 18/30 resolve). It therefore still
-  contains artifacts later dropped from the thesis scope — `output/evaluation/baseline_*`, from
-  the earlier five-model comparison. Deleting them would break the manifest, so they stay as
-  part of the historical record.
-- The files beside it — `checkpoints/cmamba_v_best_colab_train.ckpt`, `provenance/`,
-  `phase3_inference_bundle.zip` — are the **extraction the rest of the project consumes**. That
-  checkpoint path is pinned by SHA-256 in the frozen
-  `../../evidence/model/checkpoint_provenance.json`, so it cannot be moved or renamed.
-
-Verify the run bundle:
-
-```bash
-cd output/reproduce_colab_train/runs/cmamba_v_e2e_20260613_085150_UTC
-python -c "import json,hashlib,pathlib as P;m=json.loads(P.Path('provenance/checksums.json').read_text());print('mismatches:',[k for k,v in m.items() if hashlib.sha256(P.Path(k).read_bytes()).hexdigest()!=v] or 'none',len(m),'entries')"
-```
-
 ## Environment
 
 ```bash
@@ -130,5 +116,3 @@ python -m thesis_pipeline.backtest       # paper replay + corrected self-financi
 Outputs land in `output/`. Expected (350-day paper protocol, test): RMSE ≈ 1612.35,
 MAPE ≈ 2.05 %, directional accuracy ≈ 56.86 %. Checked-in reference values + SHA-256 sums are in
 the `../../evidence/` bundle (self-verifying via its `SHA256SUMS`).
-
-Upstream research README: `README.upstream.md`.
