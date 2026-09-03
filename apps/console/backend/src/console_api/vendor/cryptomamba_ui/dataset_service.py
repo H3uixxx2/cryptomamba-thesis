@@ -55,16 +55,6 @@ class DatasetService:
             split_strategy="chronological_ratio",
         )
 
-    @staticmethod
-    def empty_upload() -> DatasetBundle:
-        return DatasetBundle(
-            raw_df=pd.DataFrame(),
-            daily_df=pd.DataFrame(),
-            processed_df=pd.DataFrame(),
-            source_label="Uploaded CSV",
-            source_detail="No file uploaded yet",
-            split_strategy="chronological_ratio",
-        )
 
     @staticmethod
     def _process_csv(path_or_buffer: str | Path | Any, source_label: str, source_detail: str, split_strategy: str) -> DatasetBundle:

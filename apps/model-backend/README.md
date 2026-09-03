@@ -53,8 +53,6 @@ absent, so the cache **is** the dataset. Splits are chronological:
 | `evaluation/forecast_predictions.csv` · `forecast_metrics.csv` | Per-date CM-v predictions and metrics, for the official and the reproduced checkpoint | `thesis_pipeline`, `run_backtest.py`, console Evaluation |
 | `evaluation/trading_metrics.csv` · `trading_equity_curve.csv` · `regime_metrics.csv` · `trading_backtest_metadata.json` · `trading_replay_metrics.csv` | Chronological backtest and paper replay | `run_backtest.py`, console Trading |
 | `evaluation/offline_prediction.json` | One prediction captured at freeze time; the Predict screen's offline path | console Predict |
-| `evaluation/data_quality.csv` | Row counts, date ranges, duplicate/null/monotonicity checks per split | provenance |
-| `evaluation/model_selection.json` | Selected checkpoint: epoch, SHA-256, pass status — the record that selection happened before the test split was read | provenance |
 | `reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt` | The reproduced CM-v checkpoint | `thesis_pipeline`, console |
 | `improve_track_evidence/s5_full/` | S5-Full: `checkpoints/`, `preds/s5_full__seed23__{val,test}.csv`, `s5_full_summary.json` | `thesis_pipeline`, `build_thesis_artifacts.py`, console |
 
