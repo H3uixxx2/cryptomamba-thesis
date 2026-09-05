@@ -85,3 +85,14 @@ partially rendered prediction.
 CPU is sufficient for that worker: `models/cmamba.py` falls back to a pure-PyTorch
 `selective_scan_ref` when the CUDA kernels are absent. Without the `model-backend` venv at all, the
 Predict screen reports the worker's failure and the other four screens are unaffected.
+
+## Provenance
+
+Where each part came from before the monorepo:
+
+| Path | Source |
+|---|---|
+| `apps/model-backend` | `Crypto-Mamba-BE` @ `thesis/pre-monorepo-snapshot` |
+| `apps/console` | `Crypto-Mamba-Console` @ `thesis/final-console-snapshot` |
+| `apps/console/backend/src/console_api/vendor/cryptomamba_ui` | `Crypto-Mamba-FE` — 7 modules, verbatim copy, only intra-package imports rewritten |
+| `evidence/` | the `final/` bundle of `cryptomamba-thesis-evidence`, flattened in |
