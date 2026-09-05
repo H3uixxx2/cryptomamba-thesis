@@ -54,38 +54,6 @@
       "rows": 1824,
       "sha256": "c947d129db33d592ccb6d26e26104b5aab28022e88fea32029e983a2acb3dcd6"
     },
-    "corrected_trading_equity.csv": {
-      "bytes": 4367435,
-      "columns": [
-        "model_id",
-        "split",
-        "strategy",
-        "transaction_cost_pct",
-        "signal_date",
-        "prediction_date",
-        "execution_price",
-        "valuation_price",
-        "predicted_close",
-        "forecast_return_pct",
-        "target_weight",
-        "cash_before",
-        "position_before_btc",
-        "cash",
-        "position_btc",
-        "short_collateral",
-        "gross_exposure_at_execution",
-        "gross_exposure_marked",
-        "portfolio_value",
-        "drawdown_pct",
-        "action",
-        "trade_value",
-        "transaction_cost",
-        "borrow_cost",
-        "self_financing_error"
-      ],
-      "rows": 21888,
-      "sha256": "25a084ee20596d30c468025451048fd13cec019d59d2a4b779af762da19409f7"
-    },
     "corrected_trading_metadata.json": {
       "bytes": 935,
       "sha256": "36caaea855fb8dc7011cbe994f577f16a0358ad32f640ba440ac31409f201a59"

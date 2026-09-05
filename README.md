@@ -78,7 +78,7 @@ Full procedure, including the 304-date paired comparison and training from scrat
 `evidence/` holds the numbers the thesis tables cite, each covered by a SHA-256:
 
 ```bash
-cd evidence && shasum -c SHA256SUMS      # 13 files
+cd evidence && shasum -c SHA256SUMS      # 12 files
 ```
 
 `ARTIFACT_MAP.json` maps each table and each console screen to the file behind it.
@@ -98,7 +98,7 @@ Three properties follow, and they are the point of shipping the code at all:
 - **Every reported number is recomputable.** Both checkpoints ship, so the forecast metrics, the
   304-date paired comparison, the robustness intervals and the trading tables regenerate from a
   plain clone on CPU — no GPU, no retraining, no network.
-- **Every number is traceable to a file.** `evidence/SHA256SUMS` covers all 13 artifacts, and
+- **Every number is traceable to a file.** `evidence/SHA256SUMS` covers all 12 artifacts, and
   `evidence/ARTIFACT_MAP.json` names the artifact behind each thesis table and each evidence-backed
   console screen (Evaluation, Trading, Architecture; Data and Predict read the split cache and the
   checkpoints instead, both pinned in `evidence/model/checkpoint_provenance.json`).

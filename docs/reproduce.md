@@ -102,7 +102,7 @@ counterpart in `evidence/`, and the sealed copy is the one the thesis and the co
 Verify what is committed:
 
 ```bash
-cd ../../evidence && shasum -c SHA256SUMS      # 13 files
+cd ../../evidence && shasum -c SHA256SUMS      # 12 files
 ```
 
 Steps 2 – 4 are deterministic and reproduce those hashes bit-for-bit. Step 1 depends on the math
