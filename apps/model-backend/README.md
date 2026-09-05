@@ -67,9 +67,14 @@ The sealed copy is the committed one.
 ## Environment
 
 ```bash
-python -m venv .venv && ./.venv/bin/pip install -e .        # CPU — any OS, macOS included
+python3 -m venv .venv
+./.venv/bin/python -m pip install --upgrade pip              # editable install needs pip >= 21.3
+./.venv/bin/pip install -e .                                 # CPU — any OS, macOS included
 ./.venv/bin/pip install -e ".[gpu]"                          # + native Mamba kernels (Linux + CUDA)
 ```
+
+The upgrade matters on a stock macOS `python3` (3.9): its venvs ship pip 21.2.4, which predates
+PEP 660 and rejects an editable install from a `setup.py`-less project.
 
 `mamba_ssm` and `causal_conv1d` need nvcc, so they are the optional `gpu` extra rather than a base
 dependency. `models/cmamba.py` imports them inside `try/except` and routes on `tensor.is_cuda`, so

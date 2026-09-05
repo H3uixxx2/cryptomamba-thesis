@@ -35,7 +35,6 @@ OUTPUT_FILES = (
     "paired_significance_tests.csv",
     "paper_replay_metrics.csv",
     "corrected_trading_metrics.csv",
-    "corrected_trading_equity.csv",
     "corrected_trading_metadata.json",
     "s5_full_summary.json",
     "checkpoint_provenance.json",
@@ -148,7 +147,6 @@ def build_all(*, core_root: Path, output_dir: Path) -> dict[str, Path]:
     _write_csv(paths["paired_significance_tests.csv"], significance)
     shutil.copyfile(paper_replay_source, paths["paper_replay_metrics.csv"])
     _write_csv(paths["corrected_trading_metrics.csv"], corrected["metrics"])
-    _write_csv(paths["corrected_trading_equity.csv"], corrected["equity"])
 
     corrected_metadata = {
         "schema_version": 1,

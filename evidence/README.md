@@ -5,7 +5,7 @@ the three models with per-date local results: reproduced CryptoMamba-v, CMamba-T
 naive persistence.
 
 ```bash
-shasum -c SHA256SUMS      # 13 files
+shasum -c SHA256SUMS      # 12 files
 ```
 
 Verify before consuming any value. The console verifies on startup and reports `NOT_READY` on any
@@ -20,7 +20,7 @@ mismatch rather than serving unverified data.
 | `forecast/paired_significance_tests.csv` | Diebold–Mariano on squared error (HAC lag 1) and Wilcoxon signed-rank on absolute error |
 | `forecast/paper_reported_metrics.csv` | Aggregate values transcribed from CryptoMamba, Table 3. Labelled `Paper-reported`. |
 | `trading/paper_replay_metrics.csv` | Unchanged reproduction of the published strategy replay |
-| `trading/corrected_trading_metrics.csv` · `corrected_trading_equity.csv` · `corrected_trading_metadata.json` | Separate same-close self-financing evaluation: fee-aware sizing, reconciled equity |
+| `trading/corrected_trading_metrics.csv` · `corrected_trading_metadata.json` | Separate same-close self-financing evaluation: fee-aware sizing, reconciled equity |
 | `model/s5_full_summary.json` | S5-Full run summary |
 | `model/checkpoint_provenance.json` | Both checkpoints by path, byte count and SHA-256 |
 | `provenance/source_artifact_manifest.json` | Source-to-output hashes from the deterministic build |
@@ -37,6 +37,9 @@ mismatch rather than serving unverified data.
   directly comparable.
 - Checkpoint binaries are not duplicated here. `model/checkpoint_provenance.json` records their
   paths, sizes and SHA-256 values under `apps/model-backend/output/`.
+- The per-day corrected equity series is not sealed here. Nothing reads it, and
+  `python -m thesis_pipeline.backtest` regenerates it on demand; the drawdowns and reconciliation
+  errors computed from it are already columns of `trading/corrected_trading_metrics.csv`.
 
 Regenerate with `scripts/build_thesis_artifacts.py` followed by
 `scripts/package_thesis_evidence.py` from `apps/model-backend/`.
