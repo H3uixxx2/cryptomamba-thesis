@@ -5,10 +5,17 @@ All commands run from `apps/model-backend/`.
 ## 0. Environment
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
+./.venv/bin/python -m pip install --upgrade pip   # required: see note
 ./.venv/bin/pip install -e .          # torch, lightning, pandas, scipy — CPU, any OS
 ./.venv/bin/pip install -e ".[gpu]"   # + mamba-ssm / causal-conv1d — Linux + CUDA, needed to TRAIN
 ```
+
+The `pip` upgrade is not optional on a fresh venv. This project has a `pyproject.toml` and no
+`setup.py`, so an editable install goes through PEP 660, which pip only supports from 21.3.
+A stock macOS `python3` (3.9) seeds venvs with pip 21.2.4 and fails with
+`Directory cannot be installed in editable mode`. Upgrading pip inside the venv resolves it;
+nothing about the package changes.
 
 `mamba_ssm` and `causal_conv1d` require nvcc, which is why they are an extra rather than a base
 dependency. Without them the model still runs: `models/cmamba.py` imports the kernels inside

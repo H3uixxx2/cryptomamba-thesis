@@ -67,6 +67,7 @@ All env-overridable; defaults are monorepo-relative, so a plain clone works with
 
 ```bash
 python3 -m venv backend/.venv
+./backend/.venv/bin/python -m pip install --upgrade pip   # editable install needs pip >= 21.3
 ./backend/.venv/bin/pip install -e backend
 ./scripts/run_local.sh           # http://127.0.0.1:8600
 ```
