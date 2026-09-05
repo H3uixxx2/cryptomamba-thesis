@@ -122,5 +122,21 @@ frozen checkpoints ship so that steps 1 – 4 can be recomputed without training
 
 ## Where each number lives
 
-`evidence/ARTIFACT_MAP.json` maps every thesis table and every console screen to its source file.
-`evidence/README.md` states the bundle's scope and boundaries.
+Every table and figure in the thesis is produced here:
+
+| Thesis | Produced by | Read from |
+|---|---|---|
+| Tables 3.1, 3.2 — splits and model contracts | `configs/data_configs/mode_1.yaml`, `thesis_pipeline/contracts.py`, `data_utils/data_transforms.py` | `data/2018-09-17_2024-09-16_86400/` (1461 / 365 / 365) |
+| §4.1 — 350-date RQ1 reproduction | `scripts/evaluation.py` | `output/evaluation/forecast_metrics.csv` |
+| Table 4.1 — paper-reported reference | transcribed, never recomputed | `evidence/forecast/paper_reported_metrics.csv` |
+| Tables 4.2, 4.3 · Figures 4.1, 5.1 — 304-date controlled comparison | `python -m thesis_pipeline.evaluation` | `evidence/forecast/controlled_forecast_metrics.csv` |
+| Tables 4.4, 4.5, 4.6 — block bootstrap, block-length sensitivity, chronological halves | `console_api/loaders/forecast_robustness.py` (50,000 resamples, seed 230813, L = 5/7/14), served by `GET /api/reproduce` | `evidence/forecast/controlled_predictions.csv` |
+| Table 4.7 — Diebold–Mariano and Wilcoxon paired tests | `python -m thesis_pipeline.evaluation` | `evidence/forecast/paired_significance_tests.csv` |
+| §4.2 — exact McNemar on direction | `console_api/loaders/forecast_robustness.py`, served by `GET /api/reproduce` | `evidence/forecast/controlled_predictions.csv` |
+| Table 4.8 — paper trading replay | `scripts/run_backtest.py` | `evidence/trading/paper_replay_metrics.csv` |
+| Table 4.9 · Figure 4.2 — corrected self-financing results, fee sensitivity | `python -m thesis_pipeline.backtest` | `evidence/trading/corrected_trading_metrics.csv` |
+| Figure 2.1 — released CM-v scan axis vs the paper diagram | `models/cmamba.py` vs `models/cmamba_t.py`; rendered by `frontend/src/components/ScanAxisDiagram.tsx` | source |
+| Table 6.1 · Figures 6.1–6.4 — the five Console screens | `apps/console` | the artifacts above |
+
+`evidence/ARTIFACT_MAP.json` maps every thesis table and every evidence-backed console screen to
+its source file; `evidence/README.md` states the bundle's scope and boundaries.
