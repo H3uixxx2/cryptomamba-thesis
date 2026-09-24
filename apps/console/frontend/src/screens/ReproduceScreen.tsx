@@ -7,6 +7,7 @@ import type {
   ControlledForecastMetricRow,
   ForecastRobustness,
   PlotlyFigure,
+  Reproduction350d,
 } from "@/lib/api";
 import { fmt, pct, prettyModel } from "@/lib/format";
 import { useConsole } from "@/store";
@@ -78,6 +79,36 @@ function zeroReferenceLine(): Record<string, unknown> {
   };
 }
 
+function gapToPaperFigure(data: Reproduction350d): PlotlyFigure | undefined {
+  if (!data.rows.length) return undefined;
+  const metrics = ["RMSE", "MAE", "MAPE"];
+  const gaps = data.rows.flatMap((row) => [row.RMSE_gap_pct, row.MAE_gap_pct, row.MAPE_gap_pct]);
+  const upper = Math.max(...gaps, 0.1) * 1.25;
+  return {
+    data: data.rows.map((row) => ({
+      type: "bar",
+      name: row.display_name,
+      x: metrics,
+      y: [row.RMSE_gap_pct, row.MAE_gap_pct, row.MAPE_gap_pct],
+      marker: {
+        color: row.result_type === "retrained_checkpoint" ? "#4d8dff" : "#8795a8",
+      },
+      text: [row.RMSE_gap_pct, row.MAE_gap_pct, row.MAPE_gap_pct].map(
+        (value) => `${value.toFixed(3)}%`,
+      ),
+      textposition: "outside",
+      cliponaxis: false,
+      hovertemplate: "%{fullData.name}<br>%{x} gap: %{y:.3f}%<extra></extra>",
+    })),
+    layout: {
+      barmode: "group",
+      height: 300,
+      yaxis: { title: "Absolute gap to paper (%)", range: [0, upper] },
+      legend: { orientation: "h", y: 1.14, x: 1, xanchor: "right" },
+    },
+  };
+}
+
 function primaryRmseForestFigure(data: ForecastRobustness): PlotlyFigure | undefined {
   if (!data.rmse_difference.length) return undefined;
   const rows = data.rmse_difference;
@@ -141,6 +172,59 @@ function DirectionValue({ row }: { row: ControlledForecastMetricRow }) {
     return <span className="text-[var(--text-muted)]">—</span>;
   }
   return <>{pct(row.directional_accuracy_pct)}</>;
+}
+
+function ReproductionPanel({
+  data,
+  controlledSamples,
+}: {
+  data: Reproduction350d;
+  controlledSamples?: number;
+}) {
+  const reproduced = data.rows.find((row) => row.result_type === "retrained_checkpoint");
+  const gaps = reproduced
+    ? [reproduced.RMSE_gap_pct, reproduced.MAE_gap_pct, reproduced.MAPE_gap_pct]
+    : [];
+  const hasCompleteGaps = gaps.length === 3 && gaps.every(Number.isFinite);
+  const maxGap = hasCompleteGaps ? Math.max(...gaps) : undefined;
+
+  return (
+    <Panel
+      eyebrow={<>RQ1 reproduction · original {data.samples ?? "—"}-date test split</>}
+      hint="Official and local CM-v checkpoints are evaluated on the original paper test dates. Lower gaps indicate a closer reproduction of the paper-reported aggregate metrics."
+    >
+      {maxGap != null && (
+        <Callout tone="neutral" title="Measured reproduction gap">
+          The reproduced checkpoint differs from the paper by at most {fmt(maxGap, 3)}% across RMSE, MAE and MAPE, where the gap is |local − paper| / paper × 100.
+        </Callout>
+      )}
+      <div className="mt-4">
+        <Plot
+          figure={gapToPaperFigure(data)}
+          height={300}
+          ariaLabel="RQ1 metric gaps to the paper reference"
+          accessibleSummary={maxGap == null ? "RQ1 gaps are unavailable." : `The largest local checkpoint metric gap is ${fmt(maxGap, 3)}%.`}
+        />
+      </div>
+      <ExactValues>
+        <table className="w-full text-[12px]">
+          <thead><tr className="border-b border-[var(--line-subtle)] text-left">
+            <th className="eyebrow px-4 py-2 font-normal">Result</th><th className="eyebrow px-4 py-2 text-right font-normal">N</th><th className="eyebrow px-4 py-2 text-right font-normal">RMSE</th><th className="eyebrow px-4 py-2 text-right font-normal">MAE</th><th className="eyebrow px-4 py-2 text-right font-normal">MAPE</th><th className="eyebrow px-4 py-2 text-right font-normal">RMSE gap</th><th className="eyebrow px-4 py-2 text-right font-normal">MAE gap</th><th className="eyebrow px-4 py-2 text-right font-normal">MAPE gap</th>
+          </tr></thead>
+          <tbody className="tnum">
+            {data.rows.map((row) => (
+              <tr key={row.result_type} className="border-b border-[var(--line-subtle)] last:border-0">
+                <td className="px-4 py-2 font-medium">{row.display_name}</td><td className="px-4 py-2 text-right">{row.samples}</td><td className="px-4 py-2 text-right">{fmt(row.RMSE, 2)}</td><td className="px-4 py-2 text-right">{fmt(row.MAE, 2)}</td><td className="px-4 py-2 text-right">{pct(row.MAPE_pct, 3)}</td><td className="px-4 py-2 text-right">{pct(row.RMSE_gap_pct, 3)}</td><td className="px-4 py-2 text-right">{pct(row.MAE_gap_pct, 3)}</td><td className="px-4 py-2 text-right">{pct(row.MAPE_gap_pct, 3)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </ExactValues>
+      <p className="mt-3 text-[11px] text-[var(--text-muted)]">
+        Separate from the {controlledSamples ?? "—"}-date controlled comparison below; the latter uses the common CM-v / CryptoMamba-T target dates required for paired evaluation.
+      </p>
+    </Panel>
+  );
 }
 
 function RobustnessPanel({ data }: { data: ForecastRobustness }) {
@@ -229,6 +313,7 @@ export function ReproduceScreen() {
 
   const ready =
     result?.final_evidence_status === "READY" &&
+    result.reproduction_350d.status === "READY" &&
     result.forecast_robustness.status === "READY";
   const test = result?.controlled_local.filter((row) => row.split === "test") ?? [];
   const cm = test.find((row) => row.model_id === "cmamba_v_reproduced");
@@ -239,7 +324,7 @@ export function ReproduceScreen() {
     <>
       <PageHeader
         title="Evaluation"
-        description={result ? `Controlled comparison of CM-v, CryptoMamba-T and persistence on ${result.controlled_local[0]?.samples ?? "—"} identical local target dates.` : "Loading the frozen evaluation scopes and paired evidence."}
+        description={result ? `The original ${result.reproduction_350d.samples ?? "—"}-date CM-v reproduction is kept separate from the ${result.controlled_local[0]?.samples ?? "—"}-date controlled CM-v, CryptoMamba-T and persistence comparison. Only identical local target dates are used in paired tests.` : "Loading the frozen evaluation scopes and paired evidence."}
       />
 
       {!result && <Callout tone="neutral">Loading evaluation evidence…</Callout>}
@@ -251,6 +336,8 @@ export function ReproduceScreen() {
 
       {result && ready && (
         <>
+          <ReproductionPanel data={result.reproduction_350d} controlledSamples={cm?.samples} />
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatTile label="Reproduced CM-v · test RMSE" value={fmt(cm?.RMSE, 2)} sub={`${cm?.samples ?? "—"} aligned dates`} tone="blue" />
             <StatTile label="CryptoMamba-T · test RMSE" value={fmt(s5?.RMSE, 2)} sub={`${s5?.samples ?? "—"} aligned dates`} tone="brand" />
