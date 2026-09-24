@@ -191,7 +191,6 @@ function DatasetComparison({ paper, uploaded }: { paper: DataResponse; uploaded:
     ["Raw rows", count.format(paper.processing.raw_rows), count.format(uploaded.processing.raw_rows)],
     ["Daily rows", count.format(paper.processing.daily_rows), count.format(uploaded.processing.daily_rows)],
     ["Split method", splitMethod(paper), splitMethod(uploaded)],
-    ["Checkpoint history", "CM-v 14 days · S5-Full 60 days", "CM-v 14 days · S5-Full 60 days"],
   ];
 
   return (
@@ -366,7 +365,7 @@ export function DataScreen() {
     <div aria-busy={data.loading}>
       <PageHeader
         title="Data"
-        description="Validate raw OHLCV candles first. Predict then constructs the model-specific causal window: 14 days for reproduced CM-v or 60 days for S5-Full."
+        description="BTC/USD daily OHLCV, chronologically split by the thesis protocol."
         actions={<SourceToggle />}
       />
 
@@ -409,10 +408,6 @@ export function DataScreen() {
               {data.mode === "paper"
                 ? "BTC/USD daily OHLCV"
                 : data.uploadName || dataset.source.detail}
-            </Callout>
-
-            <Callout tone="neutral" title="Raw candles versus model-ready samples">
-              This screen keeps the complete validated candle set. The 14-day lens below previews the reproduced CM-v contract only; the Predict screen independently selects the last 14 or 60 candles strictly before its target date.
             </Callout>
 
             <ProcessingSummary dataset={dataset} />

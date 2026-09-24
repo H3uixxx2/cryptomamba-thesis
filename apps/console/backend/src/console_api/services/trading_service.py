@@ -367,6 +367,13 @@ def build_replay(
         & (equity["strategy"] == strategy)
         & (equity["transaction_cost_pct"] == ref_cost)
     ].copy()
+    buy_hold_rows = equity[
+        (equity["result_type"] == result_type)
+        & (equity["split"] == split)
+        & (equity["strategy"] == "buy_hold")
+        & (equity["transaction_cost_pct"] == ref_cost)
+    ][["date", "portfolio_value"]].rename(columns={"portfolio_value": "buy_hold_value"}).copy()
+    buy_hold_rows["date"] = buy_hold_rows["date"].astype(str)
     forecast_rows = predictions[
         (predictions["result_type"] == result_type)
         & (predictions["split"] == split)
@@ -404,6 +411,11 @@ def build_replay(
         on="date",
         how="inner",
         validate="one_to_one",
+    ).merge(
+        buy_hold_rows,
+        on="date",
+        how="left",
+        validate="one_to_one",
     ).sort_values("date")
     if len(merged) != len(equity_rows):
         return {
@@ -437,6 +449,7 @@ def build_replay(
         "cash",
         "position_btc",
         "portfolio_value",
+        "buy_hold_value",
         "drawdown_pct",
         "trade_value",
         "transaction_cost",

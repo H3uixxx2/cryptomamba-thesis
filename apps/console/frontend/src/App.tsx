@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { DataScreen } from "@/screens/DataScreen";
 import { PredictScreen } from "@/screens/PredictScreen";
 import { ReproduceScreen } from "@/screens/ReproduceScreen";
-import { ArchitectureScreen } from "@/screens/ArchitectureScreen";
 import { TradingScreen } from "@/screens/TradingScreen";
 
 function Brand() {
@@ -94,7 +93,6 @@ function Screens() {
       {screen === "reproduce" && <ReproduceScreen />}
       {screen === "predict" && <PredictScreen />}
       {screen === "trading" && <TradingScreen />}
-      {screen === "architecture" && <ArchitectureScreen />}
     </main>
   );
 }

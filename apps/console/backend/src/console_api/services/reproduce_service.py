@@ -6,7 +6,8 @@ recomputed from a model and nothing is estimated: a missing, tampered or
 inconsistent artifact yields ``status=NOT_READY`` with the reason, never a 500
 and never a substituted number.
 
-Only CM-v, S5-Full and naive persistence have per-date local predictions, so only
+Only CM-v, CryptoMamba-T (internal id ``s5_full``) and naive persistence have per-date local
+predictions, so only
 those three are paired. LSTM / GRU / iTransformer / S-Mamba exist solely as
 aggregate rows and are served verbatim under ``paper_reported`` — they carry no
 per-date series and therefore cannot enter a paired test.
@@ -63,7 +64,10 @@ def _final_evaluation_fields() -> tuple[dict, list[str]]:
         "final_evidence_error": None,
         "final_evidence_sha256": evidence.package_sha256,
         "paper_reported": final_records(paper),
-        "controlled_local": final_records(controlled),
+        "controlled_local": [
+            {**row, "display_name": config.MODEL_DISPLAY_NAMES.get(row["model_id"], row["display_name"])}
+            for row in final_records(controlled)
+        ],
         "paired_tests": final_records(paired),
         "paired_test_definitions": {
             "diebold_mariano": "Paired squared-error differential with HAC lag 1.",
