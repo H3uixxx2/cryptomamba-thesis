@@ -28,6 +28,10 @@ CORE_PYTHON = Path(
     os.getenv("CRYPTO_MAMBA_CORE_PYTHON", CORE_ROOT / ".venv/bin/python")
 ).expanduser().absolute()
 CHECKPOINT_WORKER = CORE_ROOT / "scripts" / "checkpoint_inference.py"
+
+# Presentation-layer model names. The evidence bundle is SHA-pinned and keeps its original
+# display_name ("CMamba-T / S5-Full"); only the name shown in the Console changes.
+MODEL_DISPLAY_NAMES = {"s5_full": "CryptoMamba-T"}
 CHECKPOINT_TIMEOUT_SECONDS = 120
 MAX_WORKER_ERROR_CHARS = 2_048
 MAX_WORKER_STDOUT_CHARS = 65_536

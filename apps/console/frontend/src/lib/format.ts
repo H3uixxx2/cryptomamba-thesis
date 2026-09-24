@@ -37,7 +37,7 @@ export function prettyModel(key: string): string {
   const map: Record<string, string> = {
     naive_persistence: "Naive persistence",
     cmamba_v_reproduced: "Reproduced CM-v",
-    s5_full: "CMamba-T / S5-Full",
+    s5_full: "CryptoMamba-T",
     lstm: "LSTM",
     gru: "GRU",
     itransformer: "iTransformer",

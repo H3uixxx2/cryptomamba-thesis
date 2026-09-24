@@ -313,8 +313,6 @@ export interface PairedTestRow {
 
 export const fetchReproduce = () => getJSON<ReproduceResponse>("/api/reproduce");
 
-/* --------------------------- Architecture study -------------------------- */
-
 export interface CorrectedTradingMetricRow {
   model_id: "cmamba_v_reproduced" | "s5_full" | "naive_persistence";
   split: "val" | "test";
@@ -332,49 +330,6 @@ export interface CorrectedTradingMetricRow {
   total_borrow_cost: number;
   reconciliation_error: number;
 }
-
-export interface ArchitectureResponse {
-  status: string;
-  message?: string;
-  final_evidence_sha256?: string;
-  model?: {
-    display_name: string;
-    window_days: number;
-    parameter_count: number;
-    checkpoint_sha256: string;
-    source_commit: string;
-    prediction_mode: string;
-  };
-  parameter_comparison?: {
-    reproduced_cm_v: number;
-    s5_full: number;
-    s5_to_cm_v_pct: number;
-  };
-  source_execution?: {
-    input: string;
-    feature_order: string[];
-    normalization: string;
-    scan_axis: string;
-    stages: string[];
-  };
-  training?: {
-    config?: string;
-    commit?: string;
-    branch?: string;
-    gpu?: string;
-    torch?: string;
-    mamba_ssm?: string;
-    seed?: number;
-    best_epoch?: string;
-    training_seconds?: number;
-  };
-  controlled_metrics?: ControlledForecastMetricRow[];
-  paired_tests?: PairedTestRow[];
-  corrected_trading?: CorrectedTradingMetricRow[];
-  reference_cost_pct?: number;
-}
-
-export const fetchArchitecture = () => getJSON<ArchitectureResponse>("/api/architecture");
 
 /* ------------------------------ Predict --------------------------------- */
 
@@ -620,6 +575,7 @@ export interface TradingReplayRow {
   cash: number;
   position_btc: number;
   portfolio_value: number;
+  buy_hold_value: number;
   drawdown_pct: number;
   trade_value: number;
   transaction_cost: number;

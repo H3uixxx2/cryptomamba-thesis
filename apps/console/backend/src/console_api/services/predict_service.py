@@ -291,7 +291,7 @@ def build_setup() -> dict:
             checkpoint_models.append(
                 {
                     "id": model_id,
-                    "label": model["display_name"],
+                    "label": config.MODEL_DISPLAY_NAMES.get(model_id, model["display_name"]),
                     "window_days": int(model["window_days"]),
                     "checkpoint_sha256": model["checkpoint_sha256"],
                 }

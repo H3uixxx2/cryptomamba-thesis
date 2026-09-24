@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Plot } from "@/components/Plot";
 import { ReplayChart } from "@/components/ReplayChart";
 import { Callout, ErrorBanner, Field, Num, PageHeader, Panel, Pill, StatTile, toneForRoi } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PlotlyFigure } from "@/lib/api";
 import { fmt, pct, prettyModel, signedPct, usd } from "@/lib/format";
@@ -19,7 +17,7 @@ const MODEL_ORDER: Record<string, number> = { cmamba_v_reproduced: 0, s5_full: 1
 const STRATEGY_ORDER: Record<string, number> = { vanilla: 0, smart: 1, smart_w_short: 2 };
 const FEE_CHART_MODELS = [
   { modelId: "cmamba_v_reproduced", title: "Reproduced CM-v" },
-  { modelId: "s5_full", title: "CMamba-T / S5-Full" },
+  { modelId: "s5_full", title: "CryptoMamba-T" },
 ] as const;
 const FEE_SERIES_COLOURS: Record<string, string> = {
   buy_hold: "#e0a82e",
@@ -30,7 +28,7 @@ const FEE_SERIES_COLOURS: Record<string, string> = {
 
 function modelLabel(value: string): string {
   if (value === "cmamba_v_reproduced") return "Reproduced CM-v";
-  if (value === "s5_full") return "CMamba-T / S5-Full";
+  if (value === "s5_full") return "CryptoMamba-T";
   if (value === "naive_persistence") return "Naive persistence";
   return prettyModel(value);
 }
@@ -155,7 +153,7 @@ function FinalEvidence() {
         <StatTile label="Reference cost" value={referenceCostLabel} sub="applied on traded notional" tone="blue" />
         <StatTile label="Buy & hold · test" value={fmt(buyHold?.final_equity, 2)} sub={`shared market benchmark · initial equity ${fmt(buyHold?.initial_equity, 0)}`} />
         <StatTile label="CM-v Smart · test" value={fmt(cmSmart?.final_equity, 2)} sub={`${cmSmart?.number_of_trades ?? "—"} trades`} tone="brand" />
-        <StatTile label="S5-Full Smart · test" value={fmt(s5Smart?.final_equity, 2)} sub={`${s5Smart?.number_of_trades ?? "—"} trades`} tone="green" />
+        <StatTile label="CryptoMamba-T Smart · test" value={fmt(s5Smart?.final_equity, 2)} sub={`${s5Smart?.number_of_trades ?? "—"} trades`} tone="green" />
       </div>
 
       <Tabs defaultValue="corrected" className="w-full">
@@ -181,7 +179,6 @@ function FinalEvidence() {
                 return (
                   <section key={modelId} className="min-w-0 overflow-hidden rounded-md border border-[var(--line-subtle)] bg-[var(--bg-sunken)] p-3">
                     <h3 className="text-sm font-semibold text-[var(--text-primary)]">{title}</h3>
-                    <p className="mt-1 text-[11px] text-[var(--text-muted)]">Final equity by transaction cost · shared benchmark highlighted</p>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[10px] text-[var(--text-secondary)]" aria-hidden="true">
                       {[{ strategy: "buy_hold", label: "Buy & Hold (shared)" }, ...strategies.map((series) => ({ strategy: series.strategy, label: prettyModel(series.strategy) }))].map((series) => (
                         <span key={series.strategy} className="inline-flex items-center gap-1.5">
@@ -262,7 +259,6 @@ function FinalEvidence() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <Field label="Engine">{data.corrected_metadata.engine ?? "—"}</Field>
           <Field label="Execution / mark">{data.corrected_metadata.execution_basis ?? "—"} / {data.corrected_metadata.mark_basis ?? "—"}</Field>
-          <Field label="Cost scenarios">{data.corrected_metadata.transaction_cost_pct_scenarios?.join("% · ") ?? "—"}%</Field>
         </div>
       </Panel>
     </div>
@@ -273,15 +269,36 @@ function HistoricalReplay() {
   const { replay, backtest } = useConsole();
   const data = replay.data;
   const [cursor, setCursor] = useState(0);
+  const cursorRef = useRef(0);
+  const anchorDate = useRef<string | null>(null);
 
-  useEffect(() => setCursor(0), [data]);
+  // Changing checkpoint/split/strategy/cost refetches the timeline. Keep the viewer on
+  // the day they were already looking at instead of snapping back to day 1: re-anchor by
+  // decision date, and fall back to the nearest valid index when the new parameter set
+  // does not contain that date (switching split changes the date range entirely).
+  useEffect(() => {
+    const rows = data?.rows;
+    if (!rows?.length) return;
+    const wanted = anchorDate.current;
+    const matched = wanted ? rows.findIndex((entry) => entry.decision_date === wanted) : -1;
+    const next = matched >= 0 ? matched : Math.min(cursorRef.current, rows.length - 1);
+    cursorRef.current = next;
+    anchorDate.current = rows[next].decision_date;
+    setCursor(next);
+  }, [data]);
+
   if (replay.error) return <ErrorBanner message={replay.error} />;
   if (!data) return <Callout tone="neutral">Loading historical replay rows…</Callout>;
   if (data.status !== "READY" || !data.rows.length) return <Callout tone="amber" title="Replay not ready">{data.error ?? "No replay rows."}</Callout>;
 
   const row = data.rows[Math.min(cursor, data.rows.length - 1)];
   const directionCorrect = (row.predicted_close > row.current_close) === (row.target_close > row.current_close);
-  const select = (value: number) => setCursor(Math.max(0, Math.min(data.rows.length - 1, value)));
+  const select = (value: number) => {
+    const next = Math.max(0, Math.min(data.rows.length - 1, value));
+    cursorRef.current = next;
+    anchorDate.current = data.rows[next].decision_date;
+    setCursor(next);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -303,23 +320,9 @@ function HistoricalReplay() {
         <Panel eyebrow="BTC/USD · forecast · historical actions" bodyClassName="p-0"><ReplayChart candles={data.candles} rows={data.rows} cursor={cursor} phase="outcome" onSelectStep={select} /></Panel>
         <Panel eyebrow={`${row.decision_date} → ${row.outcome_date}`}>
           <div className="mb-4 flex gap-2"><Pill tone={row.action === "BUY" ? "green" : row.action === "SELL" ? "red" : "amber"}>{row.action}</Pill><Pill tone={directionCorrect ? "green" : "red"}>{directionCorrect ? "Correct direction" : "Wrong direction"}</Pill></div>
-          <dl className="grid grid-cols-2 gap-4 text-xs"><div><dt className="eyebrow">Decision close</dt><dd className="tnum mt-1">{usd(row.current_close)}</dd></div><div><dt className="eyebrow">Forecast T+1</dt><dd className="tnum mt-1 text-[var(--signal-blue)]">{usd(row.predicted_close)}</dd></div><div><dt className="eyebrow">Actual T+1</dt><dd className="tnum mt-1">{usd(row.target_close)}</dd></div><div><dt className="eyebrow">Forecast return</dt><dd className="tnum mt-1">{signedPct(row.predicted_return_pct)}</dd></div><div><dt className="eyebrow">Portfolio</dt><dd className="tnum mt-1">{usd(row.portfolio_value)}</dd></div><div><dt className="eyebrow">Drawdown</dt><dd className="tnum mt-1">{pct(Math.abs(row.drawdown_pct))}</dd></div></dl>
+          <dl className="grid grid-cols-2 gap-4 text-xs"><div><dt className="eyebrow">Decision close</dt><dd className="tnum mt-1">{usd(row.current_close)}</dd></div><div><dt className="eyebrow">Forecast T+1</dt><dd className="tnum mt-1 text-[var(--signal-blue)]">{usd(row.predicted_close)}</dd></div><div><dt className="eyebrow">Actual T+1</dt><dd className="tnum mt-1">{usd(row.target_close)}</dd></div><div><dt className="eyebrow">Forecast return</dt><dd className="tnum mt-1">{signedPct(row.predicted_return_pct)}</dd></div><div><dt className="eyebrow">Portfolio</dt><dd className="tnum mt-1">{usd(row.portfolio_value)}</dd></div><div><dt className="eyebrow">Buy & Hold</dt><dd className="tnum mt-1">{usd(row.buy_hold_value)}</dd></div><div><dt className="eyebrow">Portfolio vs Buy & Hold</dt><dd className="tnum mt-1"><Num color={toneForRoi(row.portfolio_value - row.buy_hold_value)}>{signedPct((row.portfolio_value / row.buy_hold_value - 1) * 100)}</Num></dd></div><div><dt className="eyebrow">Drawdown</dt><dd className="tnum mt-1">{pct(Math.abs(row.drawdown_pct))}</dd></div></dl>
         </Panel>
       </div>
-    </div>
-  );
-}
-
-function OneDayDemo() {
-  const { trading } = useConsole();
-  if (trading.error) return <ErrorBanner message={trading.error} />;
-  if (!trading.basis) return <Callout tone="neutral">Run or select a prediction before opening the one-day scenario.</Callout>;
-  return (
-    <div className="flex flex-col gap-4">
-      <Panel eyebrow="One-day scenario" hint={`Prediction source: ${trading.basis.source}. This is an explanatory what-if, not historical performance evidence.`}>
-        <div className="grid items-end gap-4 md:grid-cols-2 xl:grid-cols-4"><div className="flex flex-col gap-2"><Label>Cash (USD)</Label><Input type="number" value={trading.capital} onChange={(event) => trading.setCapital(Number(event.target.value))} /></div><div className="flex flex-col gap-2"><Label>BTC held</Label><Input type="number" step="0.01" value={trading.btc} onChange={(event) => trading.setBtc(Number(event.target.value))} /></div><div className="flex flex-col gap-2"><Label>Realised next-day move · {signedPct(trading.move)}</Label><Slider value={[trading.move]} min={-15} max={15} step={0.25} onValueChange={([value]) => trading.setMove(value)} onValueCommit={([value]) => trading.commitMove(value)} /></div><Field label="Forecast">{usd(trading.basis.current)} → {usd(trading.basis.predicted)}</Field></div>
-      </Panel>
-      <Panel eyebrow="Strategy response" bodyClassName="p-0"><Table><TableHeader><TableRow><TableHead className="pl-5">Strategy</TableHead><TableHead>Action</TableHead><TableHead>Size</TableHead><TableHead className="text-right">End value</TableHead><TableHead className="pr-5 text-right">ROI</TableHead></TableRow></TableHeader><TableBody>{(trading.sim?.rows ?? []).map((row) => <TableRow key={row.strategy}><TableCell className="pl-5 font-medium">{row.strategy}</TableCell><TableCell>{row.action}</TableCell><TableCell className="font-mono text-xs">{row.trade_size}</TableCell><TableCell className="text-right"><Num>{usd(row.end_value)}</Num></TableCell><TableCell className="pr-5 text-right"><Num color={toneForRoi(row.roi_pct)}>{signedPct(row.roi_pct)}</Num></TableCell></TableRow>)}</TableBody></Table></Panel>
     </div>
   );
 }
@@ -327,12 +330,11 @@ function OneDayDemo() {
 export function TradingScreen() {
   return (
     <>
-      <PageHeader title="Trading" description="Corrected self-financing results are primary. The paper-engine replay and one-day scenario remain separate explanatory surfaces." />
+      <PageHeader title="Trading" description="Corrected self-financing results are primary. The paper-engine replay remains a separate explanatory surface." />
       <Tabs defaultValue="evidence" className="w-full">
-        <TabsList className="w-full max-w-full justify-start overflow-x-auto bg-[var(--bg-subtle)]"><TabsTrigger value="evidence">Evidence</TabsTrigger><TabsTrigger value="replay">Historical Replay</TabsTrigger><TabsTrigger value="demo">One-Day What-If</TabsTrigger></TabsList>
+        <TabsList className="w-full max-w-full justify-start overflow-x-auto bg-[var(--bg-subtle)]"><TabsTrigger value="evidence">Evidence</TabsTrigger><TabsTrigger value="replay">Historical Replay</TabsTrigger></TabsList>
         <TabsContent value="evidence" className="mt-4"><FinalEvidence /></TabsContent>
         <TabsContent value="replay" className="mt-4"><HistoricalReplay /></TabsContent>
-        <TabsContent value="demo" className="mt-4"><OneDayDemo /></TabsContent>
       </Tabs>
     </>
   );

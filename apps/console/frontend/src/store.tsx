@@ -16,14 +16,13 @@ import * as api from "@/lib/api";
  * navigating between screens does not re-hit the backend and per-screen state
  * survives (an uploaded CSV stays loaded, a prediction stays on screen). */
 
-export type ScreenId = "data" | "reproduce" | "predict" | "trading" | "architecture";
+export type ScreenId = "data" | "reproduce" | "predict" | "trading";
 
 export const SCREENS: { id: ScreenId; no: string; label: string; title: string }[] = [
   { id: "data", no: "01", label: "Data", title: "Dataset" },
   { id: "reproduce", no: "02", label: "Evaluation", title: "Model Evaluation" },
   { id: "predict", no: "03", label: "Predict", title: "Prediction" },
   { id: "trading", no: "04", label: "Trading", title: "Trading" },
-  { id: "architecture", no: "05", label: "Architecture", title: "Architecture" },
 ];
 
 function msg(e: unknown): string {
@@ -34,12 +33,6 @@ function nextUtcDate(value: string): string {
   const date = new Date(`${value}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + 1);
   return date.toISOString().slice(0, 10);
-}
-
-export interface TradingBasis {
-  current: number;
-  predicted: number;
-  source: string;
 }
 
 function useConsoleStore() {
@@ -62,17 +55,14 @@ function useConsoleStore() {
   const [reproLoading, setReproLoading] = useState(false);
   const [reproError, setReproError] = useState("");
 
-  // ---- Architecture screen: S5-Full model card + metric rows ----
-  const [arch, setArch] = useState<api.ArchitectureResponse | null>(null);
-  const [archLoading, setArchLoading] = useState(false);
-  const [archError, setArchError] = useState("");
-
   // ---- Predict ----
   const [setup, setSetup] = useState<api.PredictSetup | null>(null);
   const [prediction, setPrediction] = useState<api.PredictResult | null>(null);
   const [predictMode, setPredictMode] = useState<api.PredictMode>("checkpoint");
-  const [checkpointModel, setCheckpointModel] =
-    useState<api.CheckpointModelId>("cmamba_v_reproduced");
+  const [checkpointResults, setCheckpointResults] =
+    useState<Partial<Record<api.CheckpointModelId, api.PredictResult>>>({});
+  const [checkpointErrors, setCheckpointErrors] =
+    useState<Partial<Record<api.CheckpointModelId, string>>>({});
   const [predictLoading, setPredictLoading] = useState(false);
   const [predictError, setPredictError] = useState("");
   const [offlineUnavailable, setOfflineUnavailable] = useState(false);
@@ -82,15 +72,6 @@ function useConsoleStore() {
   const [risk, setRisk] = useState(2);
   const predictRequestId = useRef(0);
   const predictModeRef = useRef<api.PredictMode>("checkpoint");
-
-  // ---- Trading (one-day demo) ----
-  const [basis, setBasis] = useState<TradingBasis | null>(null);
-  const [sim, setSim] = useState<api.SimulateResponse | null>(null);
-  const [tradingLoading, setTradingLoading] = useState(false);
-  const [tradingError, setTradingError] = useState("");
-  const [capital, setCapital] = useState(10000);
-  const [btc, setBtc] = useState(0);
-  const [move, setMove] = useState(0);
 
   // ---- Historical backtest ----
   const [backtest, setBacktest] = useState<api.BacktestResponse | null>(null);
@@ -204,18 +185,6 @@ function useConsoleStore() {
     }
   }, []);
 
-  const loadArchitecture = useCallback(async () => {
-    setArchLoading(true);
-    setArchError("");
-    try {
-      setArch(await api.fetchArchitecture());
-    } catch (e) {
-      setArchError(msg(e));
-    } finally {
-      setArchLoading(false);
-    }
-  }, []);
-
   const loadOffline = useCallback(async (date?: string) => {
     const requestId = ++predictRequestId.current;
     setPredictLoading(true);
@@ -251,11 +220,6 @@ function useConsoleStore() {
       const s = await api.fetchPredictSetup();
       setSetup(s);
       setApiUrl((current) => current || s.api_url_default || "");
-      setCheckpointModel((current) =>
-        s.checkpoint_models.some((model) => model.id === current)
-          ? current
-          : (s.checkpoint_models[0]?.id ?? "cmamba_v_reproduced"),
-      );
       setPredictDate((current) => current || s.default_date);
       setOfflineDate((current) => current || s.offline_default_date || "");
     } catch (e) {
@@ -274,47 +238,60 @@ function useConsoleStore() {
       setPredictError("Select a prediction date.");
       return;
     }
-    const required =
-      setup?.checkpoint_models.find((model) => model.id === checkpointModel)?.window_days ??
-      (checkpointModel === "s5_full" ? 60 : 14);
+    const models = setup?.checkpoint_models ?? [];
     const available = data.candles.filter((candle) => candle.date < predictDate).length;
-    if (available < required) {
-      setPredictError(
-        `${checkpointModel === "s5_full" ? "S5-Full" : "Reproduced CM-v"} requires ${required} prior daily candles; ${available} are available.`,
-      );
-      return;
-    }
+    const candles = data.candles.map(({ date, open, high, low, close, volume }) => ({
+      date, open, high, low, close, volume,
+    }));
+
     const requestId = ++predictRequestId.current;
     setPredictLoading(true);
     setPredictError("");
     setPrediction(null);
+    setCheckpointResults({});
+    setCheckpointErrors({});
     setOfflineUnavailable(false);
-    try {
-      const result = await api.runCheckpointPrediction({
-        model_id: checkpointModel,
-        prediction_date: predictDate,
-        candles: data.candles.map(({ date, open, high, low, close, volume }) => ({
-          date,
-          open,
-          high,
-          low,
-          close,
-          volume,
-        })),
-      });
-      if (requestId === predictRequestId.current && predictModeRef.current === "checkpoint") {
-        setPrediction(result);
-      }
-    } catch (e) {
-      if (requestId === predictRequestId.current && predictModeRef.current === "checkpoint") {
-        setPredictError(msg(e));
-      }
-    } finally {
+
+    const runnable = models.filter((model) => available >= model.window_days);
+    const skipped = models.filter((model) => available < model.window_days);
+    if (requestId === predictRequestId.current && predictModeRef.current === "checkpoint") {
+      setCheckpointErrors(
+        Object.fromEntries(
+          skipped.map((model) => [
+            model.id,
+            `Requires ${model.window_days} prior daily candles; ${available} are available.`,
+          ]),
+        ),
+      );
+    }
+    if (!runnable.length) {
       if (requestId === predictRequestId.current && predictModeRef.current === "checkpoint") {
         setPredictLoading(false);
       }
+      return;
     }
-  }, [checkpointModel, data, predictDate, setup]);
+
+    const outcomes = await Promise.allSettled(
+      runnable.map((model) =>
+        api.runCheckpointPrediction({ model_id: model.id, prediction_date: predictDate, candles }),
+      ),
+    );
+    if (requestId !== predictRequestId.current || predictModeRef.current !== "checkpoint") return;
+
+    const nextResults: Partial<Record<api.CheckpointModelId, api.PredictResult>> = {};
+    const nextErrors: Partial<Record<api.CheckpointModelId, string>> = {};
+    outcomes.forEach((outcome, index) => {
+      const modelId = runnable[index].id;
+      if (outcome.status === "fulfilled") nextResults[modelId] = outcome.value;
+      else nextErrors[modelId] = msg(outcome.reason);
+    });
+    setCheckpointResults(nextResults);
+    setCheckpointErrors((current) => ({ ...current, ...nextErrors }));
+    // Trading's one-day demo and the OOD banner key off the single canonical
+    // (CM-v) result; CryptoMamba-T is comparison-only on this screen.
+    setPrediction(nextResults.cmamba_v_reproduced ?? null);
+    setPredictLoading(false);
+  }, [data, predictDate, setup]);
 
   const runLive = useCallback(async () => {
     if (!apiUrl) {
@@ -351,64 +328,10 @@ function useConsoleStore() {
       setPredictLoading(false);
       setPredictError("");
       setPrediction(null);
+      setCheckpointResults({});
+      setCheckpointErrors({});
     }
   }, [data]);
-
-  const runSimulate = useCallback(
-    async (override?: Partial<{ capital: number; btc: number; move: number; basis: TradingBasis }>) => {
-      const b = override?.basis ?? basis;
-      if (!b) return;
-      setTradingError("");
-      try {
-        setSim(
-          await api.runSimulate({
-            current: b.current,
-            predicted: b.predicted,
-            capital: override?.capital ?? capital,
-            btc: override?.btc ?? btc,
-            risk,
-            realized_move: override?.move ?? move,
-          }),
-        );
-      } catch (e) {
-        setTradingError(msg(e));
-      }
-    },
-    [basis, capital, btc, risk, move],
-  );
-
-  const loadTrading = useCallback(async () => {
-    setTradingLoading(true);
-    setTradingError("");
-    try {
-      // Basis = the prediction being acted on. Prefer whatever Predict is
-      // already showing; otherwise fall back to the frozen offline backup.
-      let res = prediction;
-      if (!res) {
-        const off = await api.fetchOfflinePrediction();
-        if (!off || !off.available) {
-          setTradingError("No prediction available to trade on (the offline backup is not ready).");
-          return;
-        }
-        res = off;
-      }
-      // The backup serves exactly one artifact-backed forecast.
-      const selectedVariant = res.forecast_variants?.[0];
-      const nextBasis: TradingBasis = {
-        current: res.last_close,
-        predicted: selectedVariant?.predicted_close ?? res.predicted_close,
-        source: selectedVariant?.label ?? res.inference_type,
-      };
-      const nextMove = Math.round((selectedVariant?.move_pct ?? res.move_pct ?? 0) * 100) / 100;
-      setBasis(nextBasis);
-      setMove(nextMove);
-      await runSimulate({ basis: nextBasis, move: nextMove });
-    } catch (e) {
-      setTradingError(msg(e));
-    } finally {
-      setTradingLoading(false);
-    }
-  }, [prediction, runSimulate]);
 
   const loadBacktest = useCallback(
     async (override?: Partial<{ result_type: string; split: string; ref_cost: number }>) => {
@@ -475,21 +398,14 @@ function useConsoleStore() {
       setScreen(id);
       if (id === "predict" && !setup && !predictLoading) void loadPredict();
       if (id === "trading") {
-        if (!tradingLoading) void loadTrading();
         if (!backtest && !backtestLoading) void loadBacktest();
         if (!replay && !replayLoading) void loadReplay();
       }
-      if (id === "architecture" && !arch && !archLoading) void loadArchitecture();
     },
     [
       setup,
       predictLoading,
       loadPredict,
-      arch,
-      archLoading,
-      loadArchitecture,
-      tradingLoading,
-      loadTrading,
       backtest,
       backtestLoading,
       loadBacktest,
@@ -522,13 +438,12 @@ function useConsoleStore() {
         cancelWindowSelection: cancelDataWindowSelection,
       },
       reproduce: { data: repro, loading: reproLoading, error: reproError, reload: loadReproduce },
-      architecture: { data: arch, loading: archLoading, error: archError, reload: loadArchitecture },
       predict: {
         setup,
         result: prediction,
+        checkpointResults,
+        checkpointErrors,
         mode: predictMode,
-        checkpointModel,
-        checkpointOption: setup?.checkpoint_models.find((model) => model.id === checkpointModel),
         loading: predictLoading,
         error: predictError,
         offlineUnavailable,
@@ -543,15 +458,10 @@ function useConsoleStore() {
           setPredictMode(m);
           setPredictError("");
           setPrediction(null);
+          setCheckpointResults({});
+          setCheckpointErrors({});
           setOfflineUnavailable(false);
           if (m === "historical") void loadOffline(offlineDate || undefined);
-        },
-        setCheckpointModel: (model: api.CheckpointModelId) => {
-          ++predictRequestId.current;
-          setCheckpointModel(model);
-          setPredictLoading(false);
-          setPredictError("");
-          setPrediction(null);
         },
         setOfflineDate: (d: string) => {
           setOfflineDate(d);
@@ -568,35 +478,16 @@ function useConsoleStore() {
         },
         setPredictDate: (value: string) => {
           setPredictDate(value);
-          if (predictModeRef.current === "checkpoint") setPrediction(null);
+          if (predictModeRef.current === "checkpoint") {
+            setPrediction(null);
+            setCheckpointResults({});
+            setCheckpointErrors({});
+          }
         },
         setApiUrl,
         setRisk,
         runCheckpoint,
         runLive,
-      },
-      trading: {
-        basis,
-        sim,
-        loading: tradingLoading,
-        error: tradingError,
-        capital,
-        btc,
-        move,
-        setCapital: (v: number) => {
-          setCapital(v);
-          void runSimulate({ capital: v });
-        },
-        setBtc: (v: number) => {
-          setBtc(v);
-          void runSimulate({ btc: v });
-        },
-        setMove: (v: number) => setMove(v),
-        commitMove: (v: number) => {
-          setMove(v);
-          void runSimulate({ move: v });
-        },
-        reload: loadTrading,
       },
       backtest: {
         data: backtest,
@@ -638,10 +529,8 @@ function useConsoleStore() {
       data, paperData, dataMode, dataLoading, dataError, dataWindowLoading, dataWindowError, uploadName, uploadedData,
       showPaper, showUpload, uploadCsv, clearUpload, selectDataWindow, cancelDataWindowSelection,
       repro, reproLoading, reproError, loadReproduce,
-      arch, archLoading, archError, loadArchitecture,
-      setup, prediction, predictMode, checkpointModel, predictLoading, predictError, offlineUnavailable, offlineDate,
+      setup, prediction, checkpointResults, checkpointErrors, predictMode, predictLoading, predictError, offlineUnavailable, offlineDate,
       predictDate, apiUrl, risk, loadOffline, runCheckpoint, runLive,
-      basis, sim, tradingLoading, tradingError, capital, btc, move, runSimulate, loadTrading,
       backtest, backtestLoading, backtestError, btResultType, btSplit, btCost, loadBacktest,
       replay, replayLoading, replayError, replayStrategy, loadReplay,
     ],
