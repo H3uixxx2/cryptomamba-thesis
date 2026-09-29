@@ -5,9 +5,14 @@
     "paper": "Paper-reported aggregate; no per-date paired test"
   },
   "surfaces": {
-    "console.architecture": "model/checkpoint_provenance.json",
     "console.evaluation": "forecast/controlled_forecast_metrics.csv",
+    "console.evaluation.ablation": "runs/ablation_results.json",
+    "console.evaluation.seed_comparisons": "runs/family_comparisons.csv",
+    "console.evaluation.seeds": "runs/controlled_metrics.csv",
+    "console.predict": "model/checkpoint_provenance.json",
     "console.trading": "trading/corrected_trading_metrics.csv",
+    "console.trading.by_seed": "runs/trading_all.csv",
+    "console.trading.paper_replay_by_seed": "runs/paper_replay.csv",
     "figures.controlled_forecast": "forecast/controlled_forecast_metrics.csv",
     "figures.corrected_trading": "trading/corrected_trading_metrics.csv",
     "figures.parameter_error": "forecast/controlled_forecast_metrics.csv",

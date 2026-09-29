@@ -85,17 +85,15 @@ def _load_reproduced_predictions(core_root: Path, split: str) -> pd.DataFrame:
 
 def _load_s5_predictions(core_root: Path, split: str) -> tuple[pd.DataFrame, Path]:
     path = _require_file(
-        core_root
-        / "output/improve_track_evidence/s5_full/preds"
-        / f"s5_full__seed23__{split}.csv"
+        core_root / "output/seed_runs/s5_full__seed23" / f"{split}_preds.csv"
     )
     frame = pd.read_csv(path)
     required = {"timestamp", "y", "y_hat", "y_old"}
     missing = required - set(frame.columns)
     if missing:
-        raise ValueError(f"S5-Full prediction columns missing: {sorted(missing)}")
+        raise ValueError(f"CM-T prediction columns missing: {sorted(missing)}")
     if frame["timestamp"].duplicated().any():
-        raise ValueError(f"duplicate S5-Full timestamps in split {split!r}")
+        raise ValueError(f"duplicate CM-T timestamps in split {split!r}")
     frame["timestamp"] = frame["timestamp"].astype("int64")
     return frame.sort_values("timestamp").reset_index(drop=True), path
 
@@ -133,7 +131,7 @@ def _canonical_model_rows(
 
 
 def build_aligned_predictions(core_root: Path) -> pd.DataFrame:
-    """Build the three-model table on S5-Full's 304 common dates per split."""
+    """Build the three-model table on CM-T's 304 common dates per split."""
     core_root = Path(core_root).resolve()
     frames: list[pd.DataFrame] = []
     cm_source = "output/evaluation/forecast_predictions.csv"
@@ -162,14 +160,14 @@ def build_aligned_predictions(core_root: Path) -> pd.DataFrame:
             rtol=0.0,
             atol=1e-3,
         ):
-            raise ValueError(f"S5-Full target prices disagree with CM-v in {split!r}")
+            raise ValueError(f"CM-T target prices disagree with CM-v in {split!r}")
         if not np.allclose(
             aligned["y_old"].to_numpy(float),
             aligned["current_close"].to_numpy(float),
             rtol=0.0,
             atol=1e-3,
         ):
-            raise ValueError(f"S5-Full current prices disagree with CM-v in {split!r}")
+            raise ValueError(f"CM-T current prices disagree with CM-v in {split!r}")
 
         frames.append(
             _canonical_model_rows(

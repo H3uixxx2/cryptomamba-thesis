@@ -39,6 +39,13 @@ OUTPUT_FILES = (
     "s5_full_summary.json",
     "checkpoint_provenance.json",
     "artifact_manifest.json",
+    "runs_controlled_metrics.csv",
+    "runs_family_comparisons.csv",
+    "runs_paper_replay.csv",
+    "runs_direction_intervals.csv",
+    "runs_trading_all.csv",
+    "runs_ablation_results.json",
+    "runs_ablation_trading.csv",
 )
 
 
@@ -133,11 +140,17 @@ def build_all(*, core_root: Path, output_dir: Path) -> dict[str, Path]:
         core_root / "thesis_pipeline/data/paper_reported_metrics.csv"
     )
     paper_replay_source = core_root / "output/evaluation/trading_replay_metrics.csv"
-    s5_summary_source = (
-        core_root
-        / "output/improve_track_evidence/s5_full/s5_full_summary.json"
-    )
-    for source in (paper_source, paper_replay_source, s5_summary_source):
+    s5_summary_source = core_root / "output/seed_runs/s5_full__seed23/done.json"
+    runs_sources = {
+        "runs_controlled_metrics.csv": core_root / "thesis_pipeline/data/runs/controlled_metrics.csv",
+        "runs_family_comparisons.csv": core_root / "thesis_pipeline/data/runs/family_comparisons.csv",
+        "runs_paper_replay.csv": core_root / "thesis_pipeline/data/runs/paper_replay.csv",
+        "runs_direction_intervals.csv": core_root / "thesis_pipeline/data/runs/direction_intervals.csv",
+        "runs_trading_all.csv": core_root / "thesis_pipeline/data/runs/trading_all.csv",
+        "runs_ablation_results.json": core_root / "thesis_pipeline/data/runs/ablation_results.json",
+        "runs_ablation_trading.csv": core_root / "thesis_pipeline/data/runs/ablation_trading.csv",
+    }
+    for source in (paper_source, paper_replay_source, s5_summary_source, *runs_sources.values()):
         if not source.is_file():
             raise FileNotFoundError(f"required source artifact is missing: {source}")
 
@@ -166,6 +179,8 @@ def build_all(*, core_root: Path, output_dir: Path) -> dict[str, Path]:
     }
     _write_json(paths["corrected_trading_metadata.json"], corrected_metadata)
     shutil.copyfile(s5_summary_source, paths["s5_full_summary.json"])
+    for name, source in runs_sources.items():
+        shutil.copyfile(source, paths[name])
     _write_json(
         paths["checkpoint_provenance.json"], _checkpoint_provenance(core_root)
     )
@@ -177,12 +192,11 @@ def build_all(*, core_root: Path, output_dir: Path) -> dict[str, Path]:
         }
         for path in (
             core_root / "output/evaluation/forecast_predictions.csv",
-            core_root
-            / "output/improve_track_evidence/s5_full/preds/s5_full__seed23__val.csv",
-            core_root
-            / "output/improve_track_evidence/s5_full/preds/s5_full__seed23__test.csv",
+            core_root / "output/seed_runs/s5_full__seed23/val_preds.csv",
+            core_root / "output/seed_runs/s5_full__seed23/test_preds.csv",
             paper_replay_source,
             s5_summary_source,
+            *runs_sources.values(),
         )
     }
     generated_names = [

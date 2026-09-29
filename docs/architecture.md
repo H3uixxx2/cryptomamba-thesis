@@ -54,12 +54,12 @@ and `cmamba_t_module.py` as unreferenced; they are not.
 
 | Layer | Responsibility | Modules |
 |---|---|---|
-| `routers/` | HTTP only: parse, call one service, translate domain errors. No pandas, no plotly. | `data`, `reproduce`, `predict`, `trading`, `architecture`, `_http` |
-| `services/` | Business logic, one module per screen. Never imports FastAPI; raises `core.errors.ConsoleError`. | `data_service`, `reproduce_service`, `predict_service`, `trading_service`, `architecture_service` |
+| `routers/` | HTTP only: parse, call one service, translate domain errors. No pandas, no plotly. | `data`, `reproduce`, `predict`, `trading`, `runs`, `config`, `_http` |
+| `services/` | Business logic, one module per screen. Never imports FastAPI; raises `core.errors.ConsoleError`. | `data_service`, `reproduce_service`, `predict_service`, `trading_service`, `runs_service`, `config_service` |
 | `loaders/` | Data access: verify and read the evidence bundle, read frozen artifacts, drive the checkpoint worker. | `final_evidence`, `reproduction_evidence`, `forecast_robustness`, `checkpoint_inference` |
-| `schemas/` | Pydantic request models. | `data`, `predict`, `trading` |
+| `schemas/` | Pydantic request models. | `data`, `predict` |
 | `core/` | Path resolution, settings, domain error types. | `config`, `errors` |
-| `vendor/cryptomamba_ui/` | Verbatim copy of the data/chart/trading/artifact modules. | 7 modules |
+| `vendor/cryptomamba_ui/` | Data, chart, trading-signal and API-client helpers copied from `Crypto-Mamba-FE`. | 5 modules |
 
 `routers/_http.py` maps `ConsoleError` subclasses to status codes — 400 invalid input, 413 upload
 too large, 502 upstream failure, 503 evidence unavailable. Anything else propagates, so an
@@ -84,7 +84,7 @@ partially rendered prediction.
 
 CPU is sufficient for that worker: `models/cmamba.py` falls back to a pure-PyTorch
 `selective_scan_ref` when the CUDA kernels are absent. Without the `model-backend` venv at all, the
-Predict screen reports the worker's failure and the other four screens are unaffected.
+Predict screen reports the worker's failure and the other screens are unaffected.
 
 ## Provenance
 
@@ -94,5 +94,5 @@ Where each part came from before the monorepo:
 |---|---|
 | `apps/model-backend` | `Crypto-Mamba-BE` @ `thesis/pre-monorepo-snapshot` |
 | `apps/console` | `Crypto-Mamba-Console` @ `thesis/final-console-snapshot` |
-| `apps/console/backend/src/console_api/vendor/cryptomamba_ui` | `Crypto-Mamba-FE` — 7 modules, verbatim copy, only intra-package imports rewritten |
+| `apps/console/backend/src/console_api/vendor/cryptomamba_ui` | `Crypto-Mamba-FE` — 5 modules, reduced to the functions the console calls |
 | `evidence/` | the `final/` bundle of `cryptomamba-thesis-evidence`, flattened in |

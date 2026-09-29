@@ -11,7 +11,7 @@ import {
 
 import * as api from "@/lib/api";
 
-/* Single store for all five screens. Screens read state and call actions; they
+/* Single store for all four screens. Screens read state and call actions; they
  * never fetch on their own. Each payload is cached after its first load, so
  * navigating between screens does not re-hit the backend and per-screen state
  * survives (an uploaded CSV stays loaded, a prediction stays on screen). */

@@ -1,6 +1,6 @@
 # console — CryptoMamba demo
 
-Five screens — **Data → Evaluation → Predict → Trading → Architecture** — served by a React
+Four screens — **Data → Evaluation → Predict → Trading** — served by a React
 frontend over a thin FastAPI backend.
 
 The backend holds no model or data logic. It reads frozen artifacts and the checksum-verified
@@ -26,7 +26,7 @@ console/
 │       │   └── checkpoint_inference.py   bounded subprocess adapter -> model-backend worker
 │       ├── schemas/             pydantic request models
 │       ├── logic.py             single import point for the vendored package
-│       └── vendor/cryptomamba_ui/   7 modules, verbatim copy
+│       └── vendor/cryptomamba_ui/   5 modules copied from Crypto-Mamba-FE
 ├── frontend/                    Vite + React 19 + TS + Tailwind + shadcn/ui + Plotly + Lightweight Charts
 │   └── src/{screens,components,lib}/ + store.tsx
 ├── web-dist/                    prebuilt bundle, served at / by FastAPI
@@ -44,12 +44,12 @@ exception propagates as a 500 rather than being mislabelled as a client error.
 |---|---|
 | `GET /api/data` · `POST /api/data/window` · `POST /api/data/upload` | split summary, causal window preview, CSV upload (25 MB cap) |
 | `GET /api/reproduce` | 350-day reproduction + 304-date controlled comparison + paired tests |
+| `GET /api/runs` | the three seeds of each model, seed-family comparisons, every ablation run (errors, direction, Pesaran–Timmermann p, trading), the paper's replay per seed, and per-run trading (fees, fills, borrow cost, risk-adjusted measures, the period after 09/2024), read from `evidence/runs/` |
+| `GET /api/config` | the six training, model and data-split YAML files, verbatim (fixed allow-list) |
 | `POST /api/predict/checkpoint` | real inference in the `model-backend` venv |
 | `POST /api/predict/live` | optional remote model API |
-| `GET /api/predict/offline` | the frozen prediction, always labelled `offline` |
-| `POST /api/trading/simulate` | one-day decision from one (current, predicted) pair |
+| `GET /api/predict/offline` | a stored test-split prediction, always labelled `offline` |
 | `GET /api/trading/backtest` · `GET /api/trading/replay` | multi-year chronological backtest, read from CSVs |
-| `GET /api/architecture` | S5-Full model card + its metric rows |
 | `GET /api/health` | liveness probe: resolved paths and whether each artifact root exists |
 
 ## Wiring

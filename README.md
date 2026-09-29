@@ -2,7 +2,7 @@
 
 Reproduction and controlled evaluation of [CryptoMamba](https://arxiv.org/abs/2501.01010)
 (arXiv:2501.01010) for next-day BTC-USD Close forecasting: the model, the offline
-evaluation/trading pipeline, a 5-screen demo console, and the checksum-verified result bundle.
+evaluation/trading pipeline, a four-screen demo console, and the checksum-verified result bundle.
 
 ## Requirements
 
@@ -57,10 +57,10 @@ cd evidence && shasum -c SHA256SUMS
 |---|---|
 | `evaluation.py` | test split — RMSE `1598.09` · MAPE `2.034 %` · MAE `1120.66` |
 | `run_backtest.py` | `output/evaluation/{trading_metrics,trading_equity_curve,regime_metrics}.csv` |
-| `shasum -c SHA256SUMS` | 12 files, all `OK` |
-| `run_local.sh` | Data · Evaluation · Predict · Trading · Architecture |
+| `shasum -c SHA256SUMS` | 19 files, all `OK` |
+| `run_local.sh` | Data · Evaluation · Predict · Trading |
 
-The console's four other screens read committed artifacts; Predict runs real inference in the
+The console's other screens read committed artifacts; Predict runs real inference in the
 model-backend venv.
 
 ## Documentation

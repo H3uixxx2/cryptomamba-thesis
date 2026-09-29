@@ -8,7 +8,7 @@ artifacts they produce. No web layer, no live service.
 | Config | Model | Window | Parameters | Target |
 |---|---|---|---|---|
 | `cmamba_v` → `CMamba_v2` → `configs/models/CryptoMamba/v2.yaml` | CryptoMamba-v (`models/cmamba.py`) | 14 days | 136,952 | next-day Close, raw price |
-| `s5_full` → `CMambaT_w60` → `configs/models/CryptoMamba/t2.yaml` | CMamba-T / "S5-Full" (`models/cmamba_t.py`) | 60 days | 57,249 | next-day Close via relative return |
+| `s5_full` → `CMambaT_w60` → `configs/models/CryptoMamba/t2.yaml` | CryptoMamba-T (`models/cmamba_t.py`) | 60 days | 57,249 | next-day Close via relative return |
 
 Both are wrapped by `pl_modules/base_module.py`, which owns the shared train/validation/test
 steps, the price↔return reconstruction, and denormalisation. `configs/models/archs.yaml` maps the
@@ -50,13 +50,11 @@ absent, so the cache **is** the dataset. Splits are chronological:
 
 | Path | Contents | Read by |
 |---|---|---|
-| `evaluation/forecast_predictions.csv` · `forecast_metrics.csv` | Per-date CM-v predictions and metrics, for the official and the reproduced checkpoint | `thesis_pipeline`, `run_backtest.py`, console Evaluation |
+| `evaluation/forecast_predictions.csv` · `forecast_metrics.csv` | Per-date CM-v predictions and metrics, for the official checkpoint and the reproduced (seed-23) run; the reproduced rows are written by `scripts/assemble_reproduced_predictions.py` from `seed_runs/cmamba_v__seed23/` | `thesis_pipeline`, `run_backtest.py`, console Evaluation |
 | `evaluation/trading_metrics.csv` · `trading_equity_curve.csv` · `regime_metrics.csv` · `trading_backtest_metadata.json` · `trading_replay_metrics.csv` | Chronological backtest and paper replay | `run_backtest.py`, console Trading |
-| `evaluation/offline_prediction.json` | One prediction captured at freeze time; the Predict screen's offline path | console Predict |
-| `reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt` | The reproduced CM-v checkpoint | `thesis_pipeline`, console |
-| `improve_track_evidence/s5_full/` | S5-Full: `checkpoints/`, `preds/s5_full__seed23__{val,test}.csv`, `s5_full_summary.json` | `thesis_pipeline`, `build_thesis_artifacts.py`, console |
+| `seed_runs/<model>__seed<N>/` | The six training runs — CryptoMamba-v (`cmamba_v`) and CryptoMamba-T (`s5_full`), seeds 23, 24, 25: the best-validation checkpoint, `val_preds.csv`, `test_preds.csv`, `done.json`. Seed 23 is the checkpoint the pipeline and the console use | `thesis_pipeline`, `assemble_reproduced_predictions.py`, `build_thesis_artifacts.py`, console |
 
-Both checkpoint paths are pinned by SHA-256 in `../../evidence/model/checkpoint_provenance.json`,
+The two seed-23 checkpoint paths (CryptoMamba-v and CryptoMamba-T) are pinned by SHA-256 in `../../evidence/model/checkpoint_provenance.json`,
 which is itself covered by the bundle's `SHA256SUMS` — so neither file can be moved, renamed or
 swapped without verification failing.
 

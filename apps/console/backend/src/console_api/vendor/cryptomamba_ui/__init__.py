@@ -1,6 +1,5 @@
-"""Vendored from cryptomamba-streamlit-ui/src/cryptomamba_ui (frozen copy).
+"""Data, chart, trading-signal and API-client helpers the console reuses.
 
-These 7 modules are the validated data/chart/trading/artifact logic the console reuses.
-Copied verbatim; only intra-package imports were rewritten to this vendored path.
-Upstream: https://github.com/H3uixxx2/Crypto-Mamba-FE
+Copied from cryptomamba-streamlit-ui/src/cryptomamba_ui (https://github.com/H3uixxx2/Crypto-Mamba-FE)
+and kept to the functions the console calls; imports are rewritten to this package path.
 """

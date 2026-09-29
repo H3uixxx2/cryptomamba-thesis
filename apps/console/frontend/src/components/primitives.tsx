@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /* Small presentation primitives shared by every screen. They exist so screens
- * stay declarative and the visual language stays consistent across 5 pages. */
+ * stay declarative and the visual language stays consistent across the screens. */
 
 export type Tone = "green" | "amber" | "blue" | "red" | "neutral" | "brand";
 

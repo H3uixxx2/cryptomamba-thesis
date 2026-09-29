@@ -3,7 +3,7 @@
    High-density, low-chroma surface language: layered navy-black
    surfaces, quiet borders, one institutional blue accent, and status
    colours tuned for contrast on dark cards.
-   Fonts are self-hosted (no CDN) so the demo survives a dead wifi.
+   Fonts are self-hosted, so the app loads without a network.
 
    Two token families live here and must not be merged:
      * hex tokens (--bg-*, --line*, --text-*, --signal-*) are used directly
@@ -45,7 +45,6 @@
 
     /* ---- accent: institutional blue, not brand orange ---- */
     --brand-accent: #4d8dff;
-    --brand-accent-hover: #70a4ff;
     --brand-accent-soft: #162b4d;
 
     /* ---- status, tuned for text on dark surfaces ---- */
@@ -62,14 +61,9 @@
     --signal-blue-soft: #162b4d;
     --signal-blue-border: #274c80;
 
-    /* ---- legacy token names the API returns as colour strings
-            (e.g. "var(--signal-green)", "var(--orange-500)"). The names are a
-            contract with the backend — only the values change per theme. */
+    /* ---- token names the API returns as colour strings, e.g. "var(--signal-green)"
+            and "var(--orange-500)"; the backend refers to them by name. */
     --gray-200: #a8b3c2; /* train split series / neutral emphasis */
-    --gray-400: #8997a8;
-    --gray-500: #78879a;
-    --gray-600: #65758a;
-    --orange-300: #ff9d5c;
     --orange-500: #ff7a45; /* test split series */
 
     --shadow-card: 0 14px 32px rgba(0, 0, 0, 0.16);

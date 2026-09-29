@@ -8,11 +8,11 @@
   ],
   "files": {
     "checkpoint_provenance.json": {
-      "bytes": 1377,
-      "sha256": "3d152b20bb637e73d189f76c8553610a9431faf3283a92d529533d5dee932198"
+      "bytes": 1336,
+      "sha256": "b6179532728f8dc72a0d9a4d1206d4f8fbacdb58372e1f866cf5cf6ee83da136"
     },
     "controlled_forecast_metrics.csv": {
-      "bytes": 1322,
+      "bytes": 1320,
       "columns": [
         "model_id",
         "display_name",
@@ -31,10 +31,10 @@
         "checkpoint_sha256"
       ],
       "rows": 6,
-      "sha256": "d5cf7be432100cad7ebd6fa38c64583072fea2c93d08f55e7297f05e4fdab80c"
+      "sha256": "4d71f89495568ff1edbfed431186eabb1f74285b99c4b16c96856996ea7ff6d1"
     },
     "controlled_predictions.csv": {
-      "bytes": 538093,
+      "bytes": 499721,
       "columns": [
         "model_id",
         "display_name",
@@ -52,14 +52,14 @@
         "source_artifact"
       ],
       "rows": 1824,
-      "sha256": "c947d129db33d592ccb6d26e26104b5aab28022e88fea32029e983a2acb3dcd6"
+      "sha256": "65f8a819d1541478fbdf62ba9f14746ee3f27d020f5b7d6285a96770ee7d35b0"
     },
     "corrected_trading_metadata.json": {
       "bytes": 935,
       "sha256": "36caaea855fb8dc7011cbe994f577f16a0358ad32f640ba440ac31409f201a59"
     },
     "corrected_trading_metrics.csv": {
-      "bytes": 7667,
+      "bytes": 7642,
       "columns": [
         "model_id",
         "split",
@@ -78,10 +78,10 @@
         "reconciliation_error"
       ],
       "rows": 72,
-      "sha256": "8b87159ebde4809598621daf491731891bb372e4cf95b8c51c7d2580046e11cd"
+      "sha256": "62eea03d7255b08ff761c8418d1bfc7cafe9773feb856f6f1aabe66d24e3343d"
     },
     "paired_significance_tests.csv": {
-      "bytes": 1790,
+      "bytes": 1792,
       "columns": [
         "split",
         "model_a",
@@ -105,10 +105,10 @@
         "wilcoxon_significant_5pct"
       ],
       "rows": 6,
-      "sha256": "c6f2899e899d839232441292702057b1e36ce638229d1938f558760434333a99"
+      "sha256": "226dfa733c40bba899f0dc815871cc54a49a27faea2cdad3c334b22c55453e2b"
     },
     "paper_replay_metrics.csv": {
-      "bytes": 3845,
+      "bytes": 3956,
       "columns": [
         "result_type",
         "model",
@@ -128,7 +128,7 @@
         "status"
       ],
       "rows": 12,
-      "sha256": "3e11f04b74a39e3e62f7257ab30452f0662d984b1933a79aac9f743d971bafdc"
+      "sha256": "68fc9a36194243d5fc6c35eae0a9b0525a354e98fe5978ec7597509a9c601787"
     },
     "paper_reported_metrics.csv": {
       "bytes": 710,
@@ -146,9 +146,137 @@
       "rows": 6,
       "sha256": "77565763db0cf17da2782ab6ecf8e532d9dc56da2226e09bf117afe86eefe399"
     },
+    "runs_ablation_results.json": {
+      "bytes": 44811,
+      "sha256": "095e8781a5024dccad6f5b2cd1d0e406238b98ba3ec1dbbf5e0577edbc415847"
+    },
+    "runs_ablation_trading.csv": {
+      "bytes": 76196,
+      "columns": [
+        "model_id",
+        "split",
+        "strategy",
+        "transaction_cost_pct",
+        "borrow_cost_bps_per_day",
+        "initial_equity",
+        "final_equity",
+        "ROI_pct",
+        "max_drawdown_pct",
+        "Sharpe",
+        "turnover_notional",
+        "number_of_trades",
+        "total_fees",
+        "total_borrow_cost",
+        "reconciliation_error"
+      ],
+      "rows": 528,
+      "sha256": "50db106e7080672a94341a01c6290aa1a5e0851767520d056ca81a4771c79570"
+    },
+    "runs_controlled_metrics.csv": {
+      "bytes": 5338,
+      "columns": [
+        "member",
+        "model_id",
+        "display_name",
+        "split",
+        "samples",
+        "date_from",
+        "date_to",
+        "MSE",
+        "RMSE",
+        "MAE",
+        "MAPE_pct",
+        "directional_accuracy_pct",
+        "directional_coverage_pct",
+        "predicted_up_pct",
+        "parameter_count",
+        "checkpoint_sha256",
+        "row_kind"
+      ],
+      "rows": 30,
+      "sha256": "6d7ec997bfb77ae880ee5ad58d1080f9a04569b4ed085a4ee61b19b08930634a"
+    },
+    "runs_direction_intervals.csv": {
+      "bytes": 5832,
+      "columns": [
+        "member",
+        "kind",
+        "model_id",
+        "split",
+        "block_length",
+        "estimate",
+        "ci_lo",
+        "ci_hi"
+      ],
+      "rows": 72,
+      "sha256": "8eb1ddfb852958f8a85fdf2dbc9b313f1c40c408d96ea6a150199448a897a547"
+    },
+    "runs_family_comparisons.csv": {
+      "bytes": 1447,
+      "columns": [
+        "pair",
+        "split",
+        "model_a",
+        "model_b",
+        "members",
+        "estimate",
+        "member_23",
+        "member_24",
+        "member_25",
+        "ci5_lo",
+        "ci5_hi",
+        "ci7_lo",
+        "ci7_hi",
+        "ci14_lo",
+        "ci14_hi",
+        "verdict"
+      ],
+      "rows": 6,
+      "sha256": "5f3884d6ec566c8c98b63595d9c84bd86fd6a0afc7f9486b52bba1d76ac6af37"
+    },
+    "runs_paper_replay.csv": {
+      "bytes": 1436,
+      "columns": [
+        "member",
+        "split",
+        "trade_mode",
+        "initial_balance",
+        "risk_pct",
+        "final_balance",
+        "max_drawdown_pct",
+        "samples"
+      ],
+      "rows": 24,
+      "sha256": "0c0b59646e5ded273bf921898f99423619bc147b9c34597c1cc79fe1bd4ceafb"
+    },
+    "runs_trading_all.csv": {
+      "bytes": 446105,
+      "columns": [
+        "model",
+        "period",
+        "execution",
+        "strategy",
+        "cost_pct",
+        "borrow_bps_day",
+        "final_equity",
+        "roi_pct",
+        "mdd_pct",
+        "sharpe",
+        "sortino",
+        "calmar",
+        "ann_return_pct",
+        "trades",
+        "turnover",
+        "fees",
+        "borrow_cost",
+        "reconciliation_error"
+      ],
+      "rows": 2116,
+      "sha256": "2dfaad6299cdadabf4ded76795cbb0d2fb8924e6538ac6b7280d3488e9721aab"
+    },
     "s5_full_summary.json": {
-      "bytes": 1451,
-      "sha256": "b60709195815d5f8dcca1b9783f354705fd456453a5153bd8d12d748bea02609"
+      "bytes": 1522,
+      "sha256": "342659e83228b88dce21ed3ea4a67bc31350ac5009d123e1e2ae7c5a87d117e2"
     }
   },
   "invariants": {
@@ -167,24 +295,52 @@
   "schema_version": 1,
   "source_artifacts": {
     "output/evaluation/forecast_predictions.csv": {
-      "bytes": 1422457,
-      "sha256": "223e33da6c9eed7e2b39c67d646c97f24ba1372465ec7dc82e8f36932691ae72"
+      "bytes": 951801,
+      "sha256": "172304fc5e0626ae386012f94630fb7099ebf0e038cc79680ab353aa8b849234"
     },
     "output/evaluation/trading_replay_metrics.csv": {
-      "bytes": 3845,
-      "sha256": "3e11f04b74a39e3e62f7257ab30452f0662d984b1933a79aac9f743d971bafdc"
+      "bytes": 3956,
+      "sha256": "68fc9a36194243d5fc6c35eae0a9b0525a354e98fe5978ec7597509a9c601787"
     },
-    "output/improve_track_evidence/s5_full/preds/s5_full__seed23__test.csv": {
-      "bytes": 16110,
-      "sha256": "7f5630015ecc89e9453e40ab927549300d374a97799df4d51330411105837da2"
+    "output/seed_runs/s5_full__seed23/done.json": {
+      "bytes": 1522,
+      "sha256": "342659e83228b88dce21ed3ea4a67bc31350ac5009d123e1e2ae7c5a87d117e2"
     },
-    "output/improve_track_evidence/s5_full/preds/s5_full__seed23__val.csv": {
-      "bytes": 17294,
-      "sha256": "f52771cef22188c1665f5ea39c39fb6462e540d8e495fed25dd7130ac8aab298"
+    "output/seed_runs/s5_full__seed23/test_preds.csv": {
+      "bytes": 16093,
+      "sha256": "f400e135e330564e19e730b7ae9fd720ba8b9aee4b4e75146fb8f71fd081cfae"
     },
-    "output/improve_track_evidence/s5_full/s5_full_summary.json": {
-      "bytes": 1451,
-      "sha256": "b60709195815d5f8dcca1b9783f354705fd456453a5153bd8d12d748bea02609"
+    "output/seed_runs/s5_full__seed23/val_preds.csv": {
+      "bytes": 17312,
+      "sha256": "396689ea1b2bd88cdb9c1378d2fdf3fdea7a707ce852cf45756c9a6f105f8485"
+    },
+    "thesis_pipeline/data/runs/ablation_results.json": {
+      "bytes": 44811,
+      "sha256": "095e8781a5024dccad6f5b2cd1d0e406238b98ba3ec1dbbf5e0577edbc415847"
+    },
+    "thesis_pipeline/data/runs/ablation_trading.csv": {
+      "bytes": 76196,
+      "sha256": "50db106e7080672a94341a01c6290aa1a5e0851767520d056ca81a4771c79570"
+    },
+    "thesis_pipeline/data/runs/controlled_metrics.csv": {
+      "bytes": 5338,
+      "sha256": "6d7ec997bfb77ae880ee5ad58d1080f9a04569b4ed085a4ee61b19b08930634a"
+    },
+    "thesis_pipeline/data/runs/direction_intervals.csv": {
+      "bytes": 5832,
+      "sha256": "8eb1ddfb852958f8a85fdf2dbc9b313f1c40c408d96ea6a150199448a897a547"
+    },
+    "thesis_pipeline/data/runs/family_comparisons.csv": {
+      "bytes": 1447,
+      "sha256": "5f3884d6ec566c8c98b63595d9c84bd86fd6a0afc7f9486b52bba1d76ac6af37"
+    },
+    "thesis_pipeline/data/runs/paper_replay.csv": {
+      "bytes": 1436,
+      "sha256": "0c0b59646e5ded273bf921898f99423619bc147b9c34597c1cc79fe1bd4ceafb"
+    },
+    "thesis_pipeline/data/runs/trading_all.csv": {
+      "bytes": 446105,
+      "sha256": "2dfaad6299cdadabf4ded76795cbb0d2fb8924e6538ac6b7280d3488e9721aab"
     }
   }
 }

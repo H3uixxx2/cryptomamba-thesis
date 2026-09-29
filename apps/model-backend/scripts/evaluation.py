@@ -1,9 +1,7 @@
 import os, sys, pathlib
 sys.path.insert(0, os.path.dirname(pathlib.Path(__file__).parent.absolute()))
 
-import yaml
 import torch
-import matplotlib
 import numpy as np
 from utils import io_tools
 from datetime import datetime
@@ -14,7 +12,6 @@ from pl_modules.data_module import CMambaDataModule
 from data_utils.data_transforms import DataTransform
 
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -103,14 +100,6 @@ def print_and_write(file, txt, add_new_line=True):
         file.write(f'{txt}\n')
     else:
         file.write(txt)
-
-def save_all_hparams(log_dir, args):
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    save_dict = vars(args)
-    save_dict.pop('checkpoint_callback')
-    with open(log_dir + '/hparams.yaml', 'w') as f:
-        yaml.dump(save_dict, f)
 
 def init_dirs(args, name):
     path = f'{ROOT}/Results/{name}/{args.config}'
@@ -223,7 +212,6 @@ if __name__ == "__main__":
         all_targets += list(targets)
         txt = print_format.format(key, round(mse, 3), round(np.sqrt(mse), 3), round(mape, 5), round(l1, 3))
         print_and_write(f, txt)
-        # plt.plot(timstamps, preds, color=c)
         sns.lineplot(x=timstamps, y=preds, color=c, linewidth=2.5, label=key)
 
     sns.lineplot(x=all_timestamps, y=all_targets, color='blue', zorder=0, linewidth=2.5, label='Target')

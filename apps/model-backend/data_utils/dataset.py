@@ -4,10 +4,8 @@ import time
 import random
 import pandas as pd
 from tqdm import tqdm
-from pathlib import Path
 from utils import io_tools
 from datetime import datetime
-from utils.io_tools import load_config_from_yaml
 
     
 class CMambaDataset(torch.utils.data.Dataset):
@@ -133,7 +131,6 @@ class DataConverter:
             df['Timestamp'] = [self.generate_timestamp(x) for x in dates]
         if self.start_date is None:
             self.start_date = self.convert_timestamp(min(list(df.get('Timestamp')))).strftime(self.date_format)
-            # raise ValueError(self.start_date)
         if self.end_date is None:
             self.end_date = self.convert_timestamp(max(list(df.get('Timestamp'))) + self.jumps).strftime(self.date_format)
         start = self.generate_timestamp(self.start_date)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -339,15 +338,6 @@ def is_out_of_distribution(window: pd.DataFrame) -> bool:
         return False
     last_date = pd.to_datetime(window["date"].iloc[-1])
     return last_date >= pd.to_datetime(MODEL_TRAIN_HORIZON)
-
-
-def window_from_candles(candles: list[dict[str, Any]]) -> pd.DataFrame:
-    """Rebuild the normalized input-window DataFrame from artifact payload candles.
-
-    Lets the offline view chart the frozen prediction against ITS OWN window, not
-    the current UI dataset (which need not match the frozen fixture).
-    """
-    return normalize_candles(pd.DataFrame(candles))
 
 
 def model_tensor_preview(source_df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:

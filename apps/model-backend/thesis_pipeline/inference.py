@@ -1,4 +1,4 @@
-"""Strict CPU inference for the two frozen checkpoints (CM-v, S5-Full).
+"""Strict CPU inference for the two frozen checkpoints (CM-v, CM-T).
 
 Bypasses Lightning and rebuilds the model directly from ``contracts.MODEL_SPECS``:
 the checkpoint bytes are hashed against the pinned SHA-256, the state dict is

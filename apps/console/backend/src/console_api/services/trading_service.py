@@ -1,12 +1,8 @@
 """Trading screen business logic.
 
-Two separate capabilities, deliberately not merged:
-  * :func:`simulate_one_day` — single-day decision from one (current, predicted)
-    pair; recomputed live via ``trading_logic.simulate_trade``.
-  * :func:`build_backtest` / :func:`build_replay` — the multi-year chronological
-    backtest, read from CSVs produced offline by ``scripts/run_backtest.py``.
-    No model and no recompute: pure artifact presentation. A missing artifact
-    yields NOT_READY, never a fabricated number.
+:func:`build_backtest` and :func:`build_replay` present the chronological backtest read from
+the CSVs that ``scripts/run_backtest.py`` and the thesis pipeline write. Nothing is recomputed
+and no model runs; a missing artifact yields NOT_READY.
 """
 from __future__ import annotations
 
@@ -42,46 +38,6 @@ _STRATEGY_COLOR = {
     "smart": "#22c55e",
     "smart_w_short": "#a855f7",
 }
-
-
-_ACTION_COLOR = {"BUY": "var(--signal-green)", "SELL": "var(--signal-red)", "HOLD": "var(--signal-amber)"}
-
-
-def simulate_one_day(
-    *,
-    current: float,
-    predicted: float,
-    capital: float,
-    btc: float,
-    risk: float,
-    realized_move: float,
-) -> dict:
-    """One-day decision demo for the given price/portfolio inputs."""
-    realized_price = current * (1 + realized_move / 100.0)
-    sim = logic.trading_logic.simulate_trade(
-        current, predicted, capital, btc, risk, realized_price
-    )
-    rows = []
-    for _, r in sim.iterrows():
-        rows.append(
-            {
-                "strategy": r["strategy"],
-                "action": r["action"],
-                "action_color": _ACTION_COLOR.get(str(r["action"]), "var(--text-primary)"),
-                "trade_size": r["trade_size"],
-                "end_value": float(r["end_value"]),
-                "pnl": float(r["pnl"]),
-                "roi_pct": float(r["roi_pct"]),
-            }
-        )
-    roi_fig = logic.charts.roi_chart(sim)
-    return {
-        "start_value": capital + btc * current,
-        "assumed_close": realized_price,
-        "move_pct": logic.trading_logic.pct(predicted, current),
-        "rows": rows,
-        "charts": {"roi": json.loads(roi_fig.to_json())},
-    }
 
 
 # --------------------------------------------------------------------------- #

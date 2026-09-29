@@ -1,59 +1,7 @@
 import torch
-import numpy as np
-import pandas as pd
-from copy import copy
-from pathlib import Path
 import pytorch_lightning as pl
-from argparse import ArgumentParser
 from data_utils.dataset import CMambaDataset, DataConverter
 
-
-def prepend_validation_history(train, validation, window_size, base_window=14):
-    """Align a longer-window validation set to the paper's target dates."""
-    prepend = max(0, window_size - base_window)
-    if prepend == 0:
-        return validation.copy()
-    return pd.concat(
-        [train.tail(prepend), validation], ignore_index=True
-    )
-
-
-def limit_validation_targets(validation, window_size, target_count):
-    """Keep the earliest checkpoint-selection targets and their causal history."""
-    if target_count is None:
-        return validation
-    if not isinstance(target_count, int) or target_count <= 0:
-        raise ValueError('validation target count must be a positive integer')
-    required_rows = window_size + 1 + target_count
-    if required_rows > len(validation):
-        raise ValueError(
-            f'validation needs {required_rows} rows for {target_count} targets, '
-            f'got {len(validation)}'
-        )
-    if hasattr(validation, 'iloc'):
-        return validation.iloc[:required_rows].copy()
-    return validation[:required_rows].copy()
-
-def worker_init_fn(worker_id):
-    """
-    Handle random seeding.
-    """
-    worker_info = torch.utils.data.get_worker_info()
-    data = worker_info.dataset  # pylint: disable=no-member
-
-    # Check if we are using DDP
-    is_ddp = False
-    if torch.distributed.is_available():
-        if torch.distributed.is_initialized():
-            is_ddp = True
-
-    # for NumPy random seed we need it to be in this range
-    base_seed = worker_info.seed  # pylint: disable=no-member
-
-    if is_ddp:  # DDP training: unique seed is determined by worker and device
-        seed = base_seed + torch.distributed.get_rank() * worker_info.num_workers
-    else:
-        seed = base_seed
 
 class CMambaDataModule(pl.LightningDataModule):
 
@@ -68,9 +16,6 @@ class CMambaDataModule(pl.LightningDataModule):
         num_workers=4,
         normalize=False,
         window_size=14,
-        cross_boundary_validation=False,
-        validation_base_window=14,
-        validation_selection_rows=None,
     ):
 
         super().__init__()
@@ -92,26 +37,6 @@ class CMambaDataModule(pl.LightningDataModule):
             'val': val,
             'test': test,
         }
-
-        if cross_boundary_validation:
-            self.data_dict['val'] = prepend_validation_history(
-                self.data_dict['train'],
-                self.data_dict['val'],
-                window_size=self.window_size,
-                base_window=validation_base_window,
-            )
-
-        if validation_selection_rows is not None:
-            if cross_boundary_validation:
-                raise ValueError(
-                    'validation_selection_rows and cross_boundary_validation '
-                    'cannot be combined'
-                )
-            self.data_dict['val'] = limit_validation_targets(
-                self.data_dict['val'],
-                window_size=self.window_size,
-                target_count=validation_selection_rows,
-            )
 
         if normalize:
             self.normalize()
@@ -159,7 +84,6 @@ class CMambaDataModule(pl.LightningDataModule):
             dataset=dataset,
             batch_size=batch_size,
             num_workers=self.num_workers,
-            worker_init_fn=worker_init_fn,
             sampler=sampler,
             drop_last=False
         )

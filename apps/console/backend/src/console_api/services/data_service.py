@@ -140,7 +140,7 @@ def build_dataset_response(bundle: "logic.DatasetBundle") -> dict:
     candles = candle_rows(processed)
     model_contract = model_window_contract(processed, prediction_date=None, risk=2.0)
 
-    # Pipeline stages — reflect the real steps the bundle went through (all PASS).
+    # Stages the dataset went through; a failing stage raises before this point, so each reads PASS.
     pipeline = [
         {
             "stage": "Read and validate OHLCV schema",

@@ -38,7 +38,6 @@ class BaseModule(pl.LightningModule):
         self.loss = loss
         self.madl_temp = madl_temp
 
-        # self.loss = lambda x, y: torch.sqrt(tmp(x, y))
         self.mse = nn.MSELoss()
         self.l1 = nn.L1Loss()
         self.mape = MAPE()

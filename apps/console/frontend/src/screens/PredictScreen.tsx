@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import type { CheckpointModelOption, PredictMode, PredictResult } from "@/lib/api";
 import { pct, signedPct, usd } from "@/lib/format";
 import { useConsole } from "@/store";
+import { ConfigPanel } from "@/screens/ConfigPanel";
 
 const MODES: Array<{ id: PredictMode; label: string }> = [
   { id: "checkpoint", label: "Checkpoint" },
@@ -386,6 +387,8 @@ export function PredictScreen() {
       {predict.mode === "historical" && !result && predict.offlineUnavailable && (
         <Callout tone="amber" title="Historical artifact unavailable">No validated replay prediction is available for the selected date.</Callout>
       )}
+
+      <ConfigPanel />
     </>
   );
 }

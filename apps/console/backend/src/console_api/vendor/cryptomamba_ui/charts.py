@@ -49,23 +49,6 @@ def candle_chart(df: pd.DataFrame, title: str, prediction: dict | None = None, h
     )
     return fig
 
-
-def roi_chart(sim_df: pd.DataFrame) -> go.Figure:
-    fig = go.Figure()
-    colors = ["#2563eb", "#0f766e"]
-    fig.add_trace(
-        go.Bar(
-            x=sim_df["strategy"],
-            y=sim_df["roi_pct"],
-            marker_color=colors,
-            text=sim_df["roi_pct"].map(lambda x: f"{x:+.2f}%"),
-            textposition="outside",
-        )
-    )
-    fig.update_layout(height=320, margin=dict(l=12, r=12, t=28, b=12), yaxis_title="ROI (%)", showlegend=False)
-    return fig
-
-
 # --- Model-comparison charts ---
 
 _HIGHLIGHT_COLOR = "#1e3a8a"   # CryptoMamba-v (the model under test)

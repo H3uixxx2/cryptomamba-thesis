@@ -2,13 +2,13 @@
   "models": {
     "cmamba_v_reproduced": {
       "checkpoint_bytes": 1809693,
-      "checkpoint_path": "output/reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt",
-      "checkpoint_sha256": "ad5ec21bb2582e1f935837f620ed8d1ecb280e5568571783bd8c89ab717cc510",
+      "checkpoint_path": "output/seed_runs/cmamba_v__seed23/epoch949-val-rmse572.6860.ckpt",
+      "checkpoint_sha256": "afb28215d656ea54421efb00e3c60ec9d8a818fff186c194be9a98b55dcecdf0",
       "display_name": "Reproduced CM-v",
       "hash_verified": true,
       "parameter_count": 136952,
       "prediction_mode": "price",
-      "source_commit": "fef42727861a9c3a32241283ab981ef21a49e291",
+      "source_commit": "672faa9fb7cb4499da17d6a3afbd65a9301f170f",
       "window_days": 14
     },
     "naive_persistence": {
@@ -24,8 +24,8 @@
     },
     "s5_full": {
       "checkpoint_bytes": 778541,
-      "checkpoint_path": "output/improve_track_evidence/s5_full/checkpoints/s5_full__seed23__epoch321-val-rmse523.4394.ckpt",
-      "checkpoint_sha256": "9b658f09019426fc723c17fa1eeb5cbd92284f8995935e0cf24d3f760a59ffa5",
+      "checkpoint_path": "output/seed_runs/s5_full__seed23/epoch321-val-rmse527.3419.ckpt",
+      "checkpoint_sha256": "a2f8b0f39411e199e73ee22a8ae3055d3fc4218fa9d670b31af93d2e190df291",
       "display_name": "CMamba-T / S5-Full",
       "hash_verified": true,
       "parameter_count": 57249,

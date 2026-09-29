@@ -29,13 +29,13 @@ MODEL_SPECS: dict[ModelId, ModelSpec] = {
         window_days=14,
         parameter_count=136_952,
         checkpoint_path=Path(
-            "output/reproduce_colab_train/checkpoints/cmamba_v_best_colab_train.ckpt"
+            "output/seed_runs/cmamba_v__seed23/epoch949-val-rmse572.6860.ckpt"
         ),
         checkpoint_sha256=(
-            "ad5ec21bb2582e1f935837f620ed8d1ecb280e5568571783bd8c89ab717cc510"
+            "afb28215d656ea54421efb00e3c60ec9d8a818fff186c194be9a98b55dcecdf0"
         ),
         prediction_mode="price",
-        source_commit="fef42727861a9c3a32241283ab981ef21a49e291",
+        source_commit="672faa9fb7cb4499da17d6a3afbd65a9301f170f",
     ),
     "s5_full": ModelSpec(
         model_id="s5_full",
@@ -43,11 +43,10 @@ MODEL_SPECS: dict[ModelId, ModelSpec] = {
         window_days=60,
         parameter_count=57_249,
         checkpoint_path=Path(
-            "output/improve_track_evidence/s5_full/checkpoints/"
-            "s5_full__seed23__epoch321-val-rmse523.4394.ckpt"
+            "output/seed_runs/s5_full__seed23/epoch321-val-rmse527.3419.ckpt"
         ),
         checkpoint_sha256=(
-            "9b658f09019426fc723c17fa1eeb5cbd92284f8995935e0cf24d3f760a59ffa5"
+            "a2f8b0f39411e199e73ee22a8ae3055d3fc4218fa9d670b31af93d2e190df291"
         ),
         prediction_mode="relative_return",
         source_commit="672faa9fb7cb4499da17d6a3afbd65a9301f170f",

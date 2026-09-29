@@ -21,10 +21,6 @@ module.exports = {
         accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
         popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
         card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
-        // Raw palette so components can use brand/status colours by name.
-        ink: { 950: "#0A0A0A", 900: "#101012", 850: "#161618", 800: "#1D1D20", 700: "#2A2A2E" },
-        brand: { 100: "#FFD9CB", 300: "#F8825F", 500: "#F24E1E", 600: "#D63F12", 700: "#B4330C" },
-        signal: { green: "#2FBF71", amber: "#F2B01E", red: "#F23E3E", blue: "#3E8EF2" },
       },
       borderRadius: {
         lg: "var(--radius)",

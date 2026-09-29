@@ -172,8 +172,8 @@ def _paper_df():
     return logic.DATASET_SERVICE.load_paper_sample().processed_df
 
 
-def _result_from_prediction(prediction: dict, window_df, *, ood: bool, provenance: dict | None) -> dict:
-    """Assemble the unified result the frontend renders (live + offline share this)."""
+def _result_from_prediction(prediction: dict, window_df, *, ood: bool) -> dict:
+    """Assemble the result the frontend renders; checkpoint, live and offline predictions share it."""
     last_close = float(prediction["last_close"])
     predicted_close = float(prediction["predicted_close"])
     move_pct = logic.trading_logic.pct(predicted_close, last_close)
@@ -218,8 +218,6 @@ def _result_from_prediction(prediction: dict, window_df, *, ood: bool, provenanc
         },
         "charts": {"candle": fig_json(candle_fig)},
     }
-    if provenance is not None:
-        result["provenance"] = provenance
     return result
 
 
@@ -264,7 +262,7 @@ def _offline_by_date(date_str: str) -> dict | None:
         "source_commit": str(row.get("source_commit") or ""),
     }
     ood = bool(logic.data.is_out_of_distribution(window))
-    result = _result_from_prediction(prediction, window, ood=ood, provenance=None)
+    result = _result_from_prediction(prediction, window, ood=ood)
     result["available"] = True
     # Historical date → actual is known; expose the predicted-vs-actual comparison.
     result["actual_close"] = actual
@@ -312,9 +310,8 @@ def build_setup() -> dict:
         "last_close": last_close,
         "last_date": str(df["date"].iloc[-1]),
         "model_train_horizon": logic.data.MODEL_TRAIN_HORIZON,
-        "offline_available": bool(offline_dates) or config.OFFLINE_PREDICTION_PATH.exists(),
-        # Offline backup is date-selectable over the held-out test split.
-        # The full list lets the UI render a closed dropdown (no free-text dates).
+        "offline_available": bool(offline_dates),
+        # Every test date the stored predictions cover, so the UI offers a closed list of dates.
         "offline_dates": offline_dates,
         "offline_min_date": offline_dates[0] if offline_dates else None,
         "offline_max_date": offline_dates[-1] if offline_dates else None,
@@ -363,7 +360,6 @@ def run_checkpoint(req: CheckpointPredictionRequest) -> dict:
         worker_prediction,
         window,
         ood=bool(logic.data.is_out_of_distribution(window)),
-        provenance=None,
     )
     result.update(
         {
@@ -401,31 +397,20 @@ def run_live(req: LivePredictRequest) -> dict:
     prediction.setdefault("inference_type", "live")
     prediction.setdefault("last_close", float(window["close"].iloc[-1]))
     prediction.setdefault("prediction_date", payload["prediction_date"])
-    return _result_from_prediction(prediction, window, ood=ood, provenance=None)
+    return _result_from_prediction(prediction, window, ood=ood)
 
 
 def run_offline(date: Optional[str] = None) -> dict:
-    """Offline backup — date-selectable over the held-out test split using frozen
-    Phase-2 predictions (real model outputs, no Colab). Falls back to the single
-    golden fixture if forecast_predictions.csv is unavailable. Honest NOT_READY if
-    nothing is present. Always labelled inference_type=offline (never live)."""
+    """Replay a stored prediction for a date of the test split; ``inference_type`` is always ``offline``.
+
+    Reads ``forecast_predictions.csv``, defaults to the latest test date and returns
+    ``{"available": False, "error": ...}`` when no stored prediction exists.
+    """
     ft = _forecast_test_df()
     if ft is not None:
-        target = date or str(ft["prediction_date"].iloc[-1])  # default: latest test date
+        target = date or str(ft["prediction_date"].iloc[-1])
         res = _offline_by_date(target)
         if res is not None:
             return res
+    return {"available": False, "error": "no stored predictions for the test split"}
 
-    # Fallback: the single frozen golden-fixture backup.
-    try:
-        bundle = logic.load_offline_prediction(config.OFFLINE_PREDICTION_PATH)
-    except logic.OfflinePredictionError as exc:
-        return {"available": False, "error": str(exc)}
-
-    window = logic.data.window_from_candles(bundle["window_candles"])
-    prediction = dict(bundle["prediction"])
-    prediction["inference_type"] = "offline"  # overrides the "live" recorded at freeze time
-    ood = bool(logic.data.is_out_of_distribution(window))
-    result = _result_from_prediction(prediction, window, ood=ood, provenance=bundle.get("provenance"))
-    result["available"] = True
-    return result

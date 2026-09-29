@@ -1,31 +1,15 @@
-"""Trading screen HTTP endpoints.
+"""Trading screen HTTP endpoints: the backtest and the daily replay, both read from frozen artifacts.
 
-Two clearly separated capabilities: the one-day decision demo (``POST /simulate``)
-and the historical chronological backtest read from frozen artifacts
-(``GET /backtest``, ``GET /replay``). All logic lives in ``services.trading_service``.
+All logic lives in ``services.trading_service``.
 """
 from __future__ import annotations
 
 from fastapi import APIRouter
 
-from ..schemas.trading import SimulateRequest
 from ..services import trading_service
 from ._http import handle_domain_errors
 
 router = APIRouter(prefix="/api/trading", tags=["trading"])
-
-
-@router.post("/simulate")
-@handle_domain_errors
-def simulate(req: SimulateRequest) -> dict:
-    return trading_service.simulate_one_day(
-        current=req.current,
-        predicted=req.predicted,
-        capital=req.capital,
-        btc=req.btc,
-        risk=req.risk,
-        realized_move=req.realized_move,
-    )
 
 
 @router.get("/backtest")

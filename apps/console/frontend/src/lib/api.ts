@@ -402,7 +402,6 @@ export interface PredictResult {
   window: { start: string; end: string; size: number; rows: PredictCandle[] };
   charts: { candle: PlotlyFigure };
   forecast_variants?: ForecastVariant[];
-  provenance?: Record<string, string>;
   actual_close?: number;
   error_pct?: number;
   actual_return_pct?: number;
@@ -433,38 +432,6 @@ export const runLivePrediction = (body: { api_url: string; prediction_date?: str
   });
 
 /* ------------------------------ Trading --------------------------------- */
-
-export interface SimulateRow {
-  strategy: string;
-  action: string;
-  action_color: string;
-  trade_size: string;
-  end_value: number;
-  pnl: number;
-  roi_pct: number;
-}
-
-export interface SimulateResponse {
-  start_value: number;
-  assumed_close: number;
-  move_pct: number;
-  rows: SimulateRow[];
-  charts: { roi: PlotlyFigure };
-}
-
-export const runSimulate = (body: {
-  current: number;
-  predicted: number;
-  capital: number;
-  btc: number;
-  risk: number;
-  realized_move: number;
-}) =>
-  getJSON<SimulateResponse>("/api/trading/simulate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
 
 export interface BacktestMetricRow {
   strategy: string;
@@ -629,6 +596,152 @@ export const fetchTradingReplay = (params: {
         ref_cost: String(params.ref_cost),
       }),
   );
+
+/* ------------------------- Training runs and config ---------------------- */
+
+export interface RunMetricRow {
+  member: string;
+  model_id: string;
+  split: string;
+  samples: number | null;
+  RMSE: number;
+  MAE: number;
+  MAPE_pct: number;
+  directional_accuracy_pct: number | null;
+  predicted_up_pct: number | null;
+  row_kind: "member" | "family_mean" | "family_min" | "family_max";
+}
+
+export interface FamilyComparisonRow {
+  pair: string;
+  split: string;
+  model_a: string;
+  model_b: string;
+  members: number;
+  estimate: number;
+  member_23: number;
+  member_24: number;
+  member_25: number;
+  ci7_lo: number;
+  ci7_hi: number;
+  verdict: string;
+}
+
+export interface RunTradingRow {
+  model: string;
+  period: string;
+  execution: string;
+  strategy: string;
+  cost_pct: number;
+  borrow_bps_day: number;
+  final_equity: number;
+  roi_pct: number;
+  mdd_pct: number;
+  sharpe: number | null;
+  sortino: number | null;
+  calmar: number | null;
+  trades: number;
+  fees: number;
+  borrow_cost: number;
+}
+
+export interface PaperReplayRunRow {
+  member: string;
+  split: string;
+  trade_mode: string;
+  final_balance: number;
+  max_drawdown_pct: number;
+}
+
+export interface AblationTradingRow {
+  model_id: string;
+  split: string;
+  strategy: string;
+  transaction_cost_pct: number;
+  borrow_cost_bps_per_day: number;
+  final_equity: number;
+  max_drawdown_pct: number;
+  number_of_trades: number;
+}
+
+export interface AblationPtRow {
+  run: string;
+  split: string;
+  hit_rate_pct: number;
+  pred_up_pct: number;
+  pt_z: number | null;
+  pt_p_two_sided: number | null;
+}
+
+export interface AblationRun {
+  seed: number;
+  n: number;
+  rmse: number;
+  mae: number;
+  mape: number;
+  dir: number;
+  up: number;
+  r_std_pct: number;
+}
+
+export interface AblationModel {
+  id: string;
+  name: string;
+  note: string;
+  splits: Record<string, { runs: AblationRun[]; rmse_mean: number; rmse_min: number; rmse_max: number }>;
+}
+
+export interface AblationComparison {
+  number: number;
+  label: string;
+  before: string;
+  after: string;
+  split: string;
+  estimate: number;
+  per_seed: number[];
+  ci: Record<string, [number, number]>;
+  tests: Array<{ seed: number; dm_stat: number; dm_p: number; wilcoxon_p: number }>;
+  verdict: string;
+}
+
+export interface RunsResponse {
+  status: "READY" | "NOT_READY";
+  message?: string;
+  final_evidence_sha256?: string;
+  seeds: number[];
+  metrics: RunMetricRow[];
+  comparisons: FamilyComparisonRow[];
+  paper_replay: PaperReplayRunRow[];
+  trading: RunTradingRow[];
+  ablation: {
+    models: AblationModel[];
+    naive: Record<string, { rmse: number; mae: number; mape: number }>;
+    comparisons: AblationComparison[];
+    trading: AblationTradingRow[];
+    pt: AblationPtRow[];
+  };
+}
+
+export const fetchRuns = () => getJSON<RunsResponse>("/api/runs");
+
+export interface ConfigFile {
+  id: string;
+  group: string;
+  title: string;
+  path: string;
+  purpose: string;
+  text: string;
+}
+
+export interface ConfigResponse {
+  status: "READY" | "NOT_READY";
+  message?: string;
+  files: ConfigFile[];
+  labels: Array<{ internal: string; name: string }>;
+  outside_files: string[];
+}
+
+export const fetchConfig = () => getJSON<ConfigResponse>("/api/config");
 
 /* -------------------------------- Health -------------------------------- */
 

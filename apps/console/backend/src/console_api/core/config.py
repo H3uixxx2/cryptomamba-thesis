@@ -42,7 +42,6 @@ FINAL_EVIDENCE_DIR = Path(
 ).expanduser().resolve()
 
 EVALUATION_DIR = CORE_ROOT / "output" / "evaluation"
-OFFLINE_PREDICTION_PATH = EVALUATION_DIR / "offline_prediction.json"
 
 # Optional default live API URL (Colab/ngrok). Usually pasted in the UI at demo time.
 API_URL_ENV = os.getenv("CRYPTO_MAMBA_API_URL", "").strip()
