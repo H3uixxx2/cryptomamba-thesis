@@ -4,6 +4,18 @@ Reproduction and controlled evaluation of [CryptoMamba](https://arxiv.org/abs/25
 (arXiv:2501.01010) for next-day BTC-USD Close forecasting: the model, the offline
 evaluation/trading pipeline, a four-screen demo console, and the checksum-verified result bundle.
 
+## Run with Docker
+
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:8600>. The image builds the frontend from source, installs CPU PyTorch,
+generates the trading backtest, verifies `evidence/SHA256SUMS` at build and at every start, and runs
+as a non-root user with a read-only filesystem. To publish on another host port:
+`HOST_PORT=8620 docker compose up --build`. Docker is the supported way to run the console; the
+sections below run each part directly.
+
 ## Requirements
 
 | | |
@@ -12,9 +24,9 @@ evaluation/trading pipeline, a four-screen demo console, and the checksum-verifi
 | pip | **≥ 21.3** — upgrade inside each venv; stock macOS seeds 21.2.4, which cannot do a PEP 660 editable install |
 | OS | any; evaluation, backtest and inference run on CPU |
 | GPU | only to train from scratch (Linux + CUDA, `pip install -e ".[gpu]"`) |
-| Node | not required — `apps/console/web-dist/` is committed |
+| Node | not required — `apps/console/web-dist/` is committed (Docker rebuilds it from source) |
 
-## Install
+## Install without Docker
 
 ```bash
 # console

@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    image: cryptomamba-console
+    ports:
+      - "${HOST_PORT:-8600}:8600"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
