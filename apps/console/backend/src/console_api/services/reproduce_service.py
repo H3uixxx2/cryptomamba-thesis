@@ -1,16 +1,6 @@
-"""Evaluation screen business logic.
-
-Everything served here comes from the checksum-verified evidence bundle plus the
-350-day reproduction recomputed from the pinned prediction artifact. Nothing is
-recomputed from a model and nothing is estimated: a missing, tampered or
-inconsistent artifact yields ``status=NOT_READY`` with the reason, never a 500
-and never a substituted number.
-
-Only CM-v, CryptoMamba-T (internal id ``s5_full``) and naive persistence have per-date local
-predictions, so only
-those three are paired. LSTM / GRU / iTransformer / S-Mamba exist solely as
-aggregate rows and are served verbatim under ``paper_reported`` — they carry no
-per-date series and therefore cannot enter a paired test.
+"""Evaluation screen: frozen thesis evidence for RQ1 and RQ2, from the sealed bundle plus the 350-day reproduction recomputed from the pinned predictions.
+A missing or inconsistent artifact yields status=NOT_READY. Only CM-v, CryptoMamba-T (``s5_full``) and persistence have per-date predictions and enter paired tests;
+the paper's other models are served as ``paper_reported`` aggregates.
 """
 from __future__ import annotations
 
@@ -81,13 +71,7 @@ def _final_evaluation_fields() -> tuple[dict, list[str]]:
 
 
 def build_reproduce() -> dict:
-    """Evaluation screen contract: the frozen thesis evidence for RQ1 and RQ2.
-
-    Everything comes from the checksum-verified evidence bundle plus the 350-day
-    reproduction recomputed from the pinned predictions. There is no local
-    multi-baseline comparison: the paper's LSTM/GRU/iTransformer/S-Mamba rows are
-    reported as published aggregates only (``paper_reported``).
-    """
+    """Evaluation screen payload for RQ1 and RQ2."""
     fields, errors = _final_evaluation_fields()
     status = "READY" if fields["final_evidence_status"] == "READY" and not errors else "NOT_READY"
     return {"status": status, "errors": errors, **fields}

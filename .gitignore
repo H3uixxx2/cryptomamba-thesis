@@ -7,9 +7,13 @@ apps/console/frontend/node_modules/
 apps/console/frontend/.vite/
 .DS_Store
 
-# regenerable model-backend output
+# regenerable model-backend output; scripts/run_backtest.py rewrites the four trading_* / regime_* files
 apps/model-backend/output/thesis_final/
+apps/model-backend/output/evaluation/trading_equity_curve.csv
+apps/model-backend/output/evaluation/trading_metrics.csv
+apps/model-backend/output/evaluation/regime_metrics.csv
+apps/model-backend/output/evaluation/trading_backtest_metadata.json
 apps/model-backend/Results/
 apps/model-backend/logs/
 
-# apps/console/web-dist is committed on purpose: the demo runs without pnpm
+# apps/console/web-dist is tracked (prebuilt frontend)

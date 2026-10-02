@@ -1,13 +1,10 @@
-"""Chronological transaction-cost trading backtest.
+"""Chronological transaction-cost backtest.
 
-Drives the paper trading logic (``utils.trade``) over the frozen per-date
-predictions in ``output/evaluation/forecast_predictions.csv`` — no model, no GPU,
-no live API. Adds explicit transaction costs, a buy & hold baseline, per-day
-equity curves and Sharpe/drawdown/trade-count metrics on top.
+Drives the paper trading logic (``utils.trade``) over the frozen per-date predictions in ``output/evaluation/forecast_predictions.csv``,
+adding explicit transaction costs, a buy & hold baseline, per-day equity curves and Sharpe/drawdown/trade-count metrics.
 
-Decision at day ``t`` uses only ``current_close`` (today's price) and
-``predicted_close`` (the model's forecast) — never ``target_close`` (the
-realised next-day price), which is used solely to value the resulting position.
+The decision at day ``t`` uses only ``current_close`` and ``predicted_close``; ``target_close`` (the realised next-day price)
+only values the resulting position.
 """
 from __future__ import annotations
 
@@ -45,7 +42,7 @@ def classify_regimes(closes, window: int = REGIME_WINDOW,
                      up_pct: float = REGIME_UP_PCT, down_pct: float = REGIME_DOWN_PCT):
     """Label each day bull/bear/sideways by trailing %-change of close over `window` days.
 
-    Transparent rule (persisted to metadata): compare close[t] to close[max(0, t-window)].
+    Rule (persisted to metadata): compare close[t] to close[max(0, t-window)].
     > +up_pct => bull, < -down_pct => bear, otherwise sideways. Early days (< window of
     history) use the shortest available lookback and therefore tend to read sideways.
     """
@@ -229,10 +226,9 @@ REGIME_COLUMNS = [
 def _regime_trading(equity_curve: pd.DataFrame, regime_labels):
     """Regime-conditional ROI/MDD: compound only the daily returns on regime days.
 
-    Returns {regime: (roi_pct, max_drawdown_pct)}. Transparent definition: build an
-    equity index from 1.0 over the days labelled with that regime, using each day's own
-    return vs the previous calendar day (sliced from the full chronological run, so no
-    look-ahead is introduced)."""
+    Returns {regime: (roi_pct, max_drawdown_pct)}. Builds an equity index from 1.0 over the days labelled with that regime, using each day's
+    own return vs the previous calendar day (sliced from the full chronological run, so no look-ahead).
+    """
     pv = equity_curve["portfolio_value"].to_numpy(dtype=float)
     out = {}
     for regime in REGIMES:
@@ -269,8 +265,7 @@ def run_full_backtest(
 ) -> dict:
     """Run the full strategy x cost x checkpoint x split backtest matrix.
 
-    Returns {"metrics": df, "equity": df, "regime": df}. Rows are kept distinct per
-    (result_type, checkpoint, split, strategy, transaction_cost_pct) — never overwritten.
+    Returns {"metrics": df, "equity": df, "regime": df}. Rows are distinct per (result_type, checkpoint, split, strategy, transaction_cost_pct).
     """
     protocol = _protocol(source_commit)
     metrics_rows, equity_frames, regime_rows = [], [], []
@@ -373,7 +368,7 @@ def write_artifacts(output_dir, results: dict, metadata: dict | None = None) -> 
 
 
 def _get_args():
-    parser = ArgumentParser(description="Phase 4 chronological transaction-cost trading backtest.")
+    parser = ArgumentParser(description="Chronological transaction-cost trading backtest.")
     parser.add_argument("--evaluation_dir", type=str, default=None,
                         help="Dir holding forecast_predictions.csv and where artifacts are written.")
     parser.add_argument("--risk", type=float, default=2.0, help="Smart-strategy risk band, in percent.")

@@ -1,0 +1,48 @@
+{
+  "best_epoch": 949,
+  "config": "cmamba_v",
+  "files": {
+    "epoch949-val-rmse583.4954.ckpt": "0d935639fd29999aa75a8d15e75498dce466cd19512768550f4bd5e4bec9d028",
+    "test_preds.csv": "66d4395fd5351b5e96641663d34df717837541aae862d5ab1f5020a93bbddbff",
+    "train.log.gz": "5368dd65eda39400243d1a0ea3864de4963cdee488062da756be4662d04f1b74",
+    "trained.json": "24e87831e8861530d9ed23a83af63bc646ebfa1be2745adc1deffb2ef6787cd6",
+    "val_preds.csv": "1a21edd847bde36d75318ddde9b3e58abcdc01cf15b05ecd5ee3f7bdd7295d19"
+  },
+  "predict_env": {
+    "causal_conv1d": "1.7.0",
+    "cuda": "12.8",
+    "gpu": "Tesla T4",
+    "mamba_ssm": "2.3.2.post1",
+    "python": "3.13.15",
+    "pytorch_lightning": "2.6.5",
+    "torch": "2.11.0+cu128"
+  },
+  "role": "new seed",
+  "run_id": "cmamba_v__seed24",
+  "seed": 24,
+  "test": {
+    "dir_acc": 0.5428571428571428,
+    "n": 350,
+    "naive_rmse": 1568.4998356531642,
+    "pred_up": 0.36857142857142855,
+    "rmse": 1613.1493430550977
+  },
+  "train_env": {
+    "causal_conv1d": "1.7.0",
+    "cuda": "12.8",
+    "gpu": "Tesla T4",
+    "mamba_ssm": "2.3.2.post1",
+    "python": "3.13.15",
+    "pytorch_lightning": "2.6.5",
+    "torch": "2.11.0+cu128"
+  },
+  "train_secs": 4252.7,
+  "utc": "2026-09-25T08:46:16Z",
+  "val": {
+    "dir_acc": 0.52,
+    "n": 350,
+    "naive_rmse": 568.3493210586398,
+    "pred_up": 0.3657142857142857,
+    "rmse": 612.677150514757
+  }
+}

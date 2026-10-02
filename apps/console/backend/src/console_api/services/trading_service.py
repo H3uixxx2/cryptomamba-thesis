@@ -1,12 +1,5 @@
-"""Trading screen business logic.
-
-Two separate capabilities, deliberately not merged:
-  * :func:`simulate_one_day` — single-day decision from one (current, predicted)
-    pair; recomputed live via ``trading_logic.simulate_trade``.
-  * :func:`build_backtest` / :func:`build_replay` — the multi-year chronological
-    backtest, read from CSVs produced offline by ``scripts/run_backtest.py``.
-    No model and no recompute: pure artifact presentation. A missing artifact
-    yields NOT_READY, never a fabricated number.
+"""Trading screen: chronological backtest and daily replay, read from the CSVs written by ``scripts/run_backtest.py`` and the thesis pipeline.
+A missing artifact yields NOT_READY.
 """
 from __future__ import annotations
 
@@ -43,50 +36,6 @@ _STRATEGY_COLOR = {
     "smart_w_short": "#a855f7",
 }
 
-
-_ACTION_COLOR = {"BUY": "var(--signal-green)", "SELL": "var(--signal-red)", "HOLD": "var(--signal-amber)"}
-
-
-def simulate_one_day(
-    *,
-    current: float,
-    predicted: float,
-    capital: float,
-    btc: float,
-    risk: float,
-    realized_move: float,
-) -> dict:
-    """One-day decision demo for the given price/portfolio inputs."""
-    realized_price = current * (1 + realized_move / 100.0)
-    sim = logic.trading_logic.simulate_trade(
-        current, predicted, capital, btc, risk, realized_price
-    )
-    rows = []
-    for _, r in sim.iterrows():
-        rows.append(
-            {
-                "strategy": r["strategy"],
-                "action": r["action"],
-                "action_color": _ACTION_COLOR.get(str(r["action"]), "var(--text-primary)"),
-                "trade_size": r["trade_size"],
-                "end_value": float(r["end_value"]),
-                "pnl": float(r["pnl"]),
-                "roi_pct": float(r["roi_pct"]),
-            }
-        )
-    roi_fig = logic.charts.roi_chart(sim)
-    return {
-        "start_value": capital + btc * current,
-        "assumed_close": realized_price,
-        "move_pct": logic.trading_logic.pct(predicted, current),
-        "rows": rows,
-        "charts": {"roi": json.loads(roi_fig.to_json())},
-    }
-
-
-# --------------------------------------------------------------------------- #
-# Historical chronological backtest (artifact presentation only)
-# --------------------------------------------------------------------------- #
 
 _METRICS_CSV = "trading_metrics.csv"
 _EQUITY_CSV = "trading_equity_curve.csv"
@@ -229,7 +178,7 @@ def build_backtest(
     split: str = "test",
     ref_cost: float = 0.1,
 ) -> dict:
-    """Historical chronological backtest for one scenario, from frozen artifacts."""
+    """Chronological backtest for one scenario."""
     final_fields = _final_trading_fields()
     if final_fields["final_evidence_status"] != "READY":
         return {
@@ -310,11 +259,7 @@ def build_replay(
     strategy: str = "smart",
     ref_cost: float = 0.1,
 ) -> dict:
-    """Return one artifact-backed daily decision timeline for interactive replay.
-
-    This endpoint never runs the model or backtest engine. It only joins the
-    persisted forecast and equity rows for the selected historical scenario.
-    """
+    """Daily decision timeline for one scenario: joins the persisted forecast and equity rows."""
     metrics = _read_csv(_METRICS_CSV)
     equity = _read_csv(_EQUITY_CSV)
     predictions = _read_csv(_PREDICTIONS_CSV)

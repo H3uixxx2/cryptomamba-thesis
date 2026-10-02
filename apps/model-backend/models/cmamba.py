@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange, repeat
 import torch.utils.checkpoint as checkpoint
-try:  # native CUDA kernels (Colab/Linux GPU). On CPU-only hosts (local macOS) fall back
+try:  # Native CUDA kernels (Colab/Linux GPU); without them selective_scan_ref is used.
     from causal_conv1d import causal_conv1d_fn, causal_conv1d_update
 except ImportError:  # pragma: no cover - kernels absent
     causal_conv1d_fn, causal_conv1d_update = None, None
@@ -22,7 +22,7 @@ def selective_scan_ref(u, delta, A, B, C, D=None, z=None, delta_bias=None,
                        delta_softplus=False, return_last_state=False):
     """Pure-PyTorch reference of mamba_ssm's selective_scan (same math, differentiable).
 
-    Used only when the CUDA kernels are unavailable; the fused-kernel path is untouched.
+    Used only when the CUDA kernels are unavailable.
     u: (b, d, l); delta: (b, d, l); A: (d, n); B, C: (b, n, l); D: (d,); z: (b, d, l)
     """
     dtype_in = u.dtype
@@ -284,12 +284,11 @@ class CMBlock(nn.Module):
             self.norm2 = norm_layer(hidden_dim)
             mlp_hidden_dim = int(hidden_dim * mlp_ratio)
             self.mlp = Mlp(in_features=hidden_dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop, channels_first=False)
-            # _forward references drop_path but it was never defined -> mlp_ratio>0 crashed.
+            # The MLP branch is added without stochastic depth.
             self.drop_path = nn.Identity()
 
     def _forward(self, x):
         h = self.op(self.norm(x))
-        # h = self.op(x)
         h += x
         if self.mlp_branch:
             h = h + self.drop_path(self.mlp(self.norm2(h)))
@@ -351,14 +350,11 @@ class CMamba(nn.Module):
             for i in range(d - 1)
         )
 
-        # self.norm = norm_layer((num_features, hidden_dims[0]))
         self.activation = self.act()
 
     
     def _set_d_states(self, d_states):
         n = len(self.hidden_dims)
-        # if d_states == None:
-        #     self.d_states = ['auto' for _ in range(n)]
         if isinstance(d_states, list):
             self.d_states = d_states
         else:
@@ -373,7 +369,6 @@ class CMamba(nn.Module):
             self.layer_density = layer_density
 
     def _get_block(self, hidden_dim, hidden_dim_next, n, d_state):
-        # print(f'ds - {hidden_dim} - {n}')
         modules = [CMBlock(hidden_dim=hidden_dim,
                            norm_layer=self.norm_layer,
                            d_state=d_state,
@@ -387,12 +382,10 @@ class CMamba(nn.Module):
                            ) 
                            for _ in range(n)]
         modules.append(nn.Linear(in_features=hidden_dim, out_features=hidden_dim_next))
-        # modules.append(self.norm_layer(hidden_dim_next))
         return nn.Sequential(*modules)
 
     
     def forward(self, x):
-        # x = self.norm(x)
         for layer in self.blocks:
             x = layer(x)
 

@@ -2,7 +2,18 @@
 
 Reproduction and controlled evaluation of [CryptoMamba](https://arxiv.org/abs/2501.01010)
 (arXiv:2501.01010) for next-day BTC-USD Close forecasting: the model, the offline
-evaluation/trading pipeline, a 5-screen demo console, and the checksum-verified result bundle.
+evaluation/trading pipeline, a four-screen demo console, and the checksum-verified result bundle.
+
+## Run with Docker
+
+```bash
+docker compose up --build                  # http://localhost:8600
+HOST_PORT=8620 docker compose up --build   # another host port
+```
+
+The image builds the frontend from source, installs CPU PyTorch, generates the trading backtest,
+verifies `evidence/SHA256SUMS` at build and at every start, and runs as a non-root user with a
+read-only filesystem.
 
 ## Requirements
 
@@ -12,9 +23,9 @@ evaluation/trading pipeline, a 5-screen demo console, and the checksum-verified 
 | pip | **≥ 21.3** — upgrade inside each venv; stock macOS seeds 21.2.4, which cannot do a PEP 660 editable install |
 | OS | any; evaluation, backtest and inference run on CPU |
 | GPU | only to train from scratch (Linux + CUDA, `pip install -e ".[gpu]"`) |
-| Node | not required — `apps/console/web-dist/` is committed |
+| Node | not required — `apps/console/web-dist/` is committed (Docker rebuilds it from source) |
 
-## Install
+## Install without Docker
 
 ```bash
 # console
@@ -30,7 +41,7 @@ apps/model-backend/.venv/bin/pip install -e apps/model-backend
 
 ## Usage
 
-Each block is self-contained and starts from the repository root.
+Each block starts from the repository root.
 
 ```bash
 # demo console -> http://127.0.0.1:8600
@@ -57,11 +68,10 @@ cd evidence && shasum -c SHA256SUMS
 |---|---|
 | `evaluation.py` | test split — RMSE `1598.09` · MAPE `2.034 %` · MAE `1120.66` |
 | `run_backtest.py` | `output/evaluation/{trading_metrics,trading_equity_curve,regime_metrics}.csv` |
-| `shasum -c SHA256SUMS` | 12 files, all `OK` |
-| `run_local.sh` | Data · Evaluation · Predict · Trading · Architecture |
+| `shasum -c SHA256SUMS` | 19 files, all `OK` |
+| `run_local.sh` | Data · Evaluation · Predict · Trading |
 
-The console's four other screens read committed artifacts; Predict runs real inference in the
-model-backend venv.
+Predict runs inference in the model-backend venv; the other screens read the sealed artifacts.
 
 ## Documentation
 
@@ -73,4 +83,3 @@ model-backend venv.
 | [`apps/console/README.md`](apps/console/README.md) | API, screens, wiring |
 | [`evidence/README.md`](evidence/README.md) | what each sealed artifact is |
 
-The thesis document is submitted separately and is not in this repository.

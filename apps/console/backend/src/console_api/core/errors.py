@@ -1,18 +1,11 @@
-"""Domain errors raised by the service layer.
-
-Services must not import FastAPI. They raise these; the routers translate them
-into HTTP responses. Anything *not* raised as a ConsoleError is an unexpected
-defect and is allowed to surface as a 500 — it is never masked as a client error.
+"""Domain errors raised by services; routers map them to HTTP responses.
+Any other exception surfaces as a 500.
 """
 from __future__ import annotations
 
 
 class ConsoleError(Exception):
-    """Base class for expected, user-facing service failures.
-
-    ``status_code`` may be overridden per instance when a lower layer (e.g. the
-    checkpoint worker adapter) already determined the right status.
-    """
+    """Expected, user-facing service failure; ``status_code`` can be overridden per instance."""
 
     status_code = 500
 

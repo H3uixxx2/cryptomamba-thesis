@@ -1,9 +1,6 @@
-"""Strict CPU inference for the two frozen checkpoints (CM-v, S5-Full).
-
-Bypasses Lightning and rebuilds the model directly from ``contracts.MODEL_SPECS``:
-the checkpoint bytes are hashed against the pinned SHA-256, the state dict is
-loaded with ``strict=True``, and the feature tensor is built to the per-model
-window/normalisation contract. There is no fallback path — any mismatch raises.
+"""Strict CPU inference for the two frozen checkpoints (CM-v, CM-T): rebuilds the model from ``contracts.MODEL_SPECS``,
+checks the checkpoint SHA-256, loads with ``strict=True`` and builds the per-model feature tensor.
+Any mismatch raises; there is no fallback.
 """
 from __future__ import annotations
 

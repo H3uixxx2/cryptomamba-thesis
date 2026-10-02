@@ -1,0 +1,48 @@
+{
+  "best_epoch": 949,
+  "config": "cmamba_v",
+  "files": {
+    "epoch949-val-rmse572.6860.ckpt": "afb28215d656ea54421efb00e3c60ec9d8a818fff186c194be9a98b55dcecdf0",
+    "test_preds.csv": "7dae8da7068cdc57113d97c24a742e9c5f54bda321409111a64d8165ce9a10e9",
+    "train.log.gz": "0a334655dade36e29536071c2a751bc68c242482415cfd3f02af095afeb08043",
+    "trained.json": "3782accc26f24e20cad6b36f28865a32add5293d3fae0263796f23d06b1568dd",
+    "val_preds.csv": "a943efd951235b1c3809e67689176e52956666f3800bb514092988df8e2d2c31"
+  },
+  "predict_env": {
+    "causal_conv1d": "1.7.0",
+    "cuda": "12.8",
+    "gpu": "Tesla T4",
+    "mamba_ssm": "2.3.2.post1",
+    "python": "3.13.15",
+    "pytorch_lightning": "2.6.5",
+    "torch": "2.11.0+cu128"
+  },
+  "role": "control: code (fork 672faa9 vs upstream fef4272) and GPU (T4 vs L4) differ from the original CM-v seed-23 run",
+  "run_id": "cmamba_v__seed23",
+  "seed": 23,
+  "test": {
+    "dir_acc": 0.5485714285714286,
+    "n": 350,
+    "naive_rmse": 1568.4998356531642,
+    "pred_up": 0.4942857142857143,
+    "rmse": 1604.4523844123512
+  },
+  "train_env": {
+    "causal_conv1d": "1.7.0",
+    "cuda": "12.8",
+    "gpu": "Tesla T4",
+    "mamba_ssm": "2.3.2.post1",
+    "python": "3.13.15",
+    "pytorch_lightning": "2.6.5",
+    "torch": "2.11.0+cu128"
+  },
+  "train_secs": 4315.0,
+  "utc": "2026-09-25T07:34:52Z",
+  "val": {
+    "dir_acc": 0.5028571428571429,
+    "n": 350,
+    "naive_rmse": 568.3493210586398,
+    "pred_up": 0.6742857142857143,
+    "rmse": 602.2233097001907
+  }
+}

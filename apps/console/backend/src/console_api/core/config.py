@@ -1,13 +1,4 @@
-"""Path resolution + settings for the CryptoMamba Console backend.
-
-The console holds no model/data logic. It:
-  - imports the vendored ``cryptomamba_ui`` package (``console_api.vendor.cryptomamba_ui``),
-  - reads frozen artifacts from the model-backend app (``apps/model-backend/output``),
-  - reads the checksum-verified evidence bundle from ``<repo>/evidence``,
-  - shells out to the model-backend venv for real frozen-checkpoint inference.
-
-All external locations are overridable via environment variables.
-"""
+"""Paths and settings for the Console backend; every external location is overridable by environment variable."""
 from __future__ import annotations
 
 import os
@@ -17,34 +8,31 @@ _HERE = Path(__file__).resolve()
 CONSOLE_ROOT = _HERE.parents[4]    # .../apps/console
 MONOREPO_ROOT = _HERE.parents[6]   # repo root
 
-# --- model-backend app: produces the frozen artifacts the loaders read ---
+# model-backend: frozen artifacts and the inference worker
 CORE_ROOT = Path(
     os.getenv("CRYPTO_MAMBA_CORE_ROOT", MONOREPO_ROOT / "apps" / "model-backend")
 ).expanduser().resolve()
 
-# Frozen-checkpoint inference runs in the model-backend venv (PyTorch/Mamba live there,
-# not in this backend).
+# Interpreter that has PyTorch; it runs the checkpoint worker.
 CORE_PYTHON = Path(
     os.getenv("CRYPTO_MAMBA_CORE_PYTHON", CORE_ROOT / ".venv/bin/python")
 ).expanduser().absolute()
 CHECKPOINT_WORKER = CORE_ROOT / "scripts" / "checkpoint_inference.py"
 
-# Presentation-layer model names. The evidence bundle is SHA-pinned and keeps its original
-# display_name ("CMamba-T / S5-Full"); only the name shown in the Console changes.
+# Display names only; the sealed evidence keeps the original display_name.
 MODEL_DISPLAY_NAMES = {"s5_full": "CryptoMamba-T"}
 CHECKPOINT_TIMEOUT_SECONDS = 120
 MAX_WORKER_ERROR_CHARS = 2_048
 MAX_WORKER_STDOUT_CHARS = 65_536
 
-# --- evidence bundle: SHA256SUMS-verified CSV/JSON, read-only ---
+# Sealed evidence bundle (read-only)
 FINAL_EVIDENCE_DIR = Path(
     os.getenv("CRYPTO_MAMBA_FINAL_EVIDENCE", MONOREPO_ROOT / "evidence")
 ).expanduser().resolve()
 
 EVALUATION_DIR = CORE_ROOT / "output" / "evaluation"
-OFFLINE_PREDICTION_PATH = EVALUATION_DIR / "offline_prediction.json"
 
-# Optional default live API URL (Colab/ngrok). Usually pasted in the UI at demo time.
+# Default URL of the optional live API.
 API_URL_ENV = os.getenv("CRYPTO_MAMBA_API_URL", "").strip()
 
 # Paper split fixture shipped with the console.

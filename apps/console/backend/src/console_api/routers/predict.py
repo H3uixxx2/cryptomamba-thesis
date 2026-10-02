@@ -1,10 +1,4 @@
-"""Predict screen HTTP endpoints.
-
-Three paths, all delegating to ``services.predict_service``: the primary local
-frozen-checkpoint inference, the optional remote live API, and the frozen offline
-backup. The service enforces the honesty rules (``inference_type`` is never
-relabelled; out-of-distribution windows are flagged).
-"""
+"""Predict screen endpoints: local checkpoint, optional remote API, offline replay."""
 from __future__ import annotations
 
 from typing import Optional
@@ -34,7 +28,7 @@ def predict_checkpoint(req: CheckpointPredictionRequest) -> dict:
 @router.post("/live")
 @handle_domain_errors
 def predict_live(req: LivePredictRequest) -> dict:
-    """Run a real prediction via the remote Colab/ngrok model API."""
+    """Run a prediction through the remote model API."""
     return predict_service.run_live(req)
 
 

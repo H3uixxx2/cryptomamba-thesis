@@ -11,6 +11,7 @@ import type {
 } from "@/lib/api";
 import { fmt, pct, prettyModel } from "@/lib/format";
 import { useConsole } from "@/store";
+import { AblationPanel, SeedsPanel } from "@/screens/RunsPanels";
 
 const MODEL_ORDER = ["cmamba_v_reproduced", "s5_full", "naive_persistence"];
 
@@ -383,6 +384,9 @@ export function ReproduceScreen() {
           </Panel>
 
           <RobustnessPanel data={result.forecast_robustness} />
+
+          <SeedsPanel />
+          <AblationPanel />
         </>
       )}
     </>

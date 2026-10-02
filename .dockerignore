@@ -1,0 +1,11 @@
+.git
+**/.venv
+**/node_modules
+**/__pycache__
+**/*.egg-info
+apps/console/web-dist
+apps/model-backend/output/thesis_final
+apps/model-backend/Results
+apps/model-backend/logs
+Dockerfile
+compose.yaml

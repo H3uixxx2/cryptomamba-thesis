@@ -11,15 +11,12 @@ python3 -m venv .venv
 ./.venv/bin/pip install -e ".[gpu]"   # + mamba-ssm / causal-conv1d — Linux + CUDA, needed to TRAIN
 ```
 
-The `pip` upgrade is not optional on a fresh venv. This project has a `pyproject.toml` and no
-`setup.py`, so an editable install goes through PEP 660, which pip only supports from 21.3.
-A stock macOS `python3` (3.9) seeds venvs with pip 21.2.4 and fails with
-`Directory cannot be installed in editable mode`. Upgrading pip inside the venv resolves it;
-nothing about the package changes.
+The `pip` upgrade is required: the project has a `pyproject.toml` and no `setup.py`, so the editable
+install needs PEP 660 (pip >= 21.3); a stock macOS `python3` (3.9) seeds pip 21.2.4 and fails with
+`Directory cannot be installed in editable mode`.
 
-`mamba_ssm` and `causal_conv1d` require nvcc, which is why they are an extra rather than a base
-dependency. Without them the model still runs: `models/cmamba.py` imports the kernels inside
-`try/except` and routes on `tensor.is_cuda`, so a CPU tensor takes the pure-PyTorch
+`mamba_ssm` and `causal_conv1d` need nvcc and are the optional `gpu` extra. `models/cmamba.py` imports
+them inside `try/except` and routes on `tensor.is_cuda`, so a CPU tensor takes the pure-PyTorch
 `selective_scan_ref` path.
 
 | Step below | Environment |
@@ -31,45 +28,48 @@ dependency. Without them the model still runs: `models/cmamba.py` imports the ke
 
 ```bash
 python scripts/evaluation.py --ckpt_path checkpoints/cmamba_v.ckpt --accelerator cpu
+python scripts/assemble_reproduced_predictions.py   # reproduced CM-v, seed 23
 ```
 
-Writes `output/evaluation/forecast_metrics.csv` and `forecast_predictions.csv`.
-`--config` defaults to `cmamba_v`.
+The first command writes `output/evaluation/forecast_metrics.csv` and `forecast_predictions.csv`
+for the official checkpoint (`--config` defaults to `cmamba_v`). The second replaces the
+`retrained_checkpoint` rows from the seed-23 training run stored in
+`output/seed_runs/cmamba_v__seed23/`: it reads that run's stored predictions, checks that their
+price columns equal the frozen price base date by date, and recomputes the 350-date test metrics and
+the paper's strategy replay. Pass `--run` to assemble another run.
 
 Test split, 350 dates (2023-10-01 … 2024-09-14):
 
-| metric | official checkpoint | reproduced checkpoint | paper | reproduced vs paper |
+| metric | official checkpoint | reproduced checkpoint (seed 23) | paper | reproduced vs paper |
 |---|---|---|---|---|
-| RMSE | 1598.09 | ≈ 1612.35 | 1598.10 | 0.89 % |
-| MAE | 1120.66 | ≈ 1132.54 | 1120.70 | 1.06 % |
-| MAPE | 2.034 % | ≈ 2.049 % | 2.034 % | 0.72 % |
-| directional accuracy | — | ≈ 56.86 % | — | — |
+| RMSE | 1598.09 | 1604.45 | 1598.10 | 0.40 % |
+| MAE | 1120.66 | 1128.00 | 1120.70 | 0.65 % |
+| MAPE | 2.034 % | 2.049 % | 2.034 % | 0.72 % |
+| directional accuracy (sign agreement) | 55.43 % | 54.86 % | — | — |
 
-The official checkpoint reproduces the published figures to the third decimal on CPU. The
-reproduced checkpoint is a separate training run and lands within ~1 %.
+The reproduced checkpoint is a separate seed-23 training run (fork code, Tesla T4). Seeds 24 and 25 of
+the same recipe give test RMSE 1613.15 and 1611.40, computed from
+`output/seed_runs/cmamba_v__seed{24,25}/test_preds.csv` with the same formulas.
 
 ## 2. Controlled comparison and paired tests
 
-```bash
-python -m thesis_pipeline.evaluation
-python -m thesis_pipeline.backtest
-```
+The comparison is computed by `thesis_pipeline.evaluation`, which `scripts/build_thesis_artifacts.py`
+calls in step 4.
 
-The comparison uses the **304 dates the three models have in common** — S5-Full's 60-day window
-consumes more history than CM-v's 14-day window, so their date sets differ, and pooling them would
-compare different periods. No interpolation and no cross-date metric combination.
+It uses the **304 dates the three models have in common** — CryptoMamba-T's 60-day window consumes
+more history than CM-v's 14-day window, so their date sets differ.
 
 Tests applied: Diebold–Mariano on squared error with HAC lag 1, Wilcoxon signed-rank on absolute
 error, a moving-block bootstrap at block lengths L = 5, 7 and 14, and an exact McNemar test on
 direction.
 
-Result: on those 304 dates no paired interval and no DM statistic establishes an RMSE advantage
-for S5-Full over CM-v; naive persistence has the lowest RMSE on both splits; CM-v has the highest
-test directional accuracy at 57.57 %.
+`evidence/runs/` holds the three seeds of each model, the seed-averaged comparisons with block-bootstrap
+intervals, the ablation models, and trading with next-open fills, borrow cost and the period after
+09/2024. These tables derive from all 22 training runs, of which six are stored here, so they are copied
+inputs and are not recomputed (see `evidence/README.md`).
 
-The paper's LSTM / GRU / iTransformer / S-Mamba rows are aggregates transcribed from the published
-paper. They carry no per-date series, so they are served as `paper_reported` and cannot enter any
-paired test.
+The paper's LSTM / GRU / iTransformer / S-Mamba rows are transcribed aggregates with no per-date series;
+they are served as `paper_reported` and do not enter paired tests.
 
 ## 3. Chronological trading backtest
 
@@ -96,13 +96,15 @@ python scripts/build_thesis_artifacts.py   # -> output/thesis_final/   (gitignor
 python scripts/package_thesis_evidence.py  # -> ../../evidence/ + SHA256SUMS
 ```
 
-`output/thesis_final/` is intentionally not committed: every file in it is byte-identical to its
-counterpart in `evidence/`, and the sealed copy is the one the thesis and the console cite.
+`output/thesis_final/` is untracked; each file in it is byte-identical to its counterpart in `evidence/`.
+`build_thesis_artifacts.py` reads the seed-23 runs in `output/seed_runs/`, runs the date-aligned
+evaluation and the corrected self-financing backtest, and copies the `runs/` inputs from
+`thesis_pipeline/data/runs/`.
 
 Verify what is committed:
 
 ```bash
-cd ../../evidence && shasum -c SHA256SUMS      # 12 files
+cd ../../evidence && shasum -c SHA256SUMS      # 19 files
 ```
 
 Steps 2 – 4 are deterministic and reproduce those hashes bit-for-bit. Step 1 depends on the math
@@ -112,31 +114,34 @@ library of the machine it runs on and matches to the gaps in the table above.
 
 ```bash
 python scripts/training.py --config cmamba_v    # CryptoMamba-v — 14-day window, 136,952 parameters
-python scripts/training.py --config s5_full     # CMamba-T / S5-Full — 60-day window, 57,249 parameters
+python scripts/training.py --config s5_full     # CryptoMamba-T — 60-day window, 57,249 parameters
 ```
 
-`configs/models/CryptoMamba/t2.yaml` builds the released S5-Full graph exactly: 57,249 parameters
-with tensor names and shapes identical to the frozen checkpoint, which loads into it with
-`load_state_dict`. Reproducing the *weights* additionally needs the original CUDA runtime; the
-frozen checkpoints ship so that steps 1 – 4 can be recomputed without training at all.
+`--seed` sets the random seed (the runs in `output/seed_runs/` use 23, 24 and 25). `s5_full` is the
+internal name of CryptoMamba-T.
+
+`configs/models/CryptoMamba/t2.yaml` builds the released CryptoMamba-T graph exactly: 57,249
+parameters with tensor names and shapes identical to the seed-23 checkpoint, which loads into it with
+`load_state_dict`. Reproducing the *weights* needs the original CUDA runtime.
 
 ## Where each number lives
 
-Every table and figure in the thesis is produced here:
+Thesis numbers and the files behind them; `evidence/runs/` holds copied inputs.
 
 | Thesis | Produced by | Read from |
 |---|---|---|
-| Tables 3.1, 3.2 — splits and model contracts | `configs/data_configs/mode_1.yaml`, `thesis_pipeline/contracts.py`, `data_utils/data_transforms.py` | `data/2018-09-17_2024-09-16_86400/` (1461 / 365 / 365) |
-| §4.1 — 350-date RQ1 reproduction | `scripts/evaluation.py` | `output/evaluation/forecast_metrics.csv` |
-| Table 4.1 — paper-reported reference | transcribed, never recomputed | `evidence/forecast/paper_reported_metrics.csv` |
-| Tables 4.2, 4.3 · Figures 4.1, 5.1 — 304-date controlled comparison | `python -m thesis_pipeline.evaluation` | `evidence/forecast/controlled_forecast_metrics.csv` |
-| Tables 4.4, 4.5, 4.6 — block bootstrap, block-length sensitivity, chronological halves | `console_api/loaders/forecast_robustness.py` (50,000 resamples, seed 230813, L = 5/7/14), served by `GET /api/reproduce` | `evidence/forecast/controlled_predictions.csv` |
-| Table 4.7 — Diebold–Mariano and Wilcoxon paired tests | `python -m thesis_pipeline.evaluation` | `evidence/forecast/paired_significance_tests.csv` |
-| §4.2 — exact McNemar on direction | `console_api/loaders/forecast_robustness.py`, served by `GET /api/reproduce` | `evidence/forecast/controlled_predictions.csv` |
-| Table 4.8 — paper trading replay | `scripts/run_backtest.py` | `evidence/trading/paper_replay_metrics.csv` |
-| Table 4.9 · Figure 4.2 — corrected self-financing results, fee sensitivity | `python -m thesis_pipeline.backtest` | `evidence/trading/corrected_trading_metrics.csv` |
-| Figure 2.1 — released CM-v scan axis vs the paper diagram | `models/cmamba.py` vs `models/cmamba_t.py`; rendered by `frontend/src/components/ScanAxisDiagram.tsx` | source |
-| Table 6.1 · Figures 6.1–6.4 — the five Console screens | `apps/console` | the artifacts above |
+| Ch. 3 — splits, model contracts, training set-up | `configs/data_configs/mode_1.yaml`, `configs/training/{cmamba_v,s5_full}.yaml`, `thesis_pipeline/contracts.py`, `data_utils/data_transforms.py` | `data/2018-09-17_2024-09-16_86400/` (1461 / 365 / 365) |
+| Ch. 4 — 350-date reproduction (RQ1), official checkpoint and seed 23 | `scripts/evaluation.py`, `scripts/assemble_reproduced_predictions.py` | `output/evaluation/forecast_metrics.csv` |
+| Ch. 4 — seeds 24 and 25 | the same formulas on the stored predictions | `output/seed_runs/cmamba_v__seed{24,25}/test_preds.csv` |
+| Table 1.1 — paper-reported reference | transcribed, never recomputed | `evidence/forecast/paper_reported_metrics.csv` |
+| Ch. 5 — 304-date controlled comparison and paired tests (seed 23) | `thesis_pipeline.evaluation`, via `scripts/build_thesis_artifacts.py` | `evidence/forecast/controlled_forecast_metrics.csv`, `paired_significance_tests.csv` |
+| Ch. 5 — three seeds per model, seed-family comparisons, directional intervals | copied inputs | `evidence/runs/controlled_metrics.csv`, `family_comparisons.csv`, `direction_intervals.csv` |
+| Block bootstrap and McNemar shown on the Evaluation screen | `console_api/loaders/forecast_robustness.py` (50,000 resamples, seed 230813, L = 5/7/14), served by `GET /api/reproduce` | `evidence/forecast/controlled_predictions.csv` |
+| Ch. 6 — paper replay | `output/evaluation/trading_replay_metrics.csv` (official rows unchanged; reproduced rows by `scripts/assemble_reproduced_predictions.py`), copied by `scripts/build_thesis_artifacts.py`; per-run values are copied inputs | `evidence/trading/paper_replay_metrics.csv`, `evidence/runs/paper_replay.csv` |
+| Ch. 6 — corrected self-financing, fee sensitivity (seed 23) | `thesis_pipeline.backtest`, via `scripts/build_thesis_artifacts.py` | `evidence/trading/corrected_trading_metrics.csv` |
+| Ch. 6, App. B — per-seed trading, fills, borrow cost, the period after 09/2024 | copied inputs | `evidence/runs/trading_all.csv` |
+| Ch. 7 — CryptoMamba-T and the ablation | copied inputs | `evidence/runs/ablation_results.json`, `ablation_trading.csv` |
+| Ch. 8 — the four Console screens | `apps/console` | the artifacts above |
 
-`evidence/ARTIFACT_MAP.json` maps every thesis table and every evidence-backed console screen to
-its source file; `evidence/README.md` states the bundle's scope and boundaries.
+`evidence/ARTIFACT_MAP.json` maps every evidence-backed console screen to its source file;
+`evidence/README.md` states the bundle's scope and boundaries.

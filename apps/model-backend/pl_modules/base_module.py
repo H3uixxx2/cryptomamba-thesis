@@ -18,9 +18,7 @@ class BaseModule(pl.LightningModule):
         optimizer='adam',
         mode='default',
         loss='rmse',
-        # Temperature of the smooth position in trade_pnl, which is logged as
-        # val/neg_pnl for every run so a checkpoint can be selected on the objective
-        # the trading test actually uses.
+        # Temperature of the smooth position in trade_pnl; logged as val/neg_pnl.
         madl_temp=0.005,
     ):
         super().__init__()
@@ -38,46 +36,22 @@ class BaseModule(pl.LightningModule):
         self.loss = loss
         self.madl_temp = madl_temp
 
-        # self.loss = lambda x, y: torch.sqrt(tmp(x, y))
         self.mse = nn.MSELoss()
         self.l1 = nn.L1Loss()
         self.mape = MAPE()
         self.normalization_coeffs = None
 
     def trade_pnl(self, y, y_hat, y_old):
-        """Differentiable stand-in for what the paper's strategies actually pay.
+        """Differentiable proxy of strategy payoff: Mean Absolute Directional Loss in money terms.
 
-        Reading utils/trade.py, none of the three strategies looks at squared error.
-        ``vanilla`` acts on the sign of (pred - today) past a 1% deadband; ``smart``
-        and ``smart_w_short`` size the position by how far the prediction sits from
-        today. So profit comes from being on the right side of the *big* days, and a
-        confident wrong call on a 6% day costs far more than a hesitant right one on a
-        0.2% day — a distinction RMSE cannot express.
-
-        This is Mean Absolute Directional Loss written as money: take a position
-        tanh(r_hat / temp) — a smooth stand-in for the sign, so gradients exist — and
-        collect that fraction of the realised move. The result is USD of profit per
-        unit of capital, which puts it in the same units as the RMSE term it is
-        blended with, so the weight does not need rescaling by hand.
-
-        Returned positive-is-good; callers negate it to make a loss.
+        Takes the position tanh(r_hat / temp), a smooth stand-in for the sign, and collects that fraction of the realised move.
+        The result is USD of profit per unit of capital, the same units as the RMSE term it is blended with.
+        Positive is good; callers negate it to make a loss.
         """
         realised = (y - y_old) / y_old.clamp(min=1e-8)
         predicted = (y_hat - y_old) / y_old.clamp(min=1e-8)
         position = torch.tanh(predicted / self.madl_temp)
         return (y_old * realised * position).mean()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     def forward(self, x, y_old=None):
@@ -156,9 +130,7 @@ class BaseModule(pl.LightningModule):
         self.log("val/mape", mape.detach(), batch_size=self.batch_size, sync_dist=True, prog_bar=True)
         self.log("val/mae", l1.detach(), batch_size=self.batch_size, sync_dist=True, prog_bar=False)
 
-        # Logged for every point run, not just profit-trained ones, so a run can be
-        # selected on the objective that actually decides the trading test. Negated
-        # because checkpointing and early stopping both minimise.
+        # Logged for every run so checkpoints can be selected on it; negated because checkpointing and early stopping minimise.
         y_old_denorm, _ = self.denormalize(y_old, y_old)
         pnl = self.trade_pnl(y, y_hat, y_old_denorm)
         self.log("val/neg_pnl", (-pnl).detach(), batch_size=self.batch_size,

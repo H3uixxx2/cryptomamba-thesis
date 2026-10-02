@@ -47,52 +47,34 @@ loads a frozen one:
 
 Model classes are reached by string import: a training config names an architecture,
 `configs/models/archs.yaml` maps it to a model YAML, and `utils/io_tools.py` imports the class in
-that YAML's `target:` field. A static import graph will therefore show `pl_modules/cmamba_module.py`
-and `cmamba_t_module.py` as unreferenced; they are not.
+that YAML's `target:` field. `pl_modules/cmamba_module.py` and `cmamba_t_module.py` therefore look
+unreferenced in a static import graph.
 
 ## console backend layers
 
 | Layer | Responsibility | Modules |
 |---|---|---|
-| `routers/` | HTTP only: parse, call one service, translate domain errors. No pandas, no plotly. | `data`, `reproduce`, `predict`, `trading`, `architecture`, `_http` |
-| `services/` | Business logic, one module per screen. Never imports FastAPI; raises `core.errors.ConsoleError`. | `data_service`, `reproduce_service`, `predict_service`, `trading_service`, `architecture_service` |
+| `routers/` | HTTP only: parse, call one service, translate domain errors. No pandas, no plotly. | `data`, `reproduce`, `predict`, `trading`, `runs`, `config`, `_http` |
+| `services/` | Business logic, one module per screen. Never imports FastAPI; raises `core.errors.ConsoleError`. | `data_service`, `reproduce_service`, `predict_service`, `trading_service`, `runs_service`, `config_service` |
 | `loaders/` | Data access: verify and read the evidence bundle, read frozen artifacts, drive the checkpoint worker. | `final_evidence`, `reproduction_evidence`, `forecast_robustness`, `checkpoint_inference` |
-| `schemas/` | Pydantic request models. | `data`, `predict`, `trading` |
+| `schemas/` | Pydantic request models. | `data`, `predict` |
 | `core/` | Path resolution, settings, domain error types. | `config`, `errors` |
-| `vendor/cryptomamba_ui/` | Verbatim copy of the data/chart/trading/artifact modules. | 7 modules |
+| `vendor/cryptomamba_ui/` | Data, chart, trading-signal and API-client helpers vendored from `Crypto-Mamba-FE`. | 5 modules |
 
 `routers/_http.py` maps `ConsoleError` subclasses to status codes — 400 invalid input, 413 upload
-too large, 502 upstream failure, 503 evidence unavailable. Anything else propagates, so an
-unexpected defect appears as a 500 instead of being reported as the caller's fault.
+too large, 502 upstream failure, 503 evidence unavailable. Any other exception is a 500.
 
 ## Evidence integrity
 
 `loaders/final_evidence.py` reads `evidence/SHA256SUMS` once, hashes every listed file, and
 thereafter serves only manifest-covered paths. A missing manifest, a hash mismatch, an unlisted
-extra file, or a symlink makes the dependent screen report `NOT_READY` with the reason. There is no
-unverified fallback.
+extra file, or a symlink makes the dependent screen report `NOT_READY` with the reason.
 
-`model/checkpoint_provenance.json` inside that bundle pins both checkpoints by path, byte count and
-SHA-256, so the artifacts and the weights that produced them are covered by the same manifest.
+`model/checkpoint_provenance.json` pins both checkpoints by path, byte count and SHA-256.
 
 ## Environment split
 
-The console backend carries no PyTorch. Predict-screen inference runs as a bounded subprocess in
-`model-backend/.venv`, with a timeout and capped stdout/stderr, and the console validates the
-worker's JSON response before serving it — a malformed or incomplete response is an error, never a
-partially rendered prediction.
-
-CPU is sufficient for that worker: `models/cmamba.py` falls back to a pure-PyTorch
-`selective_scan_ref` when the CUDA kernels are absent. Without the `model-backend` venv at all, the
-Predict screen reports the worker's failure and the other four screens are unaffected.
-
-## Provenance
-
-Where each part came from before the monorepo:
-
-| Path | Source |
-|---|---|
-| `apps/model-backend` | `Crypto-Mamba-BE` @ `thesis/pre-monorepo-snapshot` |
-| `apps/console` | `Crypto-Mamba-Console` @ `thesis/final-console-snapshot` |
-| `apps/console/backend/src/console_api/vendor/cryptomamba_ui` | `Crypto-Mamba-FE` — 7 modules, verbatim copy, only intra-package imports rewritten |
-| `evidence/` | the `final/` bundle of `cryptomamba-thesis-evidence`, flattened in |
+The console backend carries no PyTorch. Predict inference runs as a bounded subprocess in the
+model-backend interpreter (timeout, capped stdout/stderr), and the worker's JSON response is validated
+before it is served. CPU is sufficient: `models/cmamba.py` falls back to a pure-PyTorch
+`selective_scan_ref` when the CUDA kernels are absent. A missing interpreter fails only the Predict screen.

@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PlotlyFigure } from "@/lib/api";
 import { fmt, pct, prettyModel, signedPct, usd } from "@/lib/format";
 import { useConsole } from "@/store";
+import { PaperReplayBySeedPanel, SeedTradingPanel } from "@/screens/RunsPanels";
 
 const MODEL_ORDER: Record<string, number> = { cmamba_v_reproduced: 0, s5_full: 1, naive_persistence: 2 };
 const STRATEGY_ORDER: Record<string, number> = { vanilla: 0, smart: 1, smart_w_short: 2 };
@@ -160,6 +161,7 @@ function FinalEvidence() {
         <TabsList className="bg-[var(--bg-subtle)]">
           <TabsTrigger value="corrected">Corrected self-financing</TabsTrigger>
           <TabsTrigger value="paper">Paper replay</TabsTrigger>
+          <TabsTrigger value="seeds">By seed</TabsTrigger>
         </TabsList>
         <TabsContent value="corrected" className="mt-4">
           <div className="flex flex-col gap-4">
@@ -252,6 +254,10 @@ function FinalEvidence() {
               </table>
             </div>
           </Panel>
+          <div className="mt-4"><PaperReplayBySeedPanel /></div>
+        </TabsContent>
+        <TabsContent value="seeds" className="mt-4">
+          <SeedTradingPanel />
         </TabsContent>
       </Tabs>
 

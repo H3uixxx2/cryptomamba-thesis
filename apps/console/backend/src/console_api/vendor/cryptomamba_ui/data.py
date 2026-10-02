@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -17,11 +16,9 @@ PAPER_SPLITS: dict[str, tuple[str, str]] = {
 SPLIT_ORDER = ["train", "validation", "test", "out_of_scope"]
 MODEL_FEATURE_ORDER = ["Timestamp", "Open", "High", "Low", "Close", "Volume"]
 MODEL_WINDOW_SIZE = 14
-# Last paper-split date the model was trained/evaluated on. Input windows ending on
-# or after this are extrapolation: the checkpoint never saw this price/timestamp
-# regime (normalize=False, raw price + raw Timestamp features), so predictions there
-# are a qualitative demo, not validated research evidence.
-MODEL_TRAIN_HORIZON = PAPER_SPLITS["test"][1]  # "2024-09-17"
+# Last paper-split date. Windows ending on or after it are extrapolation: the checkpoint never saw this regime
+# (raw prices and raw Timestamp features, no normalisation), so such predictions are demos, not evidence.
+MODEL_TRAIN_HORIZON = PAPER_SPLITS["test"][1]
 
 _COLUMN_ALIASES = {
     "date": "date",
@@ -71,12 +68,7 @@ class CandleDataError(ValueError):
 
 
 def normalize_candles(df: pd.DataFrame) -> pd.DataFrame:
-    """Normalize uploaded OHLCV rows into sorted daily-compatible candle rows.
-
-    This function intentionally fails fast on malformed uploaded data instead of
-    silently dropping bad rows. A thesis/demo user should know why input data is
-    rejected before the app builds a model payload from it.
-    """
+    """Normalize uploaded OHLCV rows into sorted daily-compatible candle rows; fails fast on malformed rows instead of dropping them."""
     if df.empty:
         raise CandleDataError("CSV is empty")
 
@@ -270,10 +262,8 @@ def split_summary(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_predict_payload(df: pd.DataFrame, prediction_date: str | None, risk: float) -> dict[str, Any]:
-    # The payload window MUST be the candles the chart shows for this date: for a past
-    # prediction_date use the window ending strictly before it (same as select_window),
-    # otherwise the model would be fed the latest 14 candles while the UI charts a
-    # historical window. For the default next-day case, use the last 14 candles.
+    # The payload window must be the candles charted for this date: a past prediction_date uses the window ending strictly before it
+    # (as select_window); the default next-day case uses the last 14 candles.
     if prediction_date:
         normalized = select_window(df, prediction_date)
     else:
@@ -313,11 +303,7 @@ def prediction_date_bounds(df: pd.DataFrame) -> tuple[date, date]:
 
 
 def select_window(df: pd.DataFrame, prediction_date: str) -> pd.DataFrame:
-    """Return the MODEL_WINDOW_SIZE candles ending strictly before prediction_date.
-
-    This slides the fixed-size input window so the UI can predict any date the
-    dataset actually supports, instead of always using the last 14 candles.
-    """
+    """Return the MODEL_WINDOW_SIZE candles ending strictly before prediction_date."""
     normalized = normalize_candles(df)
     cutoff = pd.to_datetime(prediction_date)
     window = normalized[pd.to_datetime(normalized["date"]) < cutoff].tail(MODEL_WINDOW_SIZE)
@@ -330,32 +316,15 @@ def select_window(df: pd.DataFrame, prediction_date: str) -> pd.DataFrame:
 
 
 def is_out_of_distribution(window: pd.DataFrame) -> bool:
-    """True when the input window ends on/after the model's training/eval horizon.
-
-    Predictions on such windows are extrapolation beyond the validated paper split
-    and must be presented as a qualitative demo, never as validated evidence.
-    """
+    """True when the input window ends on or after the model's evaluation horizon; such predictions are extrapolation, not validated evidence."""
     if window is None or window.empty or "date" not in window.columns:
         return False
     last_date = pd.to_datetime(window["date"].iloc[-1])
     return last_date >= pd.to_datetime(MODEL_TRAIN_HORIZON)
 
 
-def window_from_candles(candles: list[dict[str, Any]]) -> pd.DataFrame:
-    """Rebuild the normalized input-window DataFrame from artifact payload candles.
-
-    Lets the offline view chart the frozen prediction against ITS OWN window, not
-    the current UI dataset (which need not match the frozen fixture).
-    """
-    return normalize_candles(pd.DataFrame(candles))
-
-
 def model_tensor_preview(source_df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Build a UI preview of the real cmamba_v feature tensor contract.
-
-    Repo reference: DataTransform uses feature-major shape [features, seq_len], then
-    inference calls model(x[None, ...]), so batch shape is [1, 6, 14].
-    """
+    """Preview of the cmamba_v feature tensor: DataTransform emits [features, seq_len] and inference calls model(x[None, ...]), so the batch shape is [1, 6, 14]."""
     normalized = normalize_candles(source_df)
     if len(normalized) < MODEL_WINDOW_SIZE:
         raise CandleDataError(f"Need at least {MODEL_WINDOW_SIZE} valid daily candles")

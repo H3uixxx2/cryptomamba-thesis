@@ -1,10 +1,4 @@
-"""Data screen business logic.
-
-No data logic is implemented here either: schema validation, daily aggregation,
-splitting, the 14-day window and the tensor preview all come from the vendored
-``cryptomamba_ui`` package. This module orchestrates those calls and shapes the
-screen contract. It raises :mod:`console_api.core.errors`, never HTTP types.
-"""
+"""Data screen: orchestrates the vendored cryptomamba_ui helpers and shapes the screen payload."""
 from __future__ import annotations
 
 import csv
@@ -109,7 +103,7 @@ def build_dataset_response(bundle: "logic.DatasetBundle") -> dict:
     ]
     split_counts = {s["split"]: s for s in splits}
 
-    # Metric strip: total + each paper/chronological split (data-driven, 4 cards).
+    # Metric cards: total plus each split.
     total_rows = int(processed.shape[0])
     date_from = str(processed["date"].iloc[0])
     date_to = str(processed["date"].iloc[-1])
@@ -140,7 +134,7 @@ def build_dataset_response(bundle: "logic.DatasetBundle") -> dict:
     candles = candle_rows(processed)
     model_contract = model_window_contract(processed, prediction_date=None, risk=2.0)
 
-    # Pipeline stages — reflect the real steps the bundle went through (all PASS).
+    # Stages the dataset went through; a failing stage raises before this point, so each reads PASS.
     pipeline = [
         {
             "stage": "Read and validate OHLCV schema",
