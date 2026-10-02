@@ -1,9 +1,4 @@
-"""Shared transport helper: domain error -> HTTP response.
-
-Only :class:`console_api.core.errors.ConsoleError` is translated. Any other
-exception propagates, so an unexpected defect surfaces as a 500 and is never
-mislabelled as a client error.
-"""
+"""Domain error -> HTTP response translation."""
 from __future__ import annotations
 
 import functools

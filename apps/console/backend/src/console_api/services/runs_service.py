@@ -1,12 +1,6 @@
-"""Training-run evidence: per-seed results, seed-family comparisons and the ablation.
-
-Everything here is read from the checksum-verified ``runs/`` part of the evidence bundle. The
-console recomputes nothing: a missing, tampered or unlisted file yields ``status=NOT_READY`` with
-the reason, never a partial payload and never a substituted number.
-
-Two families of trained runs exist, each with seeds 23, 24 and 25: CryptoMamba-v (``cmamba_v_
-reproduced``) and CryptoMamba-T (internal id ``s5_full``). The ablation adds five intermediate
-models, listed in ``ABLATION_MODELS`` with the names the thesis uses.
+"""Training-run evidence: per-seed results, seed-family comparisons and the ablation, read from the sealed ``runs/`` tables.
+A missing or unlisted file yields status=NOT_READY. Families: CryptoMamba-v (``cmamba_v_reproduced``) and CryptoMamba-T (``s5_full``), seeds 23-25;
+``ABLATION_MODELS`` names the five intermediate models.
 """
 from __future__ import annotations
 
@@ -69,12 +63,9 @@ def _ablation_models(per_run: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _sign_direction(metrics, direction) -> list[dict[str, Any]]:
-    """Directional accuracy by sign agreement on every date, the definition the thesis uses.
-
-    ``controlled_metrics.csv`` leaves out the few dates whose forecast sits within a relative 1e-6
-    of today's close, which moves two validation cells by 0.15-0.17 points. The interval file is
-    computed on every date, so its point estimates replace that column; the family rows are the
-    mean, minimum and maximum of the three runs.
+    """Directional accuracy by sign agreement on every date.
+    ``controlled_metrics.csv`` excludes dates whose forecast is within a relative 1e-6 of today's close (two validation cells move 0.15-0.17 points);
+    the interval file covers every date, so its point estimates replace that column.
     """
     primary = direction[(direction["kind"] == "model") & (direction["block_length"] == 7)]
     by_run = {

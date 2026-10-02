@@ -1,8 +1,5 @@
-"""Trading screen business logic.
-
-:func:`build_backtest` and :func:`build_replay` present the chronological backtest read from
-the CSVs that ``scripts/run_backtest.py`` and the thesis pipeline write. Nothing is recomputed
-and no model runs; a missing artifact yields NOT_READY.
+"""Trading screen: chronological backtest and daily replay, read from the CSVs written by ``scripts/run_backtest.py`` and the thesis pipeline.
+A missing artifact yields NOT_READY.
 """
 from __future__ import annotations
 
@@ -39,10 +36,6 @@ _STRATEGY_COLOR = {
     "smart_w_short": "#a855f7",
 }
 
-
-# --------------------------------------------------------------------------- #
-# Historical chronological backtest (artifact presentation only)
-# --------------------------------------------------------------------------- #
 
 _METRICS_CSV = "trading_metrics.csv"
 _EQUITY_CSV = "trading_equity_curve.csv"
@@ -185,7 +178,7 @@ def build_backtest(
     split: str = "test",
     ref_cost: float = 0.1,
 ) -> dict:
-    """Historical chronological backtest for one scenario, from frozen artifacts."""
+    """Chronological backtest for one scenario."""
     final_fields = _final_trading_fields()
     if final_fields["final_evidence_status"] != "READY":
         return {
@@ -266,11 +259,7 @@ def build_replay(
     strategy: str = "smart",
     ref_cost: float = 0.1,
 ) -> dict:
-    """Return one artifact-backed daily decision timeline for interactive replay.
-
-    This endpoint never runs the model or backtest engine. It only joins the
-    persisted forecast and equity rows for the selected historical scenario.
-    """
+    """Daily decision timeline for one scenario: joins the persisted forecast and equity rows."""
     metrics = _read_csv(_METRICS_CSV)
     equity = _read_csv(_EQUITY_CSV)
     predictions = _read_csv(_PREDICTIONS_CSV)

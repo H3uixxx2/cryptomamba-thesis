@@ -55,7 +55,7 @@ def _worker_error_detail(stderr: str, *, fallback: str) -> str:
 
 
 def run_checkpoint_inference(payload: dict[str, Any]) -> dict[str, Any]:
-    """Execute one trusted worker process; never synthesize a prediction."""
+    """Run the checkpoint worker once and return its prediction."""
     unavailable = [
         str(path)
         for path in (config.CORE_PYTHON, config.CHECKPOINT_WORKER)

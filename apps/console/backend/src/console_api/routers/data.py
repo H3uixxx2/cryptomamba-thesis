@@ -1,9 +1,4 @@
-"""Data screen HTTP endpoints.
-
-Thin transport layer: parse the request, call ``services.data_service``, translate
-domain errors. All data logic lives in the service (which in turn reuses the
-vendored ``cryptomamba_ui`` package).
-"""
+"""Data screen endpoints."""
 from __future__ import annotations
 
 from fastapi import APIRouter, File, Query, UploadFile
@@ -18,7 +13,7 @@ router = APIRouter(prefix="/api/data", tags=["data"])
 @router.get("")
 @handle_domain_errors
 def get_data(mode: str = Query("paper", pattern="^(paper)$")) -> dict:
-    """Load the paper dataset (the demo default). Upload uses POST /api/data/upload."""
+    """Load the paper dataset."""
     return data_service.load_paper_dataset()
 
 

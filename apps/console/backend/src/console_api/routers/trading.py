@@ -1,7 +1,4 @@
-"""Trading screen HTTP endpoints: the backtest and the daily replay, both read from frozen artifacts.
-
-All logic lives in ``services.trading_service``.
-"""
+"""Trading screen endpoints: backtest and daily replay."""
 from __future__ import annotations
 
 from fastapi import APIRouter
@@ -32,7 +29,7 @@ def replay(
     strategy: str = "smart",
     ref_cost: float = 0.1,
 ) -> dict:
-    """One artifact-backed daily decision timeline. Never runs the model."""
+    """Daily decision timeline of one scenario."""
     return trading_service.build_replay(
         result_type=result_type, split=split, strategy=strategy, ref_cost=ref_cost
     )

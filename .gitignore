@@ -16,4 +16,4 @@ apps/model-backend/output/evaluation/trading_backtest_metadata.json
 apps/model-backend/Results/
 apps/model-backend/logs/
 
-# apps/console/web-dist is committed on purpose: the demo runs without pnpm
+# apps/console/web-dist is tracked (prebuilt frontend)

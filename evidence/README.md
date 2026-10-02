@@ -9,8 +9,7 @@ per-seed and ablation tables for all training runs.
 shasum -c SHA256SUMS      # 19 files
 ```
 
-Verify before consuming any value. The console verifies on startup and reports `NOT_READY` on any
-mismatch rather than serving unverified data.
+The console verifies the bundle on startup and reports `NOT_READY` on any mismatch.
 
 ## Contents
 
@@ -33,24 +32,20 @@ mismatch rather than serving unverified data.
 | `provenance/source_artifact_manifest.json` | Source-to-output hashes from the deterministic build |
 | `ARTIFACT_MAP.json` | Which file backs which thesis table and which console screen |
 
-## Boundaries
+## Notes
 
-- The `paper_reported` rows have no per-date series and therefore never enter a paired test. They
-  are a published reference, not a locally reproduced result.
-- The 304-date sets differ from the 350-date reproduction protocol in step 1 of
-  `docs/reproduce.md`. They are not interchangeable and are never pooled.
-- `trading/paper_replay_metrics.csv` and `trading/corrected_trading_*` use different accounting
-  rules — zero-fee published replay versus fee-aware self-financing — so their balances are not
-  directly comparable.
-- Checkpoint binaries are not duplicated here. `model/checkpoint_provenance.json` records their
-  paths, sizes and SHA-256 values under `apps/model-backend/output/seed_runs/`.
+- The `paper_reported` rows have no per-date series and never enter a paired test.
+- The 304-date sets differ from the 350-date reproduction protocol in step 1 of `docs/reproduce.md`
+  and are not pooled with it.
+- `trading/paper_replay_metrics.csv` (zero-fee published replay) and `trading/corrected_trading_*`
+  (fee-aware self-financing) use different accounting; their balances are not comparable.
+- Checkpoint binaries are not stored here; `model/checkpoint_provenance.json` records their paths,
+  sizes and SHA-256 values under `apps/model-backend/output/seed_runs/`.
 - `forecast/`, `trading/` and `model/` are recomputed from `output/seed_runs/` by the two commands
-  below. The `runs/` tables are inputs copied from `thesis_pipeline/data/runs/`: they come from all
-  22 training runs and from the period after 09/2024, whose predictions are not in this repository, so
-  they cannot be recomputed here.
-- The per-day corrected equity series is not sealed here. Nothing reads it, and
-  `python -m thesis_pipeline.backtest` regenerates it on demand; the drawdowns and reconciliation
-  errors computed from it are already columns of `trading/corrected_trading_metrics.csv`.
+  below. The `runs/` tables are inputs copied from `thesis_pipeline/data/runs/`; they derive from all
+  22 training runs and the period after 09/2024, which are not stored here, so they are not recomputed.
+- The per-day corrected equity series is not sealed; its drawdowns and reconciliation errors are
+  columns of `trading/corrected_trading_metrics.csv`.
 
 Regenerate with `scripts/build_thesis_artifacts.py` followed by
 `scripts/package_thesis_evidence.py` from `apps/model-backend/`.

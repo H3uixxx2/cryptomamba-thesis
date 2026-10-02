@@ -1,5 +1,5 @@
 # Runtime set for frozen-checkpoint inference and the thesis pipeline; excludes the training stack.
-# torch is installed separately (see Dockerfile) so that its CPU build can be selected.
+# torch is installed separately (CPU build).
 einops
 numpy
 pandas

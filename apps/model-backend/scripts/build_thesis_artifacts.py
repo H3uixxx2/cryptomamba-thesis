@@ -1,8 +1,4 @@
-"""Build the deterministic final-thesis evaluation artifacts.
-
-This command reads frozen predictions/checkpoints only.  It never trains a
-model and never rewrites the original paper replay.
-"""
+"""Build the final-thesis evaluation artifacts from frozen predictions and checkpoints; trains nothing and leaves the paper replay unchanged."""
 from __future__ import annotations
 
 import argparse

@@ -7,14 +7,13 @@ evaluation/trading pipeline, a four-screen demo console, and the checksum-verifi
 ## Run with Docker
 
 ```bash
-docker compose up --build
+docker compose up --build                  # http://localhost:8600
+HOST_PORT=8620 docker compose up --build   # another host port
 ```
 
-Open <http://localhost:8600>. The image builds the frontend from source, installs CPU PyTorch,
-generates the trading backtest, verifies `evidence/SHA256SUMS` at build and at every start, and runs
-as a non-root user with a read-only filesystem. To publish on another host port:
-`HOST_PORT=8620 docker compose up --build`. Docker is the supported way to run the console; the
-sections below run each part directly.
+The image builds the frontend from source, installs CPU PyTorch, generates the trading backtest,
+verifies `evidence/SHA256SUMS` at build and at every start, and runs as a non-root user with a
+read-only filesystem.
 
 ## Requirements
 
@@ -42,7 +41,7 @@ apps/model-backend/.venv/bin/pip install -e apps/model-backend
 
 ## Usage
 
-Each block is self-contained and starts from the repository root.
+Each block starts from the repository root.
 
 ```bash
 # demo console -> http://127.0.0.1:8600
@@ -72,8 +71,7 @@ cd evidence && shasum -c SHA256SUMS
 | `shasum -c SHA256SUMS` | 19 files, all `OK` |
 | `run_local.sh` | Data · Evaluation · Predict · Trading |
 
-The console's other screens read committed artifacts; Predict runs real inference in the
-model-backend venv.
+Predict runs inference in the model-backend venv; the other screens read the sealed artifacts.
 
 ## Documentation
 
@@ -85,4 +83,3 @@ model-backend venv.
 | [`apps/console/README.md`](apps/console/README.md) | API, screens, wiring |
 | [`evidence/README.md`](evidence/README.md) | what each sealed artifact is |
 
-The thesis document is submitted separately and is not in this repository.

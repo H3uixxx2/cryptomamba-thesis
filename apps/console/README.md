@@ -3,10 +3,9 @@
 Four screens — **Data → Evaluation → Predict → Trading** — served by a React
 frontend over a thin FastAPI backend.
 
-The backend holds no model or data logic. It reads frozen artifacts and the checksum-verified
-evidence bundle, reuses the vendored `cryptomamba_ui` modules for transforms and charts, and
-spawns the `model-backend` venv as a subprocess for real frozen-checkpoint inference. Every value
-on screen traces to a file or to that worker; nothing is estimated or interpolated.
+The backend reads frozen artifacts and the checksum-verified evidence bundle, reuses the vendored
+`cryptomamba_ui` modules for transforms and charts, and runs the `model-backend` interpreter as a
+subprocess for frozen-checkpoint inference.
 
 ## Layout
 
@@ -26,7 +25,7 @@ console/
 │       │   └── checkpoint_inference.py   bounded subprocess adapter -> model-backend worker
 │       ├── schemas/             pydantic request models
 │       ├── logic.py             single import point for the vendored package
-│       └── vendor/cryptomamba_ui/   5 modules copied from Crypto-Mamba-FE
+│       └── vendor/cryptomamba_ui/   5 modules vendored from Crypto-Mamba-FE
 ├── frontend/                    Vite + React 19 + TS + Tailwind + shadcn/ui + Plotly + Lightweight Charts
 │   └── src/{screens,components,lib}/ + store.tsx
 ├── web-dist/                    prebuilt bundle, served at / by FastAPI
@@ -35,8 +34,7 @@ console/
 ```
 
 Layer rule: `routers/` never touch pandas or plotly; `services/` never import FastAPI and raise
-`core.errors.ConsoleError`, which `routers/_http.py` translates to a status code. Any other
-exception propagates as a 500 rather than being mislabelled as a client error.
+`core.errors.ConsoleError`, which `routers/_http.py` maps to a status code; any other exception is a 500.
 
 ## API
 
@@ -46,7 +44,7 @@ exception propagates as a 500 rather than being mislabelled as a client error.
 | `GET /api/reproduce` | 350-day reproduction + 304-date controlled comparison + paired tests |
 | `GET /api/runs` | the three seeds of each model, seed-family comparisons, every ablation run (errors, direction, Pesaran–Timmermann p, trading), the paper's replay per seed, and per-run trading (fees, fills, borrow cost, risk-adjusted measures, the period after 09/2024), read from `evidence/runs/` |
 | `GET /api/config` | the six training, model and data-split YAML files, verbatim (fixed allow-list) |
-| `POST /api/predict/checkpoint` | real inference in the `model-backend` venv |
+| `POST /api/predict/checkpoint` | inference in the `model-backend` interpreter |
 | `POST /api/predict/live` | optional remote model API |
 | `GET /api/predict/offline` | a stored test-split prediction, always labelled `offline` |
 | `GET /api/trading/backtest` · `GET /api/trading/replay` | multi-year chronological backtest, read from CSVs |
@@ -54,7 +52,7 @@ exception propagates as a 500 rather than being mislabelled as a client error.
 
 ## Wiring
 
-All env-overridable; defaults are monorepo-relative, so a plain clone works with no configuration.
+Defaults are monorepo-relative; each variable overrides its default.
 
 | Env var | Default | Used for |
 |---|---|---|
@@ -72,8 +70,7 @@ python3 -m venv backend/.venv
 ./scripts/run_local.sh           # http://127.0.0.1:8600
 ```
 
-`web-dist/` is committed, so no Node toolchain is needed to run the demo. Rebuild it only after
-changing `frontend/src`:
+`web-dist/` is tracked; rebuild it after changing `frontend/src`:
 
 ```bash
 ./scripts/build_ui.sh            # needs pnpm
@@ -85,9 +82,9 @@ cd frontend && pnpm install && pnpm dev    # hot reload on :5273, proxies /api -
 Three paths, and `inference_type` is set by the path rather than by the caller:
 
 - **Checkpoint** (default) — spawns `model-backend/.venv` to run `scripts/checkpoint_inference.py`
-  against a frozen checkpoint. CPU is enough; no GPU and no network. If that venv is missing or
-  broken the screen surfaces the worker's error, it does not fall back to another number.
+  against a frozen checkpoint. CPU is enough. A missing or broken interpreter surfaces the worker's
+  error; there is no fallback.
 - **Historical Replay** — reads the frozen per-date predictions.
-- **Live HTTP** — optional; the only code path in the console that makes an outbound request.
+- **Live HTTP** — optional; makes an outbound request.
 
 Windows ending after the last trained date are flagged out-of-distribution.

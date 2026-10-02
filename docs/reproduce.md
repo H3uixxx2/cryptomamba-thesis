@@ -11,15 +11,12 @@ python3 -m venv .venv
 ./.venv/bin/pip install -e ".[gpu]"   # + mamba-ssm / causal-conv1d — Linux + CUDA, needed to TRAIN
 ```
 
-The `pip` upgrade is not optional on a fresh venv. This project has a `pyproject.toml` and no
-`setup.py`, so an editable install goes through PEP 660, which pip only supports from 21.3.
-A stock macOS `python3` (3.9) seeds venvs with pip 21.2.4 and fails with
-`Directory cannot be installed in editable mode`. Upgrading pip inside the venv resolves it;
-nothing about the package changes.
+The `pip` upgrade is required: the project has a `pyproject.toml` and no `setup.py`, so the editable
+install needs PEP 660 (pip >= 21.3); a stock macOS `python3` (3.9) seeds pip 21.2.4 and fails with
+`Directory cannot be installed in editable mode`.
 
-`mamba_ssm` and `causal_conv1d` require nvcc, which is why they are an extra rather than a base
-dependency. Without them the model still runs: `models/cmamba.py` imports the kernels inside
-`try/except` and routes on `tensor.is_cuda`, so a CPU tensor takes the pure-PyTorch
+`mamba_ssm` and `causal_conv1d` need nvcc and are the optional `gpu` extra. `models/cmamba.py` imports
+them inside `try/except` and routes on `tensor.is_cuda`, so a CPU tensor takes the pure-PyTorch
 `selective_scan_ref` path.
 
 | Step below | Environment |
@@ -39,8 +36,7 @@ for the official checkpoint (`--config` defaults to `cmamba_v`). The second repl
 `retrained_checkpoint` rows from the seed-23 training run stored in
 `output/seed_runs/cmamba_v__seed23/`: it reads that run's stored predictions, checks that their
 price columns equal the frozen price base date by date, and recomputes the 350-date test metrics and
-the paper's strategy replay. No model is loaded and nothing is estimated. Pass `--run` to assemble
-another run.
+the paper's strategy replay. Pass `--run` to assemble another run.
 
 Test split, 350 dates (2023-10-01 … 2024-09-14):
 
@@ -51,8 +47,7 @@ Test split, 350 dates (2023-10-01 … 2024-09-14):
 | MAPE | 2.034 % | 2.049 % | 2.034 % | 0.72 % |
 | directional accuracy (sign agreement) | 55.43 % | 54.86 % | — | — |
 
-The official checkpoint reproduces the published figures to the third decimal on CPU. The
-reproduced checkpoint is a separate training run of the fork code on a Tesla T4. Seeds 24 and 25 of
+The reproduced checkpoint is a separate seed-23 training run (fork code, Tesla T4). Seeds 24 and 25 of
 the same recipe give test RMSE 1613.15 and 1611.40, computed from
 `output/seed_runs/cmamba_v__seed{24,25}/test_preds.csv` with the same formulas.
 
@@ -62,27 +57,19 @@ The comparison is computed by `thesis_pipeline.evaluation`, which `scripts/build
 calls in step 4.
 
 It uses the **304 dates the three models have in common** — CryptoMamba-T's 60-day window consumes
-more history than CM-v's 14-day window, so their date sets differ, and pooling them would compare
-different periods. No interpolation and no cross-date metric combination.
+more history than CM-v's 14-day window, so their date sets differ.
 
 Tests applied: Diebold–Mariano on squared error with HAC lag 1, Wilcoxon signed-rank on absolute
 error, a moving-block bootstrap at block lengths L = 5, 7 and 14, and an exact McNemar test on
 direction.
 
-Result for the seed-23 checkpoints: on those 304 dates no paired test establishes an RMSE advantage
-for CryptoMamba-T over CM-v (Diebold–Mariano p = 0.094 on validation, 0.638 on test); naive
-persistence has the lowest RMSE on both splits (554.94 and 1657.55); CM-v has the highest test
-directional accuracy (56.58 % against 49.01 % for CryptoMamba-T).
+`evidence/runs/` holds the three seeds of each model, the seed-averaged comparisons with block-bootstrap
+intervals, the ablation models, and trading with next-open fills, borrow cost and the period after
+09/2024. These tables derive from all 22 training runs, of which six are stored here, so they are copied
+inputs and are not recomputed (see `evidence/README.md`).
 
-`evidence/runs/` adds what one checkpoint per model cannot show: the three seeds of each model, the
-seed-averaged comparisons with their block-bootstrap intervals, the ablation models, and trading with
-next-open fills, borrow cost and the period after 09/2024. Those tables come from all 22 training
-runs; only the six seed runs above are stored in this repository, so `runs/` is a copied input and is
-not recomputed here (see `evidence/README.md`).
-
-The paper's LSTM / GRU / iTransformer / S-Mamba rows are aggregates transcribed from the published
-paper. They carry no per-date series, so they are served as `paper_reported` and cannot enter any
-paired test.
+The paper's LSTM / GRU / iTransformer / S-Mamba rows are transcribed aggregates with no per-date series;
+they are served as `paper_reported` and do not enter paired tests.
 
 ## 3. Chronological trading backtest
 
@@ -109,8 +96,7 @@ python scripts/build_thesis_artifacts.py   # -> output/thesis_final/   (gitignor
 python scripts/package_thesis_evidence.py  # -> ../../evidence/ + SHA256SUMS
 ```
 
-`output/thesis_final/` is intentionally not committed: every file in it is byte-identical to its
-counterpart in `evidence/`, and the sealed copy is the one the thesis and the console cite.
+`output/thesis_final/` is untracked; each file in it is byte-identical to its counterpart in `evidence/`.
 `build_thesis_artifacts.py` reads the seed-23 runs in `output/seed_runs/`, runs the date-aligned
 evaluation and the corrected self-financing backtest, and copies the `runs/` inputs from
 `thesis_pipeline/data/runs/`.
@@ -136,13 +122,11 @@ internal name of CryptoMamba-T.
 
 `configs/models/CryptoMamba/t2.yaml` builds the released CryptoMamba-T graph exactly: 57,249
 parameters with tensor names and shapes identical to the seed-23 checkpoint, which loads into it with
-`load_state_dict`. Reproducing the *weights* additionally needs the original CUDA runtime; the
-checkpoints ship so that steps 1 – 4 can be recomputed without training at all.
+`load_state_dict`. Reproducing the *weights* needs the original CUDA runtime.
 
 ## Where each number lives
 
-Each number in the thesis traces to a file here. `evidence/runs/` holds copied inputs rather than
-recomputed values, as step 2 explains.
+Thesis numbers and the files behind them; `evidence/runs/` holds copied inputs.
 
 | Thesis | Produced by | Read from |
 |---|---|---|

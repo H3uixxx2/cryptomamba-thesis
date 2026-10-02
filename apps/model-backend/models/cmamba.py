@@ -22,7 +22,7 @@ def selective_scan_ref(u, delta, A, B, C, D=None, z=None, delta_bias=None,
                        delta_softplus=False, return_last_state=False):
     """Pure-PyTorch reference of mamba_ssm's selective_scan (same math, differentiable).
 
-    Used only when the CUDA kernels are unavailable; the fused-kernel path is untouched.
+    Used only when the CUDA kernels are unavailable.
     u: (b, d, l); delta: (b, d, l); A: (d, n); B, C: (b, n, l); D: (d,); z: (b, d, l)
     """
     dtype_in = u.dtype

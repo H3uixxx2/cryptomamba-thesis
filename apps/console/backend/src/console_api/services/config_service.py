@@ -1,8 +1,5 @@
-"""Configuration files behind the two trained models, served verbatim.
-
-The files are read from the model backend's ``configs/`` tree through an allow-list: only the
-paths below can be requested, and a file that is missing, oversized or not UTF-8 makes the whole
-payload ``NOT_READY``.
+"""Training, model and data-split configuration files, served verbatim through an allow-list.
+A missing, oversized or non-UTF-8 file makes the payload NOT_READY.
 """
 from __future__ import annotations
 
@@ -26,7 +23,7 @@ CONFIG_FILES: tuple[tuple[str, str, str, str, str], ...] = (
      "Maps the model name a training file uses to the model file that builds it."),
 )
 
-# Internal names appear inside the files and in the evidence; the console and the thesis use these.
+# Display names for internal run ids.
 LABELS: tuple[tuple[str, str], ...] = (
     ("CMamba_v2", "CryptoMamba-v (model configuration)"),
     ("cmamba_v", "CryptoMamba-v (training configuration)"),

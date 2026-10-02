@@ -1,8 +1,4 @@
-"""FastAPI application entry point.
-
-Serves the built frontend under ``/`` and the JSON API under ``/api``. Endpoints hold no
-business logic; each delegates to a module in ``services``.
-"""
+"""FastAPI app: serves the built frontend at ``/`` and the JSON API under ``/api``."""
 from __future__ import annotations
 
 from fastapi import FastAPI, Request

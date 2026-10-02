@@ -1,8 +1,5 @@
-"""Date-aligned forecast evaluation over the common target dates.
-
-Only models with per-date local predictions enter this module. Aggregate numbers
-transcribed from the paper have no per-date series, so they are handled by the
-artifact builder and can never reach a paired test.
+"""Date-aligned forecast evaluation over the common target dates; only models with per-date predictions enter.
+Aggregate numbers transcribed from the paper have no per-date series and are handled by the artifact builder.
 """
 from __future__ import annotations
 

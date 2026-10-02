@@ -3,9 +3,7 @@ import Plotly from "plotly.js-dist-min";
 
 import type { PlotlyFigure } from "@/lib/api";
 
-/* The server ships complete Plotly figure JSON from charts.py. Traces are left
- * untouched — model and strategy colours are assigned server-side — and only the
- * surface, axes and hover styling are overridden for the dark theme. */
+/* Renders server-built Plotly figures; traces are untouched, only surface, axes and hover styling are themed. */
 
 const CONFIG = {
   displayModeBar: false,

@@ -1,10 +1,4 @@
-"""Single import point for the vendored ``cryptomamba_ui`` modules.
-
-Services import from here rather than from ``.vendor.cryptomamba_ui`` directly, so
-the vendored package can be re-synced or replaced by touching one file. A broken
-vendor tree raises here at import time with a readable message instead of as an
-ImportError deep inside a request handler.
-"""
+"""Single import point for the vendored ``cryptomamba_ui`` modules; a broken vendor tree fails here at import."""
 from __future__ import annotations
 
 from .core import config

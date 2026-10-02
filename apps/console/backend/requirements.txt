@@ -1,6 +1,5 @@
-# CryptoMamba Console — backend deps.
-# The frontend is a prebuilt React/Vite bundle in ../web-dist, so nothing here for it.
-# pandas/plotly/numpy are needed by the vendored cryptomamba_ui logic and the services.
+# CryptoMamba Console backend dependencies.
+# The frontend is the prebuilt bundle in ../web-dist; pandas/plotly/numpy serve the vendored cryptomamba_ui logic and the services.
 fastapi>=0.110
 uvicorn[standard]>=0.27
 python-multipart>=0.0.9

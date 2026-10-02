@@ -1,16 +1,6 @@
-/* ============================================================
-   CryptoMamba Console — design tokens (dark "analyst terminal")
-   High-density, low-chroma surface language: layered navy-black
-   surfaces, quiet borders, one institutional blue accent, and status
-   colours tuned for contrast on dark cards.
-   Fonts are self-hosted, so the app loads without a network.
-
-   Two token families live here and must not be merged:
-     * hex tokens (--bg-*, --line*, --text-*, --signal-*) are used directly
-       in class names like bg-[var(--bg-card)] and returned by the API;
-     * HSL triplets (--background, --border, --accent, …) are consumed by
-       shadcn/ui through hsl(var(--…)) and must stay HSL.
-   ============================================================ */
+/* CryptoMamba Console design tokens (dark theme). Two token families must not be merged:
+     * hex tokens (--bg-*, --line*, --text-*, --signal-*) are used in class names like bg-[var(--bg-card)] and returned by the API;
+     * HSL triplets (--background, --border, --accent, ...) are consumed by shadcn/ui through hsl(var(--...)) and must stay HSL. */
 @import "@fontsource/ibm-plex-sans/400.css";
 @import "@fontsource/ibm-plex-sans/500.css";
 @import "@fontsource/ibm-plex-sans/600.css";
@@ -43,7 +33,7 @@
     --text-secondary: #aeb9c7;
     --text-muted: #78879a;
 
-    /* ---- accent: institutional blue, not brand orange ---- */
+    /* ---- accent ---- */
     --brand-accent: #4d8dff;
     --brand-accent-soft: #162b4d;
 

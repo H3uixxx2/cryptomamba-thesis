@@ -8,8 +8,7 @@ import { fetchRuns, type AblationComparison, type AblationModel, type AblationPt
 import { fmt, pct, prettyModel } from "@/lib/format";
 import { useApiOnce } from "@/lib/useApiOnce";
 
-/* Per-seed and ablation evidence. Everything shown is read from the checksum-verified `runs/`
- * part of the evidence bundle by GET /api/runs; nothing is computed here except display layout. */
+/* Per-seed and ablation evidence read from the sealed `runs/` tables by GET /api/runs. */
 
 const HEAD = "eyebrow px-3 py-2 font-normal";
 const HEAD_R = `${HEAD} text-right`;

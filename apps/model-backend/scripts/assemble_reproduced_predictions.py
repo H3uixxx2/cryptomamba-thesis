@@ -1,15 +1,13 @@
-"""Assemble the reproduced-CM-v rows of the frozen evaluation artifacts from a seed run.
+"""Rebuild the reproduced-CM-v rows of the frozen evaluation artifacts from a seed run.
 
-The official checkpoint's rows in ``output/evaluation`` are never touched. The
-``retrained_checkpoint`` rows are rebuilt from the per-date predictions stored with the run
-(``output/seed_runs/<run>/{val,test}_preds.csv``):
+The official checkpoint's rows in ``output/evaluation`` stay unchanged. The ``retrained_checkpoint`` rows come from the per-date
+predictions stored with the run (``output/seed_runs/<run>/{val,test}_preds.csv``):
 
   forecast_predictions.csv     val + test rows (350 dates each); no train rows exist for the run
   forecast_metrics.csv         350-date test metrics and gaps to the paper
   trading_replay_metrics.csv   the paper's released strategies, zero fee, on those predictions
 
-Nothing is estimated and no model is loaded. Each run's prediction file carries its own price
-columns, so the script also checks that they equal the frozen price base date by date.
+Each run's prediction file carries its own price columns; the script checks that they equal the frozen price base date by date.
 
 Usage (from apps/model-backend):
     python scripts/assemble_reproduced_predictions.py

@@ -1,10 +1,5 @@
-"""Predict screen business logic.
-
-``inference_type`` is set by the code path, never by the caller: the remote path
-reports ``live``, the frozen artifact is forced to ``offline``. Windows ending
-after the last trained date are flagged out-of-distribution. No inference runs in
-this module — the checkpoint path shells out to the model-backend worker, the live
-path calls the remote API, the offline path reads the frozen artifact.
+"""Predict screen: checkpoint, live and offline paths.
+``inference_type`` is set by the code path, never by the caller; windows after the last trained date are flagged out-of-distribution.
 """
 from __future__ import annotations
 
@@ -83,15 +78,6 @@ def _offline_variants(raw_row) -> list[dict]:
             row=raw_row,
         )
     ]
-
-
-
-
-
-
-
-
-
 
 
 def _checkpoint_models_from_evidence() -> dict:
@@ -229,8 +215,7 @@ def _offline_by_date(date_str: str) -> dict | None:
         return None
     dates = ft["prediction_date"].tolist()
     if date_str not in dates:
-        # Snap any out-of-range / malformed input to the nearest real test date
-        # rather than silently serving an unrelated fixture.
+        # Snap out-of-range or malformed dates to the nearest test date.
         target = pd.to_datetime(date_str, errors="coerce")
         if pd.isna(target):
             date_str = dates[0]
@@ -264,7 +249,7 @@ def _offline_by_date(date_str: str) -> dict | None:
     ood = bool(logic.data.is_out_of_distribution(window))
     result = _result_from_prediction(prediction, window, ood=ood)
     result["available"] = True
-    # Historical date → actual is known; expose the predicted-vs-actual comparison.
+    # Past date: the actual close is known.
     result["actual_close"] = actual
     result["error_pct"] = (abs(predicted - actual) / actual * 100.0) if actual else None
     result["actual_return_pct"] = ((actual - current) / current * 100.0) if current else None

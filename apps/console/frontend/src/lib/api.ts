@@ -1,9 +1,4 @@
-/* Typed client for the console API.
- *
- * Every number rendered by this app comes from these endpoints; the backend
- * reuses the validated cryptomamba_ui logic. Nothing here computes model or
- * data results — the frontend is presentation only.
- */
+/* Typed client for the console API. The frontend is presentation only; every value comes from these endpoints. */
 
 export type PlotlyFigure = { data: unknown[]; layout?: Record<string, unknown> };
 

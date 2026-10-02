@@ -2,8 +2,7 @@ import { Callout, Panel, Pill } from "@/components/primitives";
 import { fetchConfig, type ConfigResponse } from "@/lib/api";
 import { useApiOnce } from "@/lib/useApiOnce";
 
-/* The configuration files behind the two trained models, read verbatim from the model backend
- * by GET /api/config (allow-listed paths). Nothing is edited or summarised here. */
+/* Configuration files behind the two trained models, read verbatim from GET /api/config (allow-listed paths). */
 
 const GROUP_ORDER = ["Data", "CryptoMamba-v", "CryptoMamba-T", "Registry"];
 
